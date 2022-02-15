@@ -1,0 +1,10 @@
+{
+  "name": "com.legion.dexplorer",
+  "version": "0.1.0",
+  "displayName": "dExplorer",
+  "description": "Differential equation analysis tool",
+  "unity": "2020.3",
+  "dependencies": {
+    "com.unity.mathematics": "1.2.5"
+  }
+}

@@ -1,0 +1,19 @@
+{
+    "name": "dExplorer.Editor.Mathematics",
+    "rootNamespace": "",
+    "references": [
+        "GUID:329e890436f0f644dbc3e5d9f7acaa00",
+        "GUID:4d7ed00f0956cbd4ea0fa1b710d3949d",
+        "GUID:2665a8d13d1b3f18800f46e256720795",
+        "GUID:d8b63aba1907145bea998dd612889d6b"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
