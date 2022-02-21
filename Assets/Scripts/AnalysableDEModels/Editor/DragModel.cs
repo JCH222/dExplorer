@@ -85,6 +85,14 @@ public unsafe class DragModel : AnalysableDEModel
 	{
 		ActivateFloat1Dimension(GetInitialVariable, ComputeDerivative, ComputeAnalyticalSolution);
 	}
+
+	protected override void GenerateDefaultDescriptions(out string shortDescription, out string longDescription)
+	{
+		shortDescription = "Classic drag model";
+		longDescription =
+			"Mean Absolute Errors :\n" +
+			"-> Object speed [m/s]";
+	}
 	#endregion Methods
 
 	#region Static Methods

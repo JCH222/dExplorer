@@ -95,8 +95,16 @@ public unsafe class SpringModel : AnalysableDEModel
 
 		ActivateFloat2Dimension(GetInitialVariable, ComputeDerivative, ComputeAnalyticalSolution);
 	}
-	#endregion Methods
 
+	protected override void GenerateDefaultDescriptions(out string shortDescription, out string longDescription)
+	{
+		shortDescription = "Classic spring model";
+		longDescription = 
+			"Mean Absolute Errors :\n" +
+			"-> Spring length [m]\n" +
+			"-> Spring speed [m/s]";
+	}
+	#endregion Methods
 
 	#region Static Methods
 	[BurstCompile]

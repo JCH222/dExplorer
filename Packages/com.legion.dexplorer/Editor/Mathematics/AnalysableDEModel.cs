@@ -180,6 +180,9 @@ namespace dExplorer.Editor.Mathematics
 
 				FloatDEAnalysisReport report = analyser.Analyse();
 				report.Name = reportName;
+				GenerateDefaultDescriptions(out string shortDescription, out string longDescription);
+				report.ShortDescription = shortDescription;
+				report.LongDescription = longDescription;
 				AssetDatabase.CreateAsset(report, reportPath + "/" + reportName + ".asset");
 				AssetDatabase.SaveAssets();
 			}
@@ -200,6 +203,9 @@ namespace dExplorer.Editor.Mathematics
 
 				Float2DEAnalysisReport report = analyser.Analyse();
 				report.Name = reportName;
+				GenerateDefaultDescriptions(out string shortDescription, out string longDescription);
+				report.ShortDescription = shortDescription;
+				report.LongDescription = longDescription;
 				AssetDatabase.CreateAsset(report, reportPath + "/" + reportName + ".asset");
 				AssetDatabase.SaveAssets();
 			}
@@ -223,6 +229,11 @@ namespace dExplorer.Editor.Mathematics
 		/// Initialize.
 		/// </summary>
 		protected abstract void Init();
+
+		/// <summary>
+		/// Generate the default report short and long descriptions.
+		/// </summary>
+		protected abstract void GenerateDefaultDescriptions(out string shortDescription, out string longDescription);
 		#endregion Abstract Methods
 	}
 }
