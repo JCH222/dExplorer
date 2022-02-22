@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55d6ff00e2dae3240bb47a95078b66ef, type: 3}
   m_Name: Example_1D
   m_EditorClassIdentifier: 
-  Name: TEST
+  Name: Example_1D
   ShortDescription: Classic drag model
   LongDescription: 'Mean Absolute Errors :
 
