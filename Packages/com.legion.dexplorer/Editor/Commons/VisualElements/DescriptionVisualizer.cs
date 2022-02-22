@@ -6,8 +6,14 @@ namespace dExplorer.Editor.Commons
 	using UnityEditor.UIElements;
 	using UnityEngine.UIElements;
 
+    /// <summary>
+    /// Object description Visual Element.
+    /// </summary>
 	public class DescriptionVisualizer : VisualElement
     {
+        /// <summary>
+        /// Object description display format.
+        /// </summary>
         #region Enums
         [Flags]
         public enum DescriptionItem

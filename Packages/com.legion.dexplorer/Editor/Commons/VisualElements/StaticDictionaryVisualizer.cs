@@ -5,6 +5,12 @@ namespace dExplorer.Editor.Commons
 	using System.Runtime.CompilerServices;
 	using UnityEngine.UIElements;
 
+    /// <summary>
+    /// Predefined dictionary Visual Element.
+    /// </summary>
+    /// <typeparam name="T_KEY">Dictionary key type</typeparam>
+    /// <typeparam name="T_VALUE">Dictionary value type</typeparam>
+    /// <typeparam name="T_VALUE_FIELD">Type of the Visual Element related to the Dictionary value</typeparam>
     public abstract class StaticDictionaryVisualizer<T_KEY, T_VALUE, T_VALUE_FIELD> : VisualElement 
         where T_KEY : IFormattable 
         where T_VALUE_FIELD : VisualElement

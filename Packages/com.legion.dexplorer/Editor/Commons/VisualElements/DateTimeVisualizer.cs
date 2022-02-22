@@ -5,9 +5,15 @@ namespace dExplorer.Editor.Commons
 	using UnityEditor.UIElements;
 	using UnityEngine.UIElements;
 
+    /// <summary>
+    /// DateTime Visual Element.
+    /// </summary>
     public class DateTimeVisualizer : VisualElement
     {
 		#region Enums
+        /// <summary>
+        /// DateTime display format.
+        /// </summary>
 		public enum DateTimeFormat
         {
             DATE_SHORT = 0,
