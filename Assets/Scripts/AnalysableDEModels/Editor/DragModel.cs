@@ -90,6 +90,8 @@ public unsafe class DragModel : AnalysableDEModel
 	{
 		shortDescription = "Classic drag model";
 		longDescription =
+			"Parameter Step :\n" +
+			"-> Time Step [s] \n\n" +
 			"Mean Absolute Errors :\n" +
 			"-> Object speed [m/s]";
 	}

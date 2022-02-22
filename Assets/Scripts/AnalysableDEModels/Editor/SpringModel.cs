@@ -99,7 +99,9 @@ public unsafe class SpringModel : AnalysableDEModel
 	protected override void GenerateDefaultDescriptions(out string shortDescription, out string longDescription)
 	{
 		shortDescription = "Classic spring model";
-		longDescription = 
+		longDescription =
+			"Parameter Step :\n" +
+			"-> Time Step [s] \n\n" +
 			"Mean Absolute Errors :\n" +
 			"-> Spring length [m]\n" +
 			"-> Spring speed [m/s]";
