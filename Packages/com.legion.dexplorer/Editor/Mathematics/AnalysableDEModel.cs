@@ -183,6 +183,8 @@ namespace dExplorer.Editor.Mathematics
 				GenerateDefaultDescriptions(out string shortDescription, out string longDescription);
 				report.ShortDescription = shortDescription;
 				report.LongDescription = longDescription;
+				report.MinParameter = _minParameter;
+				report.MaxParameter = _maxParameter;
 				AssetDatabase.CreateAsset(report, reportPath + "/" + reportName + ".asset");
 				AssetDatabase.SaveAssets();
 			}

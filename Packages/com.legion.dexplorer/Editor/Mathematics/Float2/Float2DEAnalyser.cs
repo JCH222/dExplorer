@@ -132,7 +132,7 @@ namespace dExplorer.Editor.Mathematics
 				foreach (DESolvingType solvingType in SolvingTypes)
 				{
 					analyseJobHandles[globalIndex][solvingType].Complete();
-					report.AddValue(solvingType, parameterStep, meanAbsoluteErrors[meanAbsoluteErrorIndex]);
+					report.AddValue(solvingType, parameterStep, meanAbsoluteErrors[meanAbsoluteErrorIndex], results[globalIndex][solvingType]);
 					results[globalIndex][solvingType].Dispose();
 					meanAbsoluteErrorIndex++;
 				}

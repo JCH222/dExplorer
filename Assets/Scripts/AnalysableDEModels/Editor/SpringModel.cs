@@ -100,6 +100,8 @@ public unsafe class SpringModel : AnalysableDEModel
 	{
 		shortDescription = "Classic spring model";
 		longDescription =
+			"Parameter :\n" +
+			"-> Elapsed Time [s]\n\n" +
 			"Parameter Step :\n" +
 			"-> Time Step [s] \n\n" +
 			"Mean Absolute Errors :\n" +

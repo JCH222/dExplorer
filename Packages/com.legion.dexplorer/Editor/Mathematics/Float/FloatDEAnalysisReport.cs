@@ -4,6 +4,7 @@ namespace dExplorer.Editor.Mathematics
 	using System;
 	using System.Collections.Generic;
 	using System.Runtime.CompilerServices;
+	using Unity.Collections;
 	using UnityEngine;
 
 	/// <summary>
@@ -20,6 +21,7 @@ namespace dExplorer.Editor.Mathematics
 			#region Fields
 			public float ParameterStep;
 			public float MeanAbsoluteError;
+			public float[] SimulationValues;
 			#endregion Fields
 		}
 		#endregion Structs
@@ -28,6 +30,9 @@ namespace dExplorer.Editor.Mathematics
 		public string Name;
 		public string ShortDescription;
 		public string LongDescription;
+
+		[HideInInspector] public float MinParameter;
+		[HideInInspector] public float MaxParameter;
 
 		private DateTime _creationDateTime;
 		private Dictionary<DESolvingType, List<FloatDEAnalysisValue>> _data;
@@ -45,6 +50,8 @@ namespace dExplorer.Editor.Mathematics
 		[HideInInspector] [SerializeField] private DESolvingType[] _serializedDataKeys;
 		[HideInInspector] [SerializeField] private float[] _serializedDataParameterSteps;
 		[HideInInspector] [SerializeField] private float[] _serializedDataMeanAbsoluteErrors;
+		[HideInInspector] [SerializeField] private int[] _serializedSimulationSizes;
+		[HideInInspector] [SerializeField] private float[] _serializedSimulationsValues;
 		#endregion Serialization Fields
 		#endregion Fields
 
@@ -57,6 +64,9 @@ namespace dExplorer.Editor.Mathematics
 			Name = string.Empty;
 			ShortDescription = string.Empty;
 			LongDescription = string.Empty;
+
+			MinParameter = 0.0f;
+			MaxParameter = 0.0f;
 
 			_creationDateTime = DateTime.UtcNow;
 			_data = new Dictionary<DESolvingType, List<FloatDEAnalysisValue>>();
@@ -80,25 +90,45 @@ namespace dExplorer.Editor.Mathematics
 			_serializedCreationDateTimeZone = _creationDateTime.Kind;
 
 			int arraySize = 0;
+			int longArraySize = 0;
 
 			foreach (DESolvingType key in _data.Keys)
 			{
-				arraySize += _data[key].Count;
+				List<FloatDEAnalysisValue> analysisValues = _data[key];
+				arraySize += analysisValues.Count;
+				
+				foreach (FloatDEAnalysisValue analysisValue in analysisValues)
+				{
+					longArraySize += analysisValue.SimulationValues.Length;
+				}
 			}
 
 			_serializedDataKeys = new DESolvingType[arraySize];
 			_serializedDataParameterSteps = new float[arraySize];
 			_serializedDataMeanAbsoluteErrors = new float[arraySize];
+			_serializedSimulationSizes = new int[arraySize];
+			_serializedSimulationsValues = new float[longArraySize];
 
 			int index = 0;
+			int longIndex = 0;
 
 			foreach (DESolvingType key in _data.Keys)
 			{
 				foreach (FloatDEAnalysisValue value in _data[key])
 				{
+					int simulationValueNb = value.SimulationValues.Length;
+
 					_serializedDataKeys[index] = key;
 					_serializedDataParameterSteps[index] = value.ParameterStep;
 					_serializedDataMeanAbsoluteErrors[index] = value.MeanAbsoluteError;
+					_serializedSimulationSizes[index] = simulationValueNb;
+
+					for (int i = 0; i < simulationValueNb; i++)
+					{
+						_serializedSimulationsValues[longIndex] = value.SimulationValues[i];
+
+						longIndex++;
+					}
 
 					index++;
 				}
@@ -116,6 +146,8 @@ namespace dExplorer.Editor.Mathematics
 
 			_data = new Dictionary<DESolvingType, List<FloatDEAnalysisValue>>();
 
+			int longIndex = 0;
+
 			for (int i = 0, length = _serializedDataKeys.Length; i < length; i++)
 			{
 				DESolvingType key = _serializedDataKeys[i];
@@ -125,10 +157,20 @@ namespace dExplorer.Editor.Mathematics
 					_data.Add(key, new List<FloatDEAnalysisValue>());
 				}
 
+				int simulationValueNb = _serializedSimulationSizes[i];
+				float[] simulationValues = new float[simulationValueNb];
+
+				for (int j = 0; j < simulationValueNb; j++)
+				{
+					simulationValues[j] = _serializedSimulationsValues[longIndex];
+					longIndex++;
+				}
+
 				_data[key].Add(new FloatDEAnalysisValue()
 				{
 					ParameterStep = _serializedDataParameterSteps[i],
-					MeanAbsoluteError = _serializedDataMeanAbsoluteErrors[i]
+					MeanAbsoluteError = _serializedDataMeanAbsoluteErrors[i],
+					SimulationValues = simulationValues
 				});
 			}
 		}
@@ -139,8 +181,9 @@ namespace dExplorer.Editor.Mathematics
 		/// <param name="solvingType">Solving type of the simulation</param>
 		/// <param name="parameterStep">Parameter step of the simulation</param>
 		/// <param name="meanAbsoluteError">Mean absolute error of the simulation</param>
+		/// <param name="simulationValues">Simulation result</param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void AddValue(DESolvingType solvingType, float parameterStep, float meanAbsoluteError)
+		public void AddValue(DESolvingType solvingType, float parameterStep, float meanAbsoluteError, NativeArray<float> simulationValues)
 		{
 			if (_data.ContainsKey(solvingType) == false)
 			{
@@ -150,7 +193,8 @@ namespace dExplorer.Editor.Mathematics
 			_data[solvingType].Add(new FloatDEAnalysisValue()
 			{
 				ParameterStep = parameterStep,
-				MeanAbsoluteError = meanAbsoluteError
+				MeanAbsoluteError = meanAbsoluteError,
+				SimulationValues = simulationValues.ToArray()
 			});
 		}
 		#endregion Methods
