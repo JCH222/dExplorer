@@ -57,8 +57,9 @@ namespace dExplorer.Editor.Mathematics
 		/// <summary>
 		/// Launch all simulations and save the aggregate results into a report.
 		/// </summary>
+		/// <param name="isFullReport">Generate a report with all simulation data</param>
 		/// <returns>The analysis report</returns>
-		public unsafe Float2DEAnalysisReport Analyse()
+		public unsafe Float2DEAnalysisReport Analyse(bool isFullReport)
 		{
 			List<Dictionary<DESolvingType, Float2DESimulationJob>> simulationJobs = new List<Dictionary<DESolvingType, Float2DESimulationJob>>(); ;
 			List<Dictionary<DESolvingType, NativeArray<float2>>> results = new List<Dictionary<DESolvingType, NativeArray<float2>>>();
@@ -123,6 +124,7 @@ namespace dExplorer.Editor.Mathematics
 			}
 
 			Float2DEAnalysisReport report = ScriptableObject.CreateInstance<Float2DEAnalysisReport>();
+			report.IsFullReport = isFullReport;
 
 			globalIndex = 0;
 			int meanAbsoluteErrorIndex = 0;

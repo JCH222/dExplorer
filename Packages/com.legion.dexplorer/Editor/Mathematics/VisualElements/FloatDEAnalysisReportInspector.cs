@@ -18,6 +18,7 @@ namespace dExplorer.Editor.Mathematics
 		private readonly string NAME_TEXT_FIELD_KEY = "name";
 		private readonly string DESCRIPTION_VISUALIZER_KEY = "description";
 		private readonly string CREATION_DATE_VISUALIZER_KEY = "creation-date";
+		private readonly string IS_FULL_REPORT_FIELD_KEY = "is-full-report";
 		private readonly string MIN_PARAMETER_FLOAT_FIELD_KEY = "min-parameter";
 		private readonly string MAX_PARAMETER_FLOAT_FIELD_KEY = "max-parameter";
 		private readonly string ANALYSIS_VALUES_KEY = "analysis_values";
@@ -35,6 +36,7 @@ namespace dExplorer.Editor.Mathematics
 		private SerializedProperty _creationSecond;
 		private SerializedProperty _creationMillisecond;
 		private SerializedProperty _creationDateTimeZone;
+		private SerializedProperty _isFullReport;
 		private SerializedProperty _minParameter;
 		private SerializedProperty _maxParameter;
 		private SerializedProperty _dataKeys;
@@ -58,8 +60,10 @@ namespace dExplorer.Editor.Mathematics
 			_creationMillisecond = serializedObject.FindProperty("_serializedCreationMillisecond");
 			_creationDateTimeZone = serializedObject.FindProperty("_serializedCreationDateTimeZone");
 
+			_isFullReport = serializedObject.FindProperty("IsFullReport");
 			_minParameter = serializedObject.FindProperty("MinParameter");
 			_maxParameter = serializedObject.FindProperty("MaxParameter");
+
 			_dataKeys = serializedObject.FindProperty("_serializedDataKeys");
 			_dataParameterSteps = serializedObject.FindProperty("_serializedDataParameterSteps");
 			_dataMeanAbsoluteErrors = serializedObject.FindProperty("_serializedDataMeanAbsoluteErrors");
@@ -80,15 +84,17 @@ namespace dExplorer.Editor.Mathematics
 			descriptionVisualizer.LongDescription = _longDescription.stringValue;
 			descriptionVisualizer.RegisterLongDescriptionValueChangedCallback(OnLongDescriptionChanged);
 
+			Toggle isFullReportField = root.Q<Toggle>(IS_FULL_REPORT_FIELD_KEY);
+			isFullReportField.SetEnabled(false);
+			isFullReportField.value = _isFullReport.boolValue;
+
 			FloatField minParameterField = root.Q<FloatField>(MIN_PARAMETER_FLOAT_FIELD_KEY);
 			minParameterField.SetEnabled(false);
 			minParameterField.value = _minParameter.floatValue;
-			minParameterField.RegisterValueChangedCallback(OnMinParameterChanged);
 
 			FloatField maxParameterField = root.Q<FloatField>(MAX_PARAMETER_FLOAT_FIELD_KEY);
 			maxParameterField.SetEnabled(false);
 			maxParameterField.value = _maxParameter.floatValue;
-			maxParameterField.RegisterValueChangedCallback(OnMaxParameterChanged);
 
 			DateTimeVisualizer dateTimeVisualizer = root.Q<DateTimeVisualizer>(CREATION_DATE_VISUALIZER_KEY);
 			dateTimeVisualizer.Year = _creationYear.intValue;
@@ -142,20 +148,6 @@ namespace dExplorer.Editor.Mathematics
 		private void OnLongDescriptionChanged(ChangeEvent<string> evt)
 		{
 			_longDescription.stringValue = evt.newValue;
-			serializedObject.ApplyModifiedProperties();
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private void OnMinParameterChanged(ChangeEvent<float> evt)
-		{
-			_minParameter.floatValue = evt.newValue;
-			serializedObject.ApplyModifiedProperties();
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private void OnMaxParameterChanged(ChangeEvent<float> evt)
-		{
-			_maxParameter.floatValue = evt.newValue;
 			serializedObject.ApplyModifiedProperties();
 		}
 		#endregion Methods

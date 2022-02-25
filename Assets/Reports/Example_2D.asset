@@ -10,21 +10,22 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bc23d05d20401a14ca935a88fc448ebd, type: 3}
-  m_Name: EXAMPLE_2D
+  m_Name: Example_2D
   m_EditorClassIdentifier: 
-  Name: EXAMPLE_2D
+  Name: Example_2D
   ShortDescription: Classic spring model
   LongDescription: "Parameter :\n-> Elapsed Time [s]\n\nParameter Step :\n-> Time
     Step [s] \n\nMean Absolute Errors :\n-> Spring length [m]\n-> Spring speed [m/s]"
+  IsFullReport: 1
   MinParameter: 0
-  MaxParameter: 0
+  MaxParameter: 20
   _serializedCreationYear: 2022
   _serializedCreationMonth: 2
   _serializedCreationDay: 25
-  _serializedCreationHour: 8
-  _serializedCreationMinute: 15
-  _serializedCreationSecond: 46
-  _serializedCreationMillisecond: 28
+  _serializedCreationHour: 20
+  _serializedCreationMinute: 38
+  _serializedCreationSecond: 28
+  _serializedCreationMillisecond: 375
   _serializedCreationDateTimeZone: 1
   _serializedDataKeys: 010000000100000001000000010000000100000001000000010000000100000001000000010000000100000002000000020000000200000002000000020000000200000002000000020000000200000002000000020000000300000003000000030000000300000003000000030000000300000003000000030000000300000003000000
   _serializedDataParameterSteps:

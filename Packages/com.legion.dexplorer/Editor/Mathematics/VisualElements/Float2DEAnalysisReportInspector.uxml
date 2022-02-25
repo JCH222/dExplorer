@@ -1,6 +1,9 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
     <ui:TextField picking-mode="Ignore" label="Name" name="name" />
     <dExplorer.Editor.Commons.DescriptionVisualizer name="description" Title="Description" />
     <dExplorer.Editor.Commons.DateTimeVisualizer name="creation-date" Title="Creation Date" />
+    <ui:Toggle label="Is Full Report" name="is-full-report" />
+    <uie:FloatField label="Min Parameter" value="0" name="min-parameter" />
+    <uie:FloatField label="Max Parameter" value="0" name="max-parameter" />
     <dExplorer.Editor.Mathematics.Float2DEAnalysisValues name="analysis_values" Title="Results" First-Title="TEST" Second-Title="TEST 2" First-Unit="m/s" Second-Unit="m/s^-2" style="opacity: 1; border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0; border-top-left-radius: 0; border-bottom-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-left-color: rgba(0, 0, 0, 0); border-right-color: rgba(0, 0, 0, 0); border-top-color: rgba(0, 0, 0, 0); border-bottom-color: rgba(0, 0, 0, 0);" />
 </ui:UXML>

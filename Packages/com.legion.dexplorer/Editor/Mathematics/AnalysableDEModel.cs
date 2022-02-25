@@ -159,7 +159,8 @@ namespace dExplorer.Editor.Mathematics
 		/// </summary>
 		/// <param name="reportName">Name of the report</param>
 		/// <param name="reportPath">Report folder path</param>
-		public void Analyse(string reportName, string reportPath)
+		/// <param name="isFullReport">Generate a report with all simulation data</param>
+		public void Analyse(string reportName, string reportPath, bool isFullReport)
 		{
 			Init();
 
@@ -178,7 +179,7 @@ namespace dExplorer.Editor.Mathematics
 					analyser.SolvingTypes.Add(solvingType);
 				}
 
-				FloatDEAnalysisReport report = analyser.Analyse();
+				FloatDEAnalysisReport report = analyser.Analyse(isFullReport);
 				report.Name = reportName;
 				GenerateDefaultDescriptions(out string shortDescription, out string longDescription);
 				report.ShortDescription = shortDescription;
@@ -203,11 +204,13 @@ namespace dExplorer.Editor.Mathematics
 					analyser.SolvingTypes.Add(solvingType);
 				}
 
-				Float2DEAnalysisReport report = analyser.Analyse();
+				Float2DEAnalysisReport report = analyser.Analyse(isFullReport);
 				report.Name = reportName;
 				GenerateDefaultDescriptions(out string shortDescription, out string longDescription);
 				report.ShortDescription = shortDescription;
 				report.LongDescription = longDescription;
+				report.MinParameter = _minParameter;
+				report.MaxParameter = _maxParameter;
 				AssetDatabase.CreateAsset(report, reportPath + "/" + reportName + ".asset");
 				AssetDatabase.SaveAssets();
 			}

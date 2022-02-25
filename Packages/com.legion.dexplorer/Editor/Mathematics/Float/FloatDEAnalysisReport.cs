@@ -31,6 +31,7 @@ namespace dExplorer.Editor.Mathematics
 		public string ShortDescription;
 		public string LongDescription;
 
+		[HideInInspector] public bool IsFullReport;
 		[HideInInspector] public float MinParameter;
 		[HideInInspector] public float MaxParameter;
 
@@ -65,6 +66,7 @@ namespace dExplorer.Editor.Mathematics
 			ShortDescription = string.Empty;
 			LongDescription = string.Empty;
 
+			IsFullReport = false;
 			MinParameter = 0.0f;
 			MaxParameter = 0.0f;
 
@@ -97,17 +99,29 @@ namespace dExplorer.Editor.Mathematics
 				List<FloatDEAnalysisValue> analysisValues = _data[key];
 				arraySize += analysisValues.Count;
 				
-				foreach (FloatDEAnalysisValue analysisValue in analysisValues)
+				if (IsFullReport)
 				{
-					longArraySize += analysisValue.SimulationValues.Length;
+					foreach (FloatDEAnalysisValue analysisValue in analysisValues)
+					{
+						longArraySize += analysisValue.SimulationValues.Length;
+					}
 				}
 			}
 
 			_serializedDataKeys = new DESolvingType[arraySize];
 			_serializedDataParameterSteps = new float[arraySize];
 			_serializedDataMeanAbsoluteErrors = new float[arraySize];
-			_serializedSimulationSizes = new int[arraySize];
-			_serializedSimulationsValues = new float[longArraySize];
+
+			if (IsFullReport)
+			{
+				_serializedSimulationSizes = new int[arraySize];
+				_serializedSimulationsValues = new float[longArraySize];
+			}
+			else
+			{
+				_serializedSimulationSizes = null;
+				_serializedSimulationsValues =  null;
+			}
 
 			int index = 0;
 			int longIndex = 0;
@@ -116,18 +130,21 @@ namespace dExplorer.Editor.Mathematics
 			{
 				foreach (FloatDEAnalysisValue value in _data[key])
 				{
-					int simulationValueNb = value.SimulationValues.Length;
-
 					_serializedDataKeys[index] = key;
 					_serializedDataParameterSteps[index] = value.ParameterStep;
 					_serializedDataMeanAbsoluteErrors[index] = value.MeanAbsoluteError;
-					_serializedSimulationSizes[index] = simulationValueNb;
 
-					for (int i = 0; i < simulationValueNb; i++)
+					if (IsFullReport)
 					{
-						_serializedSimulationsValues[longIndex] = value.SimulationValues[i];
+						int simulationValueNb = value.SimulationValues.Length;
+						_serializedSimulationSizes[index] = simulationValueNb;
 
-						longIndex++;
+						for (int i = 0; i < simulationValueNb; i++)
+						{
+							_serializedSimulationsValues[longIndex] = value.SimulationValues[i];
+
+							longIndex++;
+						}
 					}
 
 					index++;
@@ -157,13 +174,18 @@ namespace dExplorer.Editor.Mathematics
 					_data.Add(key, new List<FloatDEAnalysisValue>());
 				}
 
-				int simulationValueNb = _serializedSimulationSizes[i];
-				float[] simulationValues = new float[simulationValueNb];
+				float[] simulationValues = null;
 
-				for (int j = 0; j < simulationValueNb; j++)
+				if (IsFullReport)
 				{
-					simulationValues[j] = _serializedSimulationsValues[longIndex];
-					longIndex++;
+					int simulationValueNb = _serializedSimulationSizes[i];
+					simulationValues = new float[simulationValueNb];
+
+					for (int j = 0; j < simulationValueNb; j++)
+					{
+						simulationValues[j] = _serializedSimulationsValues[longIndex];
+						longIndex++;
+					}
 				}
 
 				_data[key].Add(new FloatDEAnalysisValue()
@@ -194,7 +216,7 @@ namespace dExplorer.Editor.Mathematics
 			{
 				ParameterStep = parameterStep,
 				MeanAbsoluteError = meanAbsoluteError,
-				SimulationValues = simulationValues.ToArray()
+				SimulationValues = IsFullReport ? simulationValues.ToArray() : null
 			});
 		}
 		#endregion Methods

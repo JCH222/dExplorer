@@ -23,6 +23,9 @@ namespace dExplorer.Editor.Mathematics
             _reportNameField.SetEnabled(false);
             _reportNameField.visible = false;
 
+            _fullReportOption.SetEnabled(false);
+            _fullReportOption.visible = false;
+
             _solvingTypesField.SetEnabled(false);
             _solvingTypesField.visible = false;
 

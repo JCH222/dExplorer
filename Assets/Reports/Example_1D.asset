@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 55d6ff00e2dae3240bb47a95078b66ef, type: 3}
-  m_Name: EXAMPLE_1D
+  m_Name: Example_1D
   m_EditorClassIdentifier: 
-  Name: EXAMPLE_1D
+  Name: Example_1D
   ShortDescription: Classic drag model
   LongDescription: 'Parameter :
 
@@ -28,15 +28,16 @@ MonoBehaviour:
     Mean Absolute Errors :
 
     -> Object speed [m/s]'
+  IsFullReport: 1
   MinParameter: 0
   MaxParameter: 20
   _serializedCreationYear: 2022
   _serializedCreationMonth: 2
   _serializedCreationDay: 25
-  _serializedCreationHour: 8
-  _serializedCreationMinute: 14
-  _serializedCreationSecond: 34
-  _serializedCreationMillisecond: 705
+  _serializedCreationHour: 20
+  _serializedCreationMinute: 26
+  _serializedCreationSecond: 48
+  _serializedCreationMillisecond: 357
   _serializedCreationDateTimeZone: 1
   _serializedDataKeys: 010000000100000001000000010000000100000001000000010000000100000001000000010000000100000002000000020000000200000002000000020000000200000002000000020000000200000002000000020000000300000003000000030000000300000003000000030000000300000003000000030000000300000003000000
   _serializedDataParameterSteps:

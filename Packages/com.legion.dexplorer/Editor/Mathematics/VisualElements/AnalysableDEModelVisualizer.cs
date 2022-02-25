@@ -38,6 +38,7 @@ namespace dExplorer.Editor.Mathematics
         protected AnalysableDEModel _model;
         protected Button _saveFolderSelectionButton;
         protected TextField _reportNameField;
+        protected Toggle _fullReportOption;
         protected EnumFlagsField _solvingTypesField;
         protected FloatField _minParameterField;
         protected FloatField _maxParameterField;
@@ -222,6 +223,8 @@ namespace dExplorer.Editor.Mathematics
 
             _reportNameField = new TextField("Report Name");
 
+            _fullReportOption = new Toggle("Full Report");
+
             SelectableDESolvingTypes defaultSolvingType = SelectableDESolvingTypes.EXPLICIT_EULER;
             _solvingTypesField = new EnumFlagsField("Solving Types", defaultSolvingType);
 			_solvingTypesField.RegisterValueChangedCallback(OnSelectedSolvingTypesChanged);
@@ -269,6 +272,7 @@ namespace dExplorer.Editor.Mathematics
 
             Add(_saveFolderSelectionButton);
             Add(_reportNameField);
+            Add(_fullReportOption);
             Add(_solvingTypesField);
             Add(_minParameterField);
             Add(_maxParameterField);
@@ -291,7 +295,7 @@ namespace dExplorer.Editor.Mathematics
                     _model.AddParameterStep(_maxParameterStepField.value - (float)i * deltaParameterStep);
                 }
 
-                _model.Analyse(_reportNameField.value, _relativeSaveFolderPath);
+                _model.Analyse(_reportNameField.value, _relativeSaveFolderPath, _fullReportOption.value);
             }
             else
 			{
