@@ -6,7 +6,6 @@ namespace dExplorer.Editor.Mathematics
 	using Unity.Collections;
 	using Unity.Collections.LowLevel.Unsafe;
 	using Unity.Jobs;
-	using Unity.Mathematics;
 	using UnityEngine;
 
 	/// <summary>
@@ -62,14 +61,14 @@ namespace dExplorer.Editor.Mathematics
 		public unsafe Float2DEAnalysisReport Analyse(bool isFullReport)
 		{
 			List<Dictionary<DESolvingType, Float2DESimulationJob>> simulationJobs = new List<Dictionary<DESolvingType, Float2DESimulationJob>>(); ;
-			List<Dictionary<DESolvingType, NativeArray<float2>>> results = new List<Dictionary<DESolvingType, NativeArray<float2>>>();
+			List<Dictionary<DESolvingType, NativeArray<Vector2>>> results = new List<Dictionary<DESolvingType, NativeArray<Vector2>>>();
 			List<Dictionary<DESolvingType, JobHandle>> analyseJobHandles = new List<Dictionary<DESolvingType, JobHandle>>();
 			List<Dictionary<DESolvingType, Float2DEAnalysisJob>> analyseJobs = new List<Dictionary<DESolvingType, Float2DEAnalysisJob>>();
-			NativeArray<float2> meanAbsoluteErrors = new NativeArray<float2>(ParameterSteps.Count * SolvingTypes.Count, Allocator.Persistent, NativeArrayOptions.ClearMemory);
+			NativeArray<Vector2> meanAbsoluteErrors = new NativeArray<Vector2>(ParameterSteps.Count * SolvingTypes.Count, Allocator.Persistent, NativeArrayOptions.ClearMemory);
 
 			int globalIndex = 0;
 			int meanAbsoluteErrorsPtrIndex = 0;
-			float2* meanAbsoluteErrorsPtr = (float2*)NativeArrayUnsafeUtility.GetUnsafePtr<float2>(meanAbsoluteErrors);
+			Vector2* meanAbsoluteErrorsPtr = (Vector2*)NativeArrayUnsafeUtility.GetUnsafePtr<Vector2>(meanAbsoluteErrors);
 
 			foreach (float parameterStep in ParameterSteps)
 			{
@@ -78,13 +77,13 @@ namespace dExplorer.Editor.Mathematics
 				Dictionary<DESolvingType, JobHandle> simulationJobHandles = new Dictionary<DESolvingType, JobHandle>();
 
 				simulationJobs.Add(new Dictionary<DESolvingType, Float2DESimulationJob>());
-				results.Add(new Dictionary<DESolvingType, NativeArray<float2>>());
+				results.Add(new Dictionary<DESolvingType, NativeArray<Vector2>>());
 				analyseJobHandles.Add(new Dictionary<DESolvingType, JobHandle>());
 				analyseJobs.Add(new Dictionary<DESolvingType, Float2DEAnalysisJob>());
 
 				foreach (DESolvingType solvingType in new HashSet<DESolvingType>(SolvingTypes) { DESolvingType.ANALYTICAL })
 				{
-					results[globalIndex].Add(solvingType, new NativeArray<float2>(simulationIterationNb, Allocator.Persistent, NativeArrayOptions.UninitializedMemory));
+					results[globalIndex].Add(solvingType, new NativeArray<Vector2>(simulationIterationNb, Allocator.Persistent, NativeArrayOptions.UninitializedMemory));
 
 					simulationJobs[globalIndex].Add(solvingType, new Float2DESimulationJob()
 					{

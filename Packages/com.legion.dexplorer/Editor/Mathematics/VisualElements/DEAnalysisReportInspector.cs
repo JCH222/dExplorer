@@ -5,17 +5,13 @@ namespace dExplorer.Editor.Mathematics
 	using System;
 	using System.Collections.Generic;
 	using System.Runtime.CompilerServices;
-	using Unity.Mathematics;
 	using UnityEditor;
 	using UnityEditor.UIElements;
-	using UnityEngine;
 	using UnityEngine.UIElements;
-
-	[CustomEditor(typeof(Float2DEAnalysisReport))]
-	public class Float2DEAnalysisReportInspector : Editor
+	public abstract class DEAnalysisReportInspector : Editor
 	{
 		#region Static Fields
-		private readonly string UXML_FILE_PATH = "Packages/com.legion.dexplorer/Editor/Mathematics/VisualElements/Float2DEAnalysisReportInspector.uxml";
+		private readonly string UXML_FILE_PATH = "Packages/com.legion.dexplorer/Editor/Mathematics/VisualElements/FloatDEAnalysisReportInspector.uxml";
 
 		private readonly string NAME_TEXT_FIELD_KEY = "name";
 		private readonly string DESCRIPTION_VISUALIZER_KEY = "description";
@@ -108,25 +104,25 @@ namespace dExplorer.Editor.Mathematics
 			dateTimeVisualizer.Millisecond = _creationMillisecond.intValue;
 			dateTimeVisualizer.Zone = (DateTimeKind)_creationDateTimeZone.enumValueIndex;
 
-			Float2DEAnalysisValues float2DEAnalysisValues = root.Q<Float2DEAnalysisValues>(ANALYSIS_VALUES_KEY);
+			FloatDEAnalysisValues floatDEAnalysisValues = root.Q<FloatDEAnalysisValues>(ANALYSIS_VALUES_KEY);
 			for (int i = 0, length = _dataParameterSteps.arraySize; i < length; i++)
 			{
 				float parameterStep = _dataParameterSteps.GetArrayElementAtIndex(i).floatValue;
-				Dictionary<DESolvingType, Vector2> value = null;
+				Dictionary<DESolvingType, float> value = null;
 
-				if (float2DEAnalysisValues.ContainsKey(parameterStep))
+				if (floatDEAnalysisValues.ContainsKey(parameterStep))
 				{
-					value = float2DEAnalysisValues[parameterStep];
+					value = floatDEAnalysisValues[parameterStep];
 				}
 				else
 				{
-					value = new Dictionary<DESolvingType, Vector2>();
-					float2DEAnalysisValues[parameterStep, parameterStep.ToString()] = value;
+					value = new Dictionary<DESolvingType, float>();
+					floatDEAnalysisValues[parameterStep, parameterStep.ToString()] = value;
 				}
 
 				value.Add(
 					(DESolvingType)_dataKeys.GetArrayElementAtIndex(i).enumValueIndex,
-					_dataMeanAbsoluteErrors.GetArrayElementAtIndex(i).vector2Value);
+					_dataMeanAbsoluteErrors.GetArrayElementAtIndex(i).floatValue);
 			}
 
 			return root;

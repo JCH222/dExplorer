@@ -8,24 +8,23 @@ namespace dExplorer.Editor.Mathematics
 	using UnityEngine;
 
 	/// <summary>
-	/// Dimension 1 differential equation analysis report.
+	/// Base structure of the unit value in the differential equation analysis report.
 	/// </summary>
-	public class FloatDEAnalysisReport : ScriptableObject, ISerializationCallbackReceiver
+	/// <typeparam name="T"></typeparam>
+	public interface IAnalysisValue<T> where T : struct
 	{
-		#region Structs
-		/// <summary>
-		/// Unit value of the report.
-		/// </summary>
-		private struct FloatDEAnalysisValue
-		{
-			#region Fields
-			public float ParameterStep;
-			public float MeanAbsoluteError;
-			public float[] SimulationValues;
-			#endregion Fields
-		}
-		#endregion Structs
+		public float ParameterStep { get; set; }
+		public T MeanAbsoluteError { get; set; }
+		public T[] SimulationValues { get; set; }
+	}
 
+	/// <summary>
+	/// Differential equation analysis report.
+	/// </summary>
+	public abstract class DEAnalysisReport<T_VALUE, T_VARIABLE> : ScriptableObject, ISerializationCallbackReceiver
+		where T_VALUE : IAnalysisValue<T_VARIABLE>, new()
+		where T_VARIABLE : struct
+	{
 		#region Fields
 		public string Name;
 		public string ShortDescription;
@@ -36,7 +35,7 @@ namespace dExplorer.Editor.Mathematics
 		[HideInInspector] public float MaxParameter;
 
 		private DateTime _creationDateTime;
-		private Dictionary<DESolvingType, List<FloatDEAnalysisValue>> _data;
+		private Dictionary<DESolvingType, List<T_VALUE>> _data;
 
 		#region Serialization Fields
 		[HideInInspector] [SerializeField] private int _serializedCreationYear = 0;
@@ -50,9 +49,9 @@ namespace dExplorer.Editor.Mathematics
 
 		[HideInInspector] [SerializeField] private DESolvingType[] _serializedDataKeys;
 		[HideInInspector] [SerializeField] private float[] _serializedDataParameterSteps;
-		[HideInInspector] [SerializeField] private float[] _serializedDataMeanAbsoluteErrors;
+		[HideInInspector] [SerializeField] private T_VARIABLE[] _serializedDataMeanAbsoluteErrors;
 		[HideInInspector] [SerializeField] private int[] _serializedSimulationSizes;
-		[HideInInspector] [SerializeField] private float[] _serializedSimulationsValues;
+		[HideInInspector] [SerializeField] private T_VARIABLE[] _serializedSimulationsValues;
 		#endregion Serialization Fields
 		#endregion Fields
 
@@ -60,7 +59,7 @@ namespace dExplorer.Editor.Mathematics
 		/// <summary>
 		/// Constructor.
 		/// </summary>
-		public FloatDEAnalysisReport() : base()
+		public DEAnalysisReport() : base()
 		{
 			Name = string.Empty;
 			ShortDescription = string.Empty;
@@ -71,7 +70,7 @@ namespace dExplorer.Editor.Mathematics
 			MaxParameter = 0.0f;
 
 			_creationDateTime = DateTime.UtcNow;
-			_data = new Dictionary<DESolvingType, List<FloatDEAnalysisValue>>();
+			_data = new Dictionary<DESolvingType, List<T_VALUE>>();
 		}
 		#endregion Constructors
 
@@ -96,12 +95,12 @@ namespace dExplorer.Editor.Mathematics
 
 			foreach (DESolvingType key in _data.Keys)
 			{
-				List<FloatDEAnalysisValue> analysisValues = _data[key];
+				List<T_VALUE> analysisValues = _data[key];
 				arraySize += analysisValues.Count;
-				
+
 				if (IsFullReport)
 				{
-					foreach (FloatDEAnalysisValue analysisValue in analysisValues)
+					foreach (T_VALUE analysisValue in analysisValues)
 					{
 						longArraySize += analysisValue.SimulationValues.Length;
 					}
@@ -110,17 +109,17 @@ namespace dExplorer.Editor.Mathematics
 
 			_serializedDataKeys = new DESolvingType[arraySize];
 			_serializedDataParameterSteps = new float[arraySize];
-			_serializedDataMeanAbsoluteErrors = new float[arraySize];
+			_serializedDataMeanAbsoluteErrors = new T_VARIABLE[arraySize];
 
 			if (IsFullReport)
 			{
 				_serializedSimulationSizes = new int[arraySize];
-				_serializedSimulationsValues = new float[longArraySize];
+				_serializedSimulationsValues = new T_VARIABLE[longArraySize];
 			}
 			else
 			{
 				_serializedSimulationSizes = null;
-				_serializedSimulationsValues =  null;
+				_serializedSimulationsValues = null;
 			}
 
 			int index = 0;
@@ -128,7 +127,7 @@ namespace dExplorer.Editor.Mathematics
 
 			foreach (DESolvingType key in _data.Keys)
 			{
-				foreach (FloatDEAnalysisValue value in _data[key])
+				foreach (T_VALUE value in _data[key])
 				{
 					_serializedDataKeys[index] = key;
 					_serializedDataParameterSteps[index] = value.ParameterStep;
@@ -161,7 +160,7 @@ namespace dExplorer.Editor.Mathematics
 			_creationDateTime = new DateTime(_serializedCreationYear, _serializedCreationMonth, _serializedCreationDay, _serializedCreationHour,
 				_serializedCreationMinute, _serializedCreationSecond, _serializedCreationMillisecond, _serializedCreationDateTimeZone);
 
-			_data = new Dictionary<DESolvingType, List<FloatDEAnalysisValue>>();
+			_data = new Dictionary<DESolvingType, List<T_VALUE>>();
 
 			int longIndex = 0;
 
@@ -171,15 +170,15 @@ namespace dExplorer.Editor.Mathematics
 
 				if (_data.ContainsKey(key) == false)
 				{
-					_data.Add(key, new List<FloatDEAnalysisValue>());
+					_data.Add(key, new List<T_VALUE>());
 				}
 
-				float[] simulationValues = null;
+				T_VARIABLE[] simulationValues = null;
 
 				if (IsFullReport)
 				{
 					int simulationValueNb = _serializedSimulationSizes[i];
-					simulationValues = new float[simulationValueNb];
+					simulationValues = new T_VARIABLE[simulationValueNb];
 
 					for (int j = 0; j < simulationValueNb; j++)
 					{
@@ -188,7 +187,7 @@ namespace dExplorer.Editor.Mathematics
 					}
 				}
 
-				_data[key].Add(new FloatDEAnalysisValue()
+				_data[key].Add(new T_VALUE()
 				{
 					ParameterStep = _serializedDataParameterSteps[i],
 					MeanAbsoluteError = _serializedDataMeanAbsoluteErrors[i],
@@ -205,14 +204,14 @@ namespace dExplorer.Editor.Mathematics
 		/// <param name="meanAbsoluteError">Mean absolute error of the simulation</param>
 		/// <param name="simulationValues">Simulation result</param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void AddValue(DESolvingType solvingType, float parameterStep, float meanAbsoluteError, NativeArray<float> simulationValues)
+		public void AddValue(DESolvingType solvingType, float parameterStep, T_VARIABLE meanAbsoluteError, NativeArray<T_VARIABLE> simulationValues)
 		{
 			if (_data.ContainsKey(solvingType) == false)
 			{
-				_data.Add(solvingType, new List<FloatDEAnalysisValue>());
+				_data.Add(solvingType, new List<T_VALUE>());
 			}
 
-			_data[solvingType].Add(new FloatDEAnalysisValue()
+			_data[solvingType].Add(new T_VALUE()
 			{
 				ParameterStep = parameterStep,
 				MeanAbsoluteError = meanAbsoluteError,

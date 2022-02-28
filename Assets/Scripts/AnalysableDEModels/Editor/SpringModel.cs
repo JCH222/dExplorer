@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Mathematics;
+using UnityEngine;
 
 [BurstCompile]
 public unsafe class SpringModel : AnalysableDEModel
@@ -114,30 +115,30 @@ public unsafe class SpringModel : AnalysableDEModel
 	[BurstCompile]
 	[MonoPInvokeCallback(typeof(Float2InitialVariableFunction))]
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public unsafe static void GetInitialVariable(float* data, float2* initialVariable)
+	public unsafe static void GetInitialVariable(float* data, Vector2* initialVariable)
 	{
 		float initialLength = data[3];
 		float initialSpeed = data[4];
-		*initialVariable = new float2(initialLength, initialSpeed);
+		*initialVariable = new Vector2(initialLength, initialSpeed);
 	}
 
 	[BurstCompile]
 	[MonoPInvokeCallback(typeof(Float2InitialVariableFunction))]
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void ComputeDerivative(float* data, float2* currentVariable, float currentParameter, float2* currentDerivative)
+	public static void ComputeDerivative(float* data, Vector2* currentVariable, float currentParameter, Vector2* currentDerivative)
 	{
 		float mass = data[0];
 		float neutralLength = data[2];
 		float stiffness = data[1];
 		float acceleration = stiffness * (neutralLength - (*currentVariable).x) / mass;
 		float speed = (*currentVariable).y;
-		*currentDerivative = new float2(speed, acceleration);
+		*currentDerivative = new Vector2(speed, acceleration);
 	}
 
 	[BurstCompile]
 	[MonoPInvokeCallback(typeof(Float2InitialVariableFunction))]
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void ComputeAnalyticalSolution(float* data, float currentParameter, float2* currentVariable)
+	public static void ComputeAnalyticalSolution(float* data, float currentParameter, Vector2* currentVariable)
 	{
 		float naturalFrequency = data[5];
 		float phase = data[6];
@@ -146,7 +147,7 @@ public unsafe class SpringModel : AnalysableDEModel
 		float angle = naturalFrequency * currentParameter + phase;
 		float currentLength = neutralLength + amplitude * math.cos(angle);
 		float currentSpeed = -amplitude * naturalFrequency * math.sin(angle);
-		*currentVariable = new float2(currentLength, currentSpeed);
+		*currentVariable = new Vector2(currentLength, currentSpeed);
 	}
 	#endregion Static Methods
 }
