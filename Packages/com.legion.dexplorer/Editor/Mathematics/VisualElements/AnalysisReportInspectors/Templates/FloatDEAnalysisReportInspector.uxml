@@ -5,5 +5,5 @@
     <ui:Toggle label="Is Full Report" value="false" name="is-full-report" />
     <uie:FloatField label="Min Parameter" value="42,2" name="min-parameter" readonly="true" />
     <uie:FloatField label="Max Parameter" value="42,2" name="max-parameter" readonly="true" />
-    <dExplorer.Editor.Mathematics.FloatDEAnalysisValues name="analysis_values" />
+    <dExplorer.Editor.Mathematics.FloatDEAnalysisValues name="analysis-values" />
 </ui:UXML>

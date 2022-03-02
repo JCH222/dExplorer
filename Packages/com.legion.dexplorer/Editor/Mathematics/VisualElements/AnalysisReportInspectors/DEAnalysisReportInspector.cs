@@ -5,45 +5,42 @@ namespace dExplorer.Editor.Mathematics
 	using System;
 	using System.Collections.Generic;
 	using System.Runtime.CompilerServices;
-	using Unity.Mathematics;
 	using UnityEditor;
 	using UnityEditor.UIElements;
-	using UnityEngine;
 	using UnityEngine.UIElements;
 
-	[CustomEditor(typeof(Float2DEAnalysisReport))]
-	public class Float2DEAnalysisReportInspector : Editor
+	public abstract class DEAnalysisReportInspector<T, T_VARIABLE> : Editor
+		where T : DEAnalysisValues<T_VARIABLE>
+		where T_VARIABLE : struct
 	{
 		#region Static Fields
-		private readonly string UXML_FILE_PATH = "Packages/com.legion.dexplorer/Editor/Mathematics/VisualElements/Float2DEAnalysisReportInspector.uxml";
-
 		private readonly string NAME_TEXT_FIELD_KEY = "name";
 		private readonly string DESCRIPTION_VISUALIZER_KEY = "description";
 		private readonly string CREATION_DATE_VISUALIZER_KEY = "creation-date";
 		private readonly string IS_FULL_REPORT_FIELD_KEY = "is-full-report";
 		private readonly string MIN_PARAMETER_FLOAT_FIELD_KEY = "min-parameter";
 		private readonly string MAX_PARAMETER_FLOAT_FIELD_KEY = "max-parameter";
-		private readonly string ANALYSIS_VALUES_KEY = "analysis_values";
+		private readonly string ANALYSIS_VALUES_KEY = "analysis-values";
 		#endregion Static Fields
 
 		#region Fields
-		private SerializedProperty _name;
-		private SerializedProperty _shortDescription;
-		private SerializedProperty _longDescription;
-		private SerializedProperty _creationYear;
-		private SerializedProperty _creationMonth;
-		private SerializedProperty _creationDay;
-		private SerializedProperty _creationHour;
-		private SerializedProperty _creationMinute;
-		private SerializedProperty _creationSecond;
-		private SerializedProperty _creationMillisecond;
-		private SerializedProperty _creationDateTimeZone;
-		private SerializedProperty _isFullReport;
-		private SerializedProperty _minParameter;
-		private SerializedProperty _maxParameter;
-		private SerializedProperty _dataKeys;
-		private SerializedProperty _dataParameterSteps;
-		private SerializedProperty _dataMeanAbsoluteErrors;
+		protected SerializedProperty _name;
+		protected SerializedProperty _shortDescription;
+		protected SerializedProperty _longDescription;
+		protected SerializedProperty _creationYear;
+		protected SerializedProperty _creationMonth;
+		protected SerializedProperty _creationDay;
+		protected SerializedProperty _creationHour;
+		protected SerializedProperty _creationMinute;
+		protected SerializedProperty _creationSecond;
+		protected SerializedProperty _creationMillisecond;
+		protected SerializedProperty _creationDateTimeZone;
+		protected SerializedProperty _isFullReport;
+		protected SerializedProperty _minParameter;
+		protected SerializedProperty _maxParameter;
+		protected SerializedProperty _dataKeys;
+		protected SerializedProperty _dataParameterSteps;
+		protected SerializedProperty _dataMeanAbsoluteErrors;
 		#endregion Fields
 
 		#region Methods
@@ -73,7 +70,7 @@ namespace dExplorer.Editor.Mathematics
 
 		public override VisualElement CreateInspectorGUI()
 		{
-			VisualTreeAsset treeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UXML_FILE_PATH);
+			VisualTreeAsset treeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(GetUxmlPath());
 			VisualElement root = treeAsset.CloneTree();
 
 			TextField nameField = root.Q<TextField>(NAME_TEXT_FIELD_KEY);
@@ -108,25 +105,25 @@ namespace dExplorer.Editor.Mathematics
 			dateTimeVisualizer.Millisecond = _creationMillisecond.intValue;
 			dateTimeVisualizer.Zone = (DateTimeKind)_creationDateTimeZone.enumValueIndex;
 
-			Float2DEAnalysisValues float2DEAnalysisValues = root.Q<Float2DEAnalysisValues>(ANALYSIS_VALUES_KEY);
+			T analysisValues = root.Q<T>(ANALYSIS_VALUES_KEY);
 			for (int i = 0, length = _dataParameterSteps.arraySize; i < length; i++)
 			{
 				float parameterStep = _dataParameterSteps.GetArrayElementAtIndex(i).floatValue;
-				Dictionary<DESolvingType, Vector2> value = null;
+				Dictionary<DESolvingType, T_VARIABLE> value = null;
 
-				if (float2DEAnalysisValues.ContainsKey(parameterStep))
+				if (analysisValues.ContainsKey(parameterStep))
 				{
-					value = float2DEAnalysisValues[parameterStep];
+					value = analysisValues[parameterStep];
 				}
 				else
 				{
-					value = new Dictionary<DESolvingType, Vector2>();
-					float2DEAnalysisValues[parameterStep, parameterStep.ToString()] = value;
+					value = new Dictionary<DESolvingType, T_VARIABLE>();
+					analysisValues[parameterStep, parameterStep.ToString()] = value;
 				}
 
 				value.Add(
 					(DESolvingType)_dataKeys.GetArrayElementAtIndex(i).enumValueIndex,
-					_dataMeanAbsoluteErrors.GetArrayElementAtIndex(i).vector2Value);
+					ExtractMeanAbsoluteError(i));
 			}
 
 			return root;
@@ -152,6 +149,10 @@ namespace dExplorer.Editor.Mathematics
 			_longDescription.stringValue = evt.newValue;
 			serializedObject.ApplyModifiedProperties();
 		}
+
+		protected abstract string GetUxmlPath();
+
+		protected abstract T_VARIABLE ExtractMeanAbsoluteError(int index);
 		#endregion Methods
 	}
 }
