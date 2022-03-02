@@ -9,8 +9,8 @@ namespace dExplorer.Editor.Mathematics
 	using UnityEditor.UIElements;
 	using UnityEngine.UIElements;
 
-	public abstract class DEAnalysisReportInspector<T, T_VARIABLE> : Editor
-		where T : DEAnalysisValues<T_VARIABLE>
+	public abstract class DEAnalysisReportInspector<T_ANALYSIS_VALUES, T_VARIABLE> : Editor
+		where T_ANALYSIS_VALUES : DEAnalysisValues<T_VARIABLE>
 		where T_VARIABLE : struct
 	{
 		#region Static Fields
@@ -105,7 +105,7 @@ namespace dExplorer.Editor.Mathematics
 			dateTimeVisualizer.Millisecond = _creationMillisecond.intValue;
 			dateTimeVisualizer.Zone = (DateTimeKind)_creationDateTimeZone.enumValueIndex;
 
-			T analysisValues = root.Q<T>(ANALYSIS_VALUES_KEY);
+			T_ANALYSIS_VALUES analysisValues = root.Q<T_ANALYSIS_VALUES>(ANALYSIS_VALUES_KEY);
 			for (int i = 0, length = _dataParameterSteps.arraySize; i < length; i++)
 			{
 				float parameterStep = _dataParameterSteps.GetArrayElementAtIndex(i).floatValue;

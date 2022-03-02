@@ -10,19 +10,21 @@ namespace dExplorer.Editor.Mathematics
 	/// <summary>
 	/// Base structure of the unit value in the differential equation analysis report.
 	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	public interface IAnalysisValue<T> where T : struct
+	/// <typeparam name="T_VARIABLE"></typeparam>
+	public interface IAnalysisValue<T_VARIABLE> where T_VARIABLE : struct
 	{
 		public float ParameterStep { get; set; }
-		public T MeanAbsoluteError { get; set; }
-		public T[] SimulationValues { get; set; }
+		public T_VARIABLE MeanAbsoluteError { get; set; }
+		public T_VARIABLE[] SimulationValues { get; set; }
 	}
 
 	/// <summary>
 	/// Differential equation analysis report.
 	/// </summary>
-	public abstract class DEAnalysisReport<T_VALUE, T_VARIABLE> : ScriptableObject, ISerializationCallbackReceiver
-		where T_VALUE : IAnalysisValue<T_VARIABLE>, new()
+	/// <typeparam name="T_ANALYSIS_VALUE"></typeparam>
+	/// <typeparam name="T_VARIABLE"></typeparam>
+	public abstract class DEAnalysisReport<T_ANALYSIS_VALUE, T_VARIABLE> : ScriptableObject, ISerializationCallbackReceiver
+		where T_ANALYSIS_VALUE : IAnalysisValue<T_VARIABLE>, new()
 		where T_VARIABLE : struct
 	{
 		#region Fields
@@ -35,7 +37,7 @@ namespace dExplorer.Editor.Mathematics
 		[HideInInspector] public float MaxParameter;
 
 		private DateTime _creationDateTime;
-		private Dictionary<DESolvingType, List<T_VALUE>> _data;
+		private Dictionary<DESolvingType, List<T_ANALYSIS_VALUE>> _data;
 
 		#region Serialization Fields
 		[HideInInspector] [SerializeField] private int _serializedCreationYear = 0;
@@ -70,7 +72,7 @@ namespace dExplorer.Editor.Mathematics
 			MaxParameter = 0.0f;
 
 			_creationDateTime = DateTime.UtcNow;
-			_data = new Dictionary<DESolvingType, List<T_VALUE>>();
+			_data = new Dictionary<DESolvingType, List<T_ANALYSIS_VALUE>>();
 		}
 		#endregion Constructors
 
@@ -95,12 +97,12 @@ namespace dExplorer.Editor.Mathematics
 
 			foreach (DESolvingType key in _data.Keys)
 			{
-				List<T_VALUE> analysisValues = _data[key];
+				List<T_ANALYSIS_VALUE> analysisValues = _data[key];
 				arraySize += analysisValues.Count;
 
 				if (IsFullReport)
 				{
-					foreach (T_VALUE analysisValue in analysisValues)
+					foreach (T_ANALYSIS_VALUE analysisValue in analysisValues)
 					{
 						longArraySize += analysisValue.SimulationValues.Length;
 					}
@@ -127,7 +129,7 @@ namespace dExplorer.Editor.Mathematics
 
 			foreach (DESolvingType key in _data.Keys)
 			{
-				foreach (T_VALUE value in _data[key])
+				foreach (T_ANALYSIS_VALUE value in _data[key])
 				{
 					_serializedDataKeys[index] = key;
 					_serializedDataParameterSteps[index] = value.ParameterStep;
@@ -160,7 +162,7 @@ namespace dExplorer.Editor.Mathematics
 			_creationDateTime = new DateTime(_serializedCreationYear, _serializedCreationMonth, _serializedCreationDay, _serializedCreationHour,
 				_serializedCreationMinute, _serializedCreationSecond, _serializedCreationMillisecond, _serializedCreationDateTimeZone);
 
-			_data = new Dictionary<DESolvingType, List<T_VALUE>>();
+			_data = new Dictionary<DESolvingType, List<T_ANALYSIS_VALUE>>();
 
 			int longIndex = 0;
 
@@ -170,7 +172,7 @@ namespace dExplorer.Editor.Mathematics
 
 				if (_data.ContainsKey(key) == false)
 				{
-					_data.Add(key, new List<T_VALUE>());
+					_data.Add(key, new List<T_ANALYSIS_VALUE>());
 				}
 
 				T_VARIABLE[] simulationValues = null;
@@ -187,7 +189,7 @@ namespace dExplorer.Editor.Mathematics
 					}
 				}
 
-				_data[key].Add(new T_VALUE()
+				_data[key].Add(new T_ANALYSIS_VALUE()
 				{
 					ParameterStep = _serializedDataParameterSteps[i],
 					MeanAbsoluteError = _serializedDataMeanAbsoluteErrors[i],
@@ -208,10 +210,10 @@ namespace dExplorer.Editor.Mathematics
 		{
 			if (_data.ContainsKey(solvingType) == false)
 			{
-				_data.Add(solvingType, new List<T_VALUE>());
+				_data.Add(solvingType, new List<T_ANALYSIS_VALUE>());
 			}
 
-			_data[solvingType].Add(new T_VALUE()
+			_data[solvingType].Add(new T_ANALYSIS_VALUE()
 			{
 				ParameterStep = parameterStep,
 				MeanAbsoluteError = meanAbsoluteError,
