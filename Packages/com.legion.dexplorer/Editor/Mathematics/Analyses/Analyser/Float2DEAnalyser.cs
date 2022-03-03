@@ -5,20 +5,14 @@ namespace dExplorer.Editor.Mathematics
 	using Unity.Burst;
 	using Unity.Collections;
 	using Unity.Collections.LowLevel.Unsafe;
-	using Unity.Jobs;
 	using UnityEngine;
 
 	/// <summary>
 	/// Dimension 2 differential equation simulations with multiple solving types and parameter steps.
 	/// </summary>
-	public class Float2DEAnalyser
+	public class Float2DEAnalyser : DEAnalyser<Float2DEAnalysisReport, Float2DEAnalysisValue, Vector2, Float2DESimulationJob, Float2DEAnalysisJob>
 	{
 		#region Accessors
-		public float MinParameter { get; set; }
-		public float MaxParameter { get; set; }
-		public SortedSet<float> ParameterSteps { get; private set; }
-		public HashSet<DESolvingType> SolvingTypes { get; private set; }
-		public DEModel Model { get; private set; }
 		public FunctionPointer<Float2InitialVariableFunction> InitialVariableFunctionPointer { get; private set; }
 		public FunctionPointer<Float2DerivativeFunction> DerivativeFunctionPointer { get; private set; }
 		public FunctionPointer<Float2AnalyticalSolutionFunction> AnalyticalSolutionFunctionPointer { get; private set; }
@@ -38,14 +32,8 @@ namespace dExplorer.Editor.Mathematics
 			FunctionPointer<Float2InitialVariableFunction> initialVariableFunctionPointer, 
 			FunctionPointer<Float2DerivativeFunction> derivativeFunctionPointer, 
 			FunctionPointer<Float2AnalyticalSolutionFunction> analyticalSolutionFunctionPointer,
-			float minParameter = 0.0f, float maxParameter = 0.0f)
+			float minParameter = 0.0f, float maxParameter = 0.0f) : base(model, minParameter, maxParameter)
 		{
-			MinParameter = minParameter;
-			MaxParameter = maxParameter;
-			ParameterSteps = new SortedSet<float>();
-			SolvingTypes = new HashSet<DESolvingType>();
-
-			Model = model;
 			InitialVariableFunctionPointer = initialVariableFunctionPointer;
 			DerivativeFunctionPointer = derivativeFunctionPointer;
 			AnalyticalSolutionFunctionPointer = analyticalSolutionFunctionPointer;
@@ -53,97 +41,35 @@ namespace dExplorer.Editor.Mathematics
 		#endregion Constructors
 
 		#region Methods
-		/// <summary>
-		/// Launch all simulations and save the aggregate results into a report.
-		/// </summary>
-		/// <param name="isFullReport">Generate a report with all simulation data</param>
-		/// <returns>The analysis report</returns>
-		public unsafe Float2DEAnalysisReport Analyse(bool isFullReport)
+		protected override Float2DESimulationJob GenerateSimulationJob(float realMaxParameter, float parameterStep, DESolvingType solvingType, NativeArray<Vector2> result)
 		{
-			List<Dictionary<DESolvingType, Float2DESimulationJob>> simulationJobs = new List<Dictionary<DESolvingType, Float2DESimulationJob>>(); ;
-			List<Dictionary<DESolvingType, NativeArray<Vector2>>> results = new List<Dictionary<DESolvingType, NativeArray<Vector2>>>();
-			List<Dictionary<DESolvingType, JobHandle>> analyseJobHandles = new List<Dictionary<DESolvingType, JobHandle>>();
-			List<Dictionary<DESolvingType, Float2DEAnalysisJob>> analyseJobs = new List<Dictionary<DESolvingType, Float2DEAnalysisJob>>();
-			NativeArray<Vector2> meanAbsoluteErrors = new NativeArray<Vector2>(ParameterSteps.Count * SolvingTypes.Count, Allocator.Persistent, NativeArrayOptions.ClearMemory);
+			return new Float2DESimulationJob()
+			{
+				ModelData = Model.Data,
+				InitialVariableFunctionPointer = InitialVariableFunctionPointer,
+				DerivativeFunctionPointer = DerivativeFunctionPointer,
+				AnalyticalSolutionFunctionPointer = AnalyticalSolutionFunctionPointer,
 
-			int globalIndex = 0;
-			int meanAbsoluteErrorsPtrIndex = 0;
+				MinParameter = MinParameter,
+				MaxParameter = realMaxParameter,
+				ParameterStep = parameterStep,
+				SolvingType = solvingType,
+
+				Result = result
+			};
+		}
+
+		protected override unsafe Float2DEAnalysisJob GenerateAnalysisJob(DESolvingType solvingType, Dictionary<DESolvingType, NativeArray<Vector2>> results, NativeArray<Vector2> meanAbsoluteErrors, int meanAbsoluteErrorsPtrIndex)
+		{
 			Vector2* meanAbsoluteErrorsPtr = (Vector2*)NativeArrayUnsafeUtility.GetUnsafePtr<Vector2>(meanAbsoluteErrors);
 
-			foreach (float parameterStep in ParameterSteps)
+			return new Float2DEAnalysisJob()
 			{
-				int simulationIterationNb = (int)((MaxParameter - MinParameter) / parameterStep) + 1;
-				float realMaxParameter = (float)MinParameter + (float)(simulationIterationNb - 1) * parameterStep;
-				Dictionary<DESolvingType, JobHandle> simulationJobHandles = new Dictionary<DESolvingType, JobHandle>();
+				ExactValues = results[DESolvingType.ANALYTICAL],
+				Approximations = results[solvingType],
 
-				simulationJobs.Add(new Dictionary<DESolvingType, Float2DESimulationJob>());
-				results.Add(new Dictionary<DESolvingType, NativeArray<Vector2>>());
-				analyseJobHandles.Add(new Dictionary<DESolvingType, JobHandle>());
-				analyseJobs.Add(new Dictionary<DESolvingType, Float2DEAnalysisJob>());
-
-				foreach (DESolvingType solvingType in new HashSet<DESolvingType>(SolvingTypes) { DESolvingType.ANALYTICAL })
-				{
-					results[globalIndex].Add(solvingType, new NativeArray<Vector2>(simulationIterationNb, Allocator.Persistent, NativeArrayOptions.UninitializedMemory));
-
-					simulationJobs[globalIndex].Add(solvingType, new Float2DESimulationJob()
-					{
-						ModelData = Model.Data,
-						InitialVariableFunctionPointer = InitialVariableFunctionPointer,
-						DerivativeFunctionPointer = DerivativeFunctionPointer,
-						AnalyticalSolutionFunctionPointer = AnalyticalSolutionFunctionPointer,
-
-						MinParameter = MinParameter,
-						MaxParameter = realMaxParameter,
-						ParameterStep = parameterStep,
-						SolvingType = solvingType,
-
-						Result = results[globalIndex][solvingType]
-					});
-
-					simulationJobHandles.Add(solvingType, simulationJobs[globalIndex][solvingType].Schedule());
-				}
-
-				foreach (DESolvingType solvingType in SolvingTypes)
-				{
-					analyseJobs[globalIndex].Add(solvingType, new Float2DEAnalysisJob()
-					{
-						ExactValues = results[globalIndex][DESolvingType.ANALYTICAL],
-						Approximations = results[globalIndex][solvingType],
-
-						MeanAbsoluteErrorPtr = meanAbsoluteErrorsPtr + meanAbsoluteErrorsPtrIndex
-					});
-
-					JobHandle dependency = JobHandle.CombineDependencies(simulationJobHandles[solvingType], simulationJobHandles[DESolvingType.ANALYTICAL]);
-					analyseJobHandles[globalIndex][solvingType] = analyseJobs[globalIndex][solvingType].Schedule(dependency);
-
-					meanAbsoluteErrorsPtrIndex++;
-				}
-
-				globalIndex++;
-			}
-
-			Float2DEAnalysisReport report = ScriptableObject.CreateInstance<Float2DEAnalysisReport>();
-			report.IsFullReport = isFullReport;
-
-			globalIndex = 0;
-			int meanAbsoluteErrorIndex = 0;
-
-			foreach (float parameterStep in ParameterSteps)
-			{
-				foreach (DESolvingType solvingType in SolvingTypes)
-				{
-					analyseJobHandles[globalIndex][solvingType].Complete();
-					report.AddValue(solvingType, parameterStep, meanAbsoluteErrors[meanAbsoluteErrorIndex], results[globalIndex][solvingType]);
-					results[globalIndex][solvingType].Dispose();
-					meanAbsoluteErrorIndex++;
-				}
-
-				globalIndex++;
-			}
-
-			meanAbsoluteErrors.Dispose();
-
-			return report;
+				MeanAbsoluteErrorPtr = meanAbsoluteErrorsPtr + meanAbsoluteErrorsPtrIndex
+			};
 		}
 		#endregion Methods
 	}
