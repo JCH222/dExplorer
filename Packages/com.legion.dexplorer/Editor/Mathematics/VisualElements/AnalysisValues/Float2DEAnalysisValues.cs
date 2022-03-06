@@ -25,6 +25,13 @@ namespace dExplorer.Editor.Mathematics
             }
             #endregion Methods
         }
-        #endregion Classes
+		#endregion Classes
+
+		#region Methods
+        protected override string ToString(Vector2 value)
+		{
+            return string.Format("({0}, {1})", value.x, value.y);
+		}
+		#endregion Methods
 	}
 }

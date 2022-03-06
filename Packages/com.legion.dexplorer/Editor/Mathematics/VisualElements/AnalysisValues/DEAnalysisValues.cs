@@ -36,7 +36,7 @@ namespace dExplorer.Editor.Mathematics
 				foreach (KeyValuePair<DESolvingType, T_VARIABLE> pair in value)
 				{
 					text += string.Format("\n{0}", pair.Key);
-					text += string.Format("\n-> {0}", pair.Value);
+					text += string.Format("\n-> {0}", ToString(pair.Value));
 					text += "\n";
 				}
 			}
@@ -47,6 +47,11 @@ namespace dExplorer.Editor.Mathematics
 		protected override void OnSelectionChange(IEnumerable<object> _)
 		{
 			UpdateValueField(_keys[_keysField.selectedIndex]);
+		}
+
+		protected virtual string ToString(T_VARIABLE value)
+		{
+			return value.ToString();
 		}
 		#endregion Methods
 	}
