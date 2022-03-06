@@ -71,7 +71,8 @@ public unsafe class SpringModel : AnalysableDEModel
 
 	#region Constructors
 	public SpringModel(float mass = 1.0f, float stiffness = 0.0f, float neutralLength = 0.0f, 
-		float initialLength = 0.0f, float initialSpeed = 0.0f) : base(8, Allocator.Persistent) 
+		float initialLength = 0.0f, float initialSpeed = 0.0f) : base(8, Allocator.Persistent,
+			GetInitialVariable, ComputeDerivative, ComputeAnalyticalSolution) 
 	{
 		Mass = mass;
 		Stiffness = stiffness;
@@ -82,7 +83,7 @@ public unsafe class SpringModel : AnalysableDEModel
 	#endregion Constructors
 
 	#region Methods
-	protected override void Init()
+	protected override void InitAnalysis()
 	{
 		float displacement = InitialLength - NeutralLength;
 		float naturalFrequency = math.sqrt(Stiffness / Mass);
@@ -92,8 +93,6 @@ public unsafe class SpringModel : AnalysableDEModel
 		_model.SetDataValue(5, naturalFrequency);
 		_model.SetDataValue(6, phase);
 		_model.SetDataValue(7, amplitude);
-
-		ActivateFloat2Dimension(GetInitialVariable, ComputeDerivative, ComputeAnalyticalSolution);
 	}
 
 	protected override void GenerateDefaultDescriptions(out string shortDescription, out string longDescription)

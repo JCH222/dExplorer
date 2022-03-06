@@ -143,6 +143,7 @@ namespace dExplorer.Editor.Commons
         #endregion Accessors
 
         #region Methods
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void OnConfigurationChanged(ChangeEvent<Enum> _)
         {
             _itemsGroup.Clear();
@@ -157,6 +158,7 @@ namespace dExplorer.Editor.Commons
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void Update()
         {
             _header.label = _title;

@@ -70,7 +70,8 @@ public unsafe class DragModel : AnalysableDEModel
 
 	#region Constructors
 	public DragModel(float mass = 1.0f, float fluidDensity = 0.0f, float referenceSurface = 0.0f,
-		float dragCoefficient = 0.0f, float initialSpeed = 0.0f) : base(5, Allocator.Persistent)
+		float dragCoefficient = 0.0f, float initialSpeed = 0.0f) : base(5, Allocator.Persistent,
+			GetInitialVariable, ComputeDerivative, ComputeAnalyticalSolution)
 	{
 		Mass = mass;
 		FluidDensity = fluidDensity;
@@ -81,10 +82,7 @@ public unsafe class DragModel : AnalysableDEModel
 	#endregion Constructors
 
 	#region Methods
-	protected override void Init() 
-	{
-		ActivateFloat1Dimension(GetInitialVariable, ComputeDerivative, ComputeAnalyticalSolution);
-	}
+	protected override void InitAnalysis() { }
 
 	protected override void GenerateDefaultDescriptions(out string shortDescription, out string longDescription)
 	{
