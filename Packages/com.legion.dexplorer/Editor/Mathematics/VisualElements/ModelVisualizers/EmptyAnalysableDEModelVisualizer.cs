@@ -20,6 +20,9 @@ namespace dExplorer.Editor.Mathematics
             _saveFolderSelectionButton.SetEnabled(false);
             _saveFolderSelectionButton.visible = false;
 
+            _reportFolderPathField.SetEnabled(false);
+            _reportFolderPathField.visible = false;
+
             _reportNameField.SetEnabled(false);
             _reportNameField.visible = false;
 

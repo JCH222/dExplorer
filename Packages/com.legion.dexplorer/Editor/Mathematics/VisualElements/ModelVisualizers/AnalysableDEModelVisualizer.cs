@@ -37,6 +37,7 @@ namespace dExplorer.Editor.Mathematics
         protected string _relativeSaveFolderPath;
         protected AnalysableDEModel _model;
         protected Button _saveFolderSelectionButton;
+        protected TextField _reportFolderPathField;
         protected TextField _reportNameField;
         protected Toggle _fullReportOption;
         protected EnumFlagsField _solvingTypesField;
@@ -69,12 +70,15 @@ namespace dExplorer.Editor.Mathematics
                 // TODO : Add error log
                 _relativeSaveFolderPath = "Assets";
 			}
+
+            _reportFolderPathField.value = _relativeSaveFolderPath;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void OnSaveFolderPathChanged()
         {
-            string absoluteFolderPath = EditorUtility.SaveFolderPanel("Select Report Folder", "", "");
+            string absoluteFolderPath = string.IsNullOrEmpty(_relativeSaveFolderPath) ? Application.dataPath : Application.dataPath + _relativeSaveFolderPath.Substring("Assets".Length);
+             absoluteFolderPath = EditorUtility.SaveFolderPanel("Select Report Folder", absoluteFolderPath, string.Empty);
 
             if (string.IsNullOrEmpty(absoluteFolderPath) == false)
 			{
@@ -214,6 +218,9 @@ namespace dExplorer.Editor.Mathematics
 
             _model = InstantiateModel();
 
+            _reportFolderPathField = new TextField();
+            _reportFolderPathField.SetEnabled(false);
+
             _saveFolderSelectionButton = new Button()
             {
                 text = "Select Report Folder"
@@ -271,6 +278,7 @@ namespace dExplorer.Editor.Mathematics
             OnSamplingFrequencyChanged(defaultSamplingFrequency);
 
             Add(_saveFolderSelectionButton);
+            Add(_reportFolderPathField);
             Add(_reportNameField);
             Add(_fullReportOption);
             Add(_solvingTypesField);
