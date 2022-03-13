@@ -13,9 +13,11 @@ namespace dExplorer.Editor.Mathematics
 	/// <typeparam name="T_VARIABLE"></typeparam>
 	public interface IAnalysisValue<T_VARIABLE> where T_VARIABLE : struct
 	{
+		#region Properties
 		public float ParameterStep { get; set; }
 		public T_VARIABLE MeanAbsoluteError { get; set; }
 		public T_VARIABLE[] SimulationValues { get; set; }
+		#endregion Properties
 	}
 
 	/// <summary>
@@ -75,6 +77,13 @@ namespace dExplorer.Editor.Mathematics
 			_data = new Dictionary<DESolvingType, List<T_ANALYSIS_VALUE>>();
 		}
 		#endregion Constructors
+
+		#region Properties
+		/// <summary>
+		/// Creation date.
+		/// </summary>
+		public DateTime CreationDateTime { get { return _creationDateTime; } }
+		#endregion Properties
 
 		#region Methods
 		/// <summary>
