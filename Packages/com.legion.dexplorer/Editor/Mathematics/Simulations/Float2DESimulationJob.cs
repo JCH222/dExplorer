@@ -29,6 +29,7 @@ namespace dExplorer.Editor.Mathematics
 		[ReadOnly] public float ParameterStep;
 		[ReadOnly] public DESolvingType SolvingType;
 
+		[WriteOnly] public NativeArray<float> Time;
 		[WriteOnly] public NativeArray<Vector2> Result;
 		#endregion Fields
 
@@ -39,6 +40,7 @@ namespace dExplorer.Editor.Mathematics
 			float2 initialVariable;
 			InitialVariableFunctionPointer.Invoke(modelDataPtr, &initialVariable);
 
+			Time[0] = MinParameter;
 			Result[0] = initialVariable;
 			float2 currentVariable = initialVariable;
 			
@@ -98,11 +100,13 @@ namespace dExplorer.Editor.Mathematics
 						break;
 				}
 
+				currentParameter += ParameterStep;
+
+				Time[index] = currentParameter;
 				Result[index] = nextVariable;
 				currentVariable = nextVariable;
 
 				index++;
-				currentParameter += ParameterStep;
 			}
         }
 		#endregion Methods

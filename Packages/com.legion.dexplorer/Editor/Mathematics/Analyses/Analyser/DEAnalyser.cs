@@ -55,7 +55,8 @@ namespace dExplorer.Editor.Mathematics
 		/// <returns>The analysis report</returns>
 		public unsafe T_REPORT Analyse(bool isFullReport)
 		{
-			List<Dictionary<DESolvingType, T_SIMULATION_JOB>> simulationJobs = new List<Dictionary<DESolvingType, T_SIMULATION_JOB>>(); ;
+			List<Dictionary<DESolvingType, T_SIMULATION_JOB>> simulationJobs = new List<Dictionary<DESolvingType, T_SIMULATION_JOB>>();
+			List<Dictionary<DESolvingType, NativeArray<float>>> times = new List<Dictionary<DESolvingType, NativeArray<float>>>();
 			List<Dictionary<DESolvingType, NativeArray<T_VARIABLE>>> results = new List<Dictionary<DESolvingType, NativeArray<T_VARIABLE>>>();
 			List<Dictionary<DESolvingType, JobHandle>> analyseJobHandles = new List<Dictionary<DESolvingType, JobHandle>>();
 			List<Dictionary<DESolvingType, T_ANALYSIS_JOB>> analyseJobs = new List<Dictionary<DESolvingType, T_ANALYSIS_JOB>>();
@@ -71,15 +72,18 @@ namespace dExplorer.Editor.Mathematics
 				Dictionary<DESolvingType, JobHandle> simulationJobHandles = new Dictionary<DESolvingType, JobHandle>();
 
 				simulationJobs.Add(new Dictionary<DESolvingType, T_SIMULATION_JOB>());
+				times.Add(new Dictionary<DESolvingType, NativeArray<float>>());
 				results.Add(new Dictionary<DESolvingType, NativeArray<T_VARIABLE>>());
 				analyseJobHandles.Add(new Dictionary<DESolvingType, JobHandle>());
 				analyseJobs.Add(new Dictionary<DESolvingType, T_ANALYSIS_JOB>());
 
 				foreach (DESolvingType solvingType in new HashSet<DESolvingType>(SolvingTypes) { DESolvingType.ANALYTICAL })
 				{
+					NativeArray<float> time = new NativeArray<float>(simulationIterationNb, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
 					NativeArray<T_VARIABLE> result = new NativeArray<T_VARIABLE>(simulationIterationNb, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
-					T_SIMULATION_JOB simulationJob = GenerateSimulationJob(realMaxParameter, parameterStep, solvingType, result);
+					T_SIMULATION_JOB simulationJob = GenerateSimulationJob(realMaxParameter, parameterStep, solvingType, time, result);
 
+					times[globalIndex].Add(solvingType, time);
 					results[globalIndex].Add(solvingType, result);
 					simulationJobs[globalIndex].Add(solvingType, simulationJob);
 					simulationJobHandles.Add(solvingType, simulationJob.Schedule());
@@ -108,9 +112,11 @@ namespace dExplorer.Editor.Mathematics
 			{
 				foreach (DESolvingType solvingType in SolvingTypes)
 				{
+					NativeArray<float> time = times[globalIndex][solvingType];
 					NativeArray<T_VARIABLE> result = results[globalIndex][solvingType];
 					analyseJobHandles[globalIndex][solvingType].Complete();
-					report.AddValue(solvingType, parameterStep, meanAbsoluteErrors[meanAbsoluteErrorIndex], result);
+					report.AddValue(solvingType, parameterStep, meanAbsoluteErrors[meanAbsoluteErrorIndex], time, result);
+					time.Dispose();
 					result.Dispose();
 					meanAbsoluteErrorIndex++;
 				}
@@ -123,7 +129,7 @@ namespace dExplorer.Editor.Mathematics
 			return report;
 		}
 
-		protected abstract T_SIMULATION_JOB GenerateSimulationJob(float realMaxParameter, float parameterStep, DESolvingType solvingType, NativeArray<T_VARIABLE> result);
+		protected abstract T_SIMULATION_JOB GenerateSimulationJob(float realMaxParameter, float parameterStep, DESolvingType solvingType, NativeArray<float> times, NativeArray<T_VARIABLE> result);
 		protected abstract T_ANALYSIS_JOB GenerateAnalysisJob(DESolvingType solvingType, Dictionary<DESolvingType, NativeArray<T_VARIABLE>> results, NativeArray<T_VARIABLE> meanAbsoluteErrors, int meanAbsoluteErrorsPtrIndex);
 		#endregion Methods
 	}

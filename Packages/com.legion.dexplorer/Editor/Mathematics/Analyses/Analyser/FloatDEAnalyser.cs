@@ -40,7 +40,7 @@ namespace dExplorer.Editor.Mathematics
 		#endregion Constructors
 
 		#region Methods
-		protected override FloatDESimulationJob GenerateSimulationJob(float realMaxParameter, float parameterStep, DESolvingType solvingType, NativeArray<float> result)
+		protected override FloatDESimulationJob GenerateSimulationJob(float realMaxParameter, float parameterStep, DESolvingType solvingType, NativeArray<float> time, NativeArray<float> result)
 		{
 			return new FloatDESimulationJob()
 			{
@@ -54,6 +54,7 @@ namespace dExplorer.Editor.Mathematics
 				ParameterStep = parameterStep,
 				SolvingType = solvingType,
 
+				Time = time,
 				Result = result
 			};
 		}

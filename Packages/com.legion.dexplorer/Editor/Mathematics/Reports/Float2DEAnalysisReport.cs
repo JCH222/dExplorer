@@ -10,6 +10,7 @@ namespace dExplorer.Editor.Mathematics
 		#region Fields
 		public float ParameterStep { get; set; }
 		public Vector2 MeanAbsoluteError { get; set; }
+		public float[] SimulationTimes { get; set; }
 		public Vector2[] SimulationValues { get; set; }
 		#endregion Fields
 	}
