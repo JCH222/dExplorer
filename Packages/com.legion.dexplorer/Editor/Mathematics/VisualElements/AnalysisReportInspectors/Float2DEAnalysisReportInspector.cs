@@ -1,10 +1,11 @@
 namespace dExplorer.Editor.Mathematics
 {
+	using dExplorer.Editor.Serializations;
 	using UnityEditor;
 	using UnityEngine;
 
 	[CustomEditor(typeof(Float2DEAnalysisReport))]
-	public class Float2DEAnalysisReportInspector : DEAnalysisReportInspector<Float2DEAnalysisValues, Vector2>
+	public class Float2DEAnalysisReportInspector : DEAnalysisReportInspector<Float2DEAnalysisValues, Vector2, Float2XmlVariableSerializer>
 	{
 		#region Methods
 		protected override Vector2 ExtractMeanAbsoluteError(int index)

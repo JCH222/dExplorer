@@ -1,0 +1,16 @@
+{
+    "name": "dExplorer.Editor.Serializations",
+    "rootNamespace": "",
+    "references": [
+        "GUID:4d7ed00f0956cbd4ea0fa1b710d3949d"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

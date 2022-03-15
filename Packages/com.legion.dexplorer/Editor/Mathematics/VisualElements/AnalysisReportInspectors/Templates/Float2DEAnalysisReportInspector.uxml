@@ -6,4 +6,5 @@
     <uie:FloatField label="Min Parameter" value="0" name="min-parameter" />
     <uie:FloatField label="Max Parameter" value="0" name="max-parameter" />
     <dExplorer.Editor.Mathematics.Float2DEAnalysisValues name="analysis-values" Title="Results" First-Title="TEST" Second-Title="TEST 2" First-Unit="m/s" Second-Unit="m/s^-2" style="opacity: 1; border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0; border-top-left-radius: 0; border-bottom-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-left-color: rgba(0, 0, 0, 0); border-right-color: rgba(0, 0, 0, 0); border-top-color: rgba(0, 0, 0, 0); border-bottom-color: rgba(0, 0, 0, 0);" />
+    <ui:Button text="Export" display-tooltip-when-elided="true" name="export" />
 </ui:UXML>

@@ -1,5 +1,6 @@
 namespace dExplorer.Editor.Mathematics
 {
+	using dExplorer.Editor.Serializations;
 	using dExplorer.Runtime.Mathematics;
 	using System;
 	using System.Collections.Generic;
@@ -26,7 +27,8 @@ namespace dExplorer.Editor.Mathematics
 	/// </summary>
 	/// <typeparam name="T_ANALYSIS_VALUE"></typeparam>
 	/// <typeparam name="T_VARIABLE"></typeparam>
-	public abstract class DEAnalysisReport<T_ANALYSIS_VALUE, T_VARIABLE> : ScriptableObject, ISerializationCallbackReceiver
+	public abstract partial class DEAnalysisReport<T_ANALYSIS_VALUE, T_VARIABLE> : 
+		ScriptableObject, ISerializationCallbackReceiver, IDEAnalysisReportSerializable<T_VARIABLE>
 		where T_ANALYSIS_VALUE : IAnalysisValue<T_VARIABLE>, new()
 		where T_VARIABLE : struct
 	{
@@ -241,6 +243,54 @@ namespace dExplorer.Editor.Mathematics
 				SimulationTimes = IsFullReport ? simulationTimes.ToArray() : null,
 				SimulationValues = IsFullReport ? simulationValues.ToArray() : null
 			});
+		}
+
+		public string GetName()
+		{
+			return Name;
+		}
+
+		public string GetShortDescription()
+		{
+			return ShortDescription;
+		}
+
+		public string GetLongDescription()
+		{
+			return LongDescription;
+		}
+
+		public DateTime GetCreationDate()
+		{
+			return _creationDateTime;
+		}
+
+		public IEnumerable<DESolvingType> GetSolvingTypes()
+		{
+			foreach (DESolvingType solvingType in _data.Keys)
+			{
+				yield return solvingType;
+			}
+		}
+
+		public IEnumerable<Tuple<float, T_VARIABLE>> GetMeanAbsoluteErrors(DESolvingType solvingType)
+		{
+			List<T_ANALYSIS_VALUE> values = _data[solvingType];
+			
+			foreach (T_ANALYSIS_VALUE value in values)
+			{
+				yield return new Tuple<float, T_VARIABLE>(value.ParameterStep, value.MeanAbsoluteError);
+			}
+		}
+
+		public IEnumerable<Tuple<float, T_VARIABLE>> GetSimulationValues(DESolvingType solvingType, int index)
+		{
+			T_ANALYSIS_VALUE analysisValue = _data[solvingType][index];
+			
+			for (int i = 0, length = analysisValue.SimulationTimes.Length; i < length; i++)
+			{
+				yield return new Tuple<float, T_VARIABLE>(analysisValue.SimulationTimes[i], analysisValue.SimulationValues[i]);
+			}
 		}
 		#endregion Methods
 	}

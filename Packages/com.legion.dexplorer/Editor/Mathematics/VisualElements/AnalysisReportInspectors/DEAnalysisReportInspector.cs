@@ -1,17 +1,20 @@
 namespace dExplorer.Editor.Mathematics
 {
 	using dExplorer.Editor.Commons;
+	using dExplorer.Editor.Serializations;
 	using dExplorer.Runtime.Mathematics;
 	using System;
 	using System.Collections.Generic;
 	using System.Runtime.CompilerServices;
+	using System.Text;
 	using UnityEditor;
 	using UnityEditor.UIElements;
 	using UnityEngine.UIElements;
 
-	public abstract class DEAnalysisReportInspector<T_ANALYSIS_VALUES, T_VARIABLE> : Editor
+	public abstract class DEAnalysisReportInspector<T_ANALYSIS_VALUES, T_VARIABLE, T_XML_VARIABLE_SERIALIZER> : Editor
 		where T_ANALYSIS_VALUES : DEAnalysisValues<T_VARIABLE>
 		where T_VARIABLE : struct
+		where T_XML_VARIABLE_SERIALIZER : XmlVariableSerializer<T_VARIABLE>, new()
 	{
 		#region Static Fields
 		private readonly string NAME_TEXT_FIELD_KEY = "name";
@@ -21,6 +24,7 @@ namespace dExplorer.Editor.Mathematics
 		private readonly string MIN_PARAMETER_FLOAT_FIELD_KEY = "min-parameter";
 		private readonly string MAX_PARAMETER_FLOAT_FIELD_KEY = "max-parameter";
 		private readonly string ANALYSIS_VALUES_KEY = "analysis-values";
+		private readonly string EXPORT_BUTTON_KEY = "export";
 		#endregion Static Fields
 
 		#region Fields
@@ -126,6 +130,9 @@ namespace dExplorer.Editor.Mathematics
 					ExtractMeanAbsoluteError(i));
 			}
 
+			Button exportButton = root.Q<Button>(EXPORT_BUTTON_KEY);
+			exportButton.clicked += () => OnExportAsked();
+
 			return root;
 		}
 
@@ -148,6 +155,14 @@ namespace dExplorer.Editor.Mathematics
 		{
 			_longDescription.stringValue = evt.newValue;
 			serializedObject.ApplyModifiedProperties();
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private void OnExportAsked()
+		{
+			// TODO
+			//XmlSerializer<T_VARIABLE, T_XML_VARIABLE_SERIALIZER> serializer = new XmlSerializer<T_VARIABLE, T_XML_VARIABLE_SERIALIZER>(Encoding.UTF8, true);
+			//serializer.Serialize(this.serializedObject.targetObject as IDEAnalysisReportSerializable<T_VARIABLE>);
 		}
 
 		protected abstract string GetUxmlPath();
