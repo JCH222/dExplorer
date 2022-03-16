@@ -11,11 +11,12 @@ namespace dExplorer.Editor.Serializations
 	{
 		#region Fields
 		private readonly XmlVariableSerializer<T_VARIABLE> _variableSerializer;
+		private readonly string _exportFilePath;
 		private readonly XmlWriterSettings _settings ;
 		#endregion Fields
 
 		#region Constructors
-		public XmlSerializer(Encoding encoding, bool indent)
+		public XmlSerializer(string exportFilePath, Encoding encoding, bool indent)
 		{
 			_variableSerializer = new T_VARIABLE_SERIALIZER()
 			{
@@ -23,6 +24,8 @@ namespace dExplorer.Editor.Serializations
 				VariableName = string.Empty,
 				Variable = new T_VARIABLE(),
 			};
+
+			_exportFilePath = exportFilePath;
 
 			_settings = new XmlWriterSettings()
 			{
@@ -35,7 +38,7 @@ namespace dExplorer.Editor.Serializations
 		#region Methods
 		public void Serialize(IDEAnalysisReportSerializable<T_VARIABLE> report)
 		{
-			XmlWriter writer = XmlWriter.Create(string.Format("{0}.xml", report.GetName()), _settings);
+			XmlWriter writer = XmlWriter.Create(_exportFilePath, _settings);
 			XmlDocument document = new XmlDocument();
 			_variableSerializer.Document = document;
 

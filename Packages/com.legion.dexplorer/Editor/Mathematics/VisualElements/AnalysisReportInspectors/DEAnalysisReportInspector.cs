@@ -160,9 +160,10 @@ namespace dExplorer.Editor.Mathematics
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private void OnExportAsked()
 		{
-			// TODO
-			//XmlSerializer<T_VARIABLE, T_XML_VARIABLE_SERIALIZER> serializer = new XmlSerializer<T_VARIABLE, T_XML_VARIABLE_SERIALIZER>(Encoding.UTF8, true);
-			//serializer.Serialize(this.serializedObject.targetObject as IDEAnalysisReportSerializable<T_VARIABLE>);
+			IDEAnalysisReportSerializable<T_VARIABLE> report = this.serializedObject.targetObject as IDEAnalysisReportSerializable<T_VARIABLE>;
+			string exportFilePath = EditorUtility.SaveFilePanel("Export analysis report", "", report.GetName() + ".xml","xml");
+			XmlSerializer<T_VARIABLE, T_XML_VARIABLE_SERIALIZER> serializer = new XmlSerializer<T_VARIABLE, T_XML_VARIABLE_SERIALIZER>(exportFilePath, Encoding.UTF8, true);
+			serializer.Serialize(report);
 		}
 
 		protected abstract string GetUxmlPath();
