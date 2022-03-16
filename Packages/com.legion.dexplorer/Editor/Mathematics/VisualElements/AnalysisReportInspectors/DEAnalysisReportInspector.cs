@@ -162,8 +162,12 @@ namespace dExplorer.Editor.Mathematics
 		{
 			IDEAnalysisReportSerializable<T_VARIABLE> report = this.serializedObject.targetObject as IDEAnalysisReportSerializable<T_VARIABLE>;
 			string exportFilePath = EditorUtility.SaveFilePanel("Export analysis report", "", report.GetName() + ".xml","xml");
-			XmlSerializer<T_VARIABLE, T_XML_VARIABLE_SERIALIZER> serializer = new XmlSerializer<T_VARIABLE, T_XML_VARIABLE_SERIALIZER>(exportFilePath, Encoding.UTF8, true);
-			serializer.Serialize(report);
+
+			if (string.IsNullOrEmpty(exportFilePath) == false)
+			{
+				XmlSerializer<T_VARIABLE, T_XML_VARIABLE_SERIALIZER> serializer = new XmlSerializer<T_VARIABLE, T_XML_VARIABLE_SERIALIZER>(exportFilePath, Encoding.UTF8, true);
+				serializer.Serialize(report);
+			}
 		}
 
 		protected abstract string GetUxmlPath();

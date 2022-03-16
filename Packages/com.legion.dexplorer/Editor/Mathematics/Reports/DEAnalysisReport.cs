@@ -287,9 +287,12 @@ namespace dExplorer.Editor.Mathematics
 		{
 			T_ANALYSIS_VALUE analysisValue = _data[solvingType][index];
 			
-			for (int i = 0, length = analysisValue.SimulationTimes.Length; i < length; i++)
+			if (analysisValue.SimulationTimes != null)
 			{
-				yield return new Tuple<float, T_VARIABLE>(analysisValue.SimulationTimes[i], analysisValue.SimulationValues[i]);
+				for (int i = 0, length = analysisValue.SimulationTimes.Length; i < length; i++)
+				{
+					yield return new Tuple<float, T_VARIABLE>(analysisValue.SimulationTimes[i], analysisValue.SimulationValues[i]);
+				}
 			}
 		}
 		#endregion Methods
