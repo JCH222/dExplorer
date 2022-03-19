@@ -2,6 +2,7 @@ namespace dExplorer.Editor.Mathematics
 {
 	using dExplorer.Runtime.Mathematics;
 	using System;
+	using System.Collections.Generic;
 	using System.Runtime.CompilerServices;
 	using Unity.Mathematics;
 	using UnityEditor;
@@ -290,7 +291,7 @@ namespace dExplorer.Editor.Mathematics
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Analyse()
+        public IEnumerable<AnalysisProgression> Analyse()
 		{
             if (AssetDatabase.IsValidFolder(_relativeSaveFolderPath))
 			{
@@ -303,11 +304,19 @@ namespace dExplorer.Editor.Mathematics
                     _model.AddParameterStep(_maxParameterStepField.value - (float)i * deltaParameterStep);
                 }
 
-                _model.Analyse(_reportNameField.value, _relativeSaveFolderPath, _fullReportOption.value);
+                foreach(AnalysisProgression progression in _model.Analyse(_reportNameField.value, _relativeSaveFolderPath, _fullReportOption.value))
+				{
+                    yield return progression;
+				}
             }
             else
 			{
                 // TODO : Add error log
+                yield return new AnalysisProgression
+                {
+                    Ratio = float.NaN,
+                    Message = string.Empty
+                };
 			}
         }
         #endregion Methods

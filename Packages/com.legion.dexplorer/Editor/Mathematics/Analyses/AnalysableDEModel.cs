@@ -156,7 +156,7 @@ namespace dExplorer.Editor.Mathematics
 		/// <param name="reportName">Name of the report</param>
 		/// <param name="reportPath">Report folder path</param>
 		/// <param name="isFullReport">Generate a report with all simulation data</param>
-		public void Analyse(string reportName, string reportPath, bool isFullReport)
+		public IEnumerable<AnalysisProgression> Analyse(string reportName, string reportPath, bool isFullReport)
 		{
 			InitAnalysis();
 
@@ -175,7 +175,24 @@ namespace dExplorer.Editor.Mathematics
 					analyser.SolvingTypes.Add(solvingType);
 				}
 
-				FloatDEAnalysisReport report = analyser.Analyse(isFullReport);
+				analyser.StartAnalysis();
+
+				foreach (AnalysisProgression progression in analyser.CheckAnalysisProgression())
+				{
+					yield return new AnalysisProgression()
+					{
+						Ratio = progression.Ratio * 0.9f,
+						Message = progression.Message
+					};
+				}
+
+				yield return new AnalysisProgression()
+				{
+					Ratio = 0.9f,
+					Message = "Report generation..."
+				};
+
+				FloatDEAnalysisReport report = analyser.GetAnalysisReport(isFullReport);
 				report.Name = reportName;
 				GenerateDefaultDescriptions(out string shortDescription, out string longDescription);
 				report.ShortDescription = shortDescription;
@@ -184,6 +201,12 @@ namespace dExplorer.Editor.Mathematics
 				report.MaxParameter = _maxParameter;
 				AssetDatabase.CreateAsset(report, reportPath + "/" + reportName + ".asset");
 				AssetDatabase.SaveAssets();
+
+				yield return new AnalysisProgression()
+				{
+					Ratio = 1.0f,
+					Message = "Finalization..."
+				};
 			}
 			else if (_variableType == Type.GetType("Unity.Mathematics.float2"))
 			{
@@ -200,7 +223,24 @@ namespace dExplorer.Editor.Mathematics
 					analyser.SolvingTypes.Add(solvingType);
 				}
 
-				Float2DEAnalysisReport report = analyser.Analyse(isFullReport);
+				analyser.StartAnalysis();
+
+				foreach (AnalysisProgression progression in analyser.CheckAnalysisProgression())
+				{
+					yield return new AnalysisProgression()
+					{
+						Ratio = progression.Ratio * 0.9f,
+						Message = progression.Message
+					};
+				}
+
+				yield return new AnalysisProgression()
+				{
+					Ratio = 0.9f,
+					Message = "Report generation..."
+				};
+
+				Float2DEAnalysisReport report = analyser.GetAnalysisReport(isFullReport);
 				report.Name = reportName;
 				GenerateDefaultDescriptions(out string shortDescription, out string longDescription);
 				report.ShortDescription = shortDescription;
@@ -209,10 +249,21 @@ namespace dExplorer.Editor.Mathematics
 				report.MaxParameter = _maxParameter;
 				AssetDatabase.CreateAsset(report, reportPath + "/" + reportName + ".asset");
 				AssetDatabase.SaveAssets();
+
+				yield return new AnalysisProgression()
+				{
+					Ratio = 1.0f,
+					Message = "Finalization..."
+				};
 			}
 			else
 			{
 				// TODO : Add error log
+				yield return new AnalysisProgression()
+				{
+					Ratio = float.NaN,
+					Message = string.Empty
+				};
 			}
 		}
 

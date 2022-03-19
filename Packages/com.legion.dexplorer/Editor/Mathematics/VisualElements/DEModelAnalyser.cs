@@ -1,5 +1,6 @@
 namespace dExplorer.Editor.Mathematics
 {
+	using System.Threading;
 	using UnityEditor;
 	using UnityEngine.UIElements;
 
@@ -38,8 +39,14 @@ namespace dExplorer.Editor.Mathematics
 			modelSelector.SetEnabled(false);
 			generateButton.SetEnabled(false);
 
-			modelSelector.Analyse();
-			
+			foreach (AnalysisProgression progression in modelSelector.Analyse())
+			{
+				EditorUtility.DisplayProgressBar("Analysis", progression.Message, progression.Ratio);
+				Thread.Sleep(100);
+			}
+
+			EditorUtility.ClearProgressBar();
+
 			modelSelector.SetEnabled(true);
 			generateButton.SetEnabled(true);
 		}

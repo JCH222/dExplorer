@@ -109,9 +109,12 @@ namespace dExplorer.Editor.Mathematics
             UpdateValueField(_keys[_keysField.selectedIndex]);
         }
 
-        public void Analyse()
+        public IEnumerable<AnalysisProgression> Analyse()
 		{
-            _valueField.Analyse();
+            foreach (AnalysisProgression progression in _valueField.Analyse())
+			{
+                yield return progression;
+			}
         }
         #endregion Methods
     }
