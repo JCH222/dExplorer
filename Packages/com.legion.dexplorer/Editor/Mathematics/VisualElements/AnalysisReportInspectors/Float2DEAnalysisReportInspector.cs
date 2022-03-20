@@ -5,7 +5,7 @@ namespace dExplorer.Editor.Mathematics
 	using UnityEngine;
 
 	[CustomEditor(typeof(Float2DEAnalysisReport))]
-	public class Float2DEAnalysisReportInspector : DEAnalysisReportInspector<Float2DEAnalysisValues, Vector2, Float2XmlVariableSerializer>
+	public class Float2DEAnalysisReportInspector : DEAnalysisReportInspector<Float2DEAnalysisValues, Vector2, Float2XmlVariableSerializer, Float2CsvVariableSerializer>
 	{
 		#region Methods
 		protected override Vector2 ExtractMeanAbsoluteError(int index)

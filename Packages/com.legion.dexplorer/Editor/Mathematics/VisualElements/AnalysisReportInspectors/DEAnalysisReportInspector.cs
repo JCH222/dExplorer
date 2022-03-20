@@ -11,10 +11,11 @@ namespace dExplorer.Editor.Mathematics
 	using UnityEditor.UIElements;
 	using UnityEngine.UIElements;
 
-	public abstract class DEAnalysisReportInspector<T_ANALYSIS_VALUES, T_VARIABLE, T_XML_VARIABLE_SERIALIZER> : Editor
+	public abstract class DEAnalysisReportInspector<T_ANALYSIS_VALUES, T_VARIABLE, T_XML_VARIABLE_SERIALIZER, T_CSV_VARIABLE_SERIALIZER> : Editor
 		where T_ANALYSIS_VALUES : DEAnalysisValues<T_VARIABLE>
 		where T_VARIABLE : struct
 		where T_XML_VARIABLE_SERIALIZER : XmlVariableSerializer<T_VARIABLE>, new()
+		where T_CSV_VARIABLE_SERIALIZER : CsvVariableSerializer<T_VARIABLE>, new()
 	{
 		#region Static Fields
 		private readonly string NAME_TEXT_FIELD_KEY = "name";
@@ -24,7 +25,8 @@ namespace dExplorer.Editor.Mathematics
 		private readonly string MIN_PARAMETER_FLOAT_FIELD_KEY = "min-parameter";
 		private readonly string MAX_PARAMETER_FLOAT_FIELD_KEY = "max-parameter";
 		private readonly string ANALYSIS_VALUES_KEY = "analysis-values";
-		private readonly string EXPORT_BUTTON_KEY = "export";
+		private readonly string EXPORT_XML_BUTTON_KEY = "export-xml";
+		private readonly string EXPORT_CSV_BUTTON_KEY = "export-csv";
 		#endregion Static Fields
 
 		#region Fields
@@ -130,8 +132,11 @@ namespace dExplorer.Editor.Mathematics
 					ExtractMeanAbsoluteError(i));
 			}
 
-			Button exportButton = root.Q<Button>(EXPORT_BUTTON_KEY);
-			exportButton.clicked += () => OnExportAsked();
+			Button exportXmlButton = root.Q<Button>(EXPORT_XML_BUTTON_KEY);
+			exportXmlButton.clicked += () => OnExportXmlAsked();
+
+			Button exportCsvButton = root.Q<Button>(EXPORT_CSV_BUTTON_KEY);
+			exportCsvButton.clicked += () => OnExportCsvAsked();
 
 			return root;
 		}
@@ -158,7 +163,7 @@ namespace dExplorer.Editor.Mathematics
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private void OnExportAsked()
+		private void OnExportXmlAsked()
 		{
 			IDEAnalysisReportSerializable<T_VARIABLE> report = this.serializedObject.targetObject as IDEAnalysisReportSerializable<T_VARIABLE>;
 			string exportFilePath = EditorUtility.SaveFilePanel("Export analysis report", "", report.GetName() + ".xml","xml");
@@ -166,6 +171,19 @@ namespace dExplorer.Editor.Mathematics
 			if (string.IsNullOrEmpty(exportFilePath) == false)
 			{
 				XmlSerializer<T_VARIABLE, T_XML_VARIABLE_SERIALIZER> serializer = new XmlSerializer<T_VARIABLE, T_XML_VARIABLE_SERIALIZER>(exportFilePath, Encoding.UTF8, true);
+				serializer.Serialize(report);
+			}
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private void OnExportCsvAsked()
+		{
+			IDEAnalysisReportSerializable<T_VARIABLE> report = this.serializedObject.targetObject as IDEAnalysisReportSerializable<T_VARIABLE>;
+			string exportFolderPath = EditorUtility.SaveFolderPanel("Export analysis report", string.Empty, string.Empty);
+
+			if (string.IsNullOrEmpty(exportFolderPath) == false)
+			{
+				CsvSerializer<T_VARIABLE, T_CSV_VARIABLE_SERIALIZER> serializer = new CsvSerializer<T_VARIABLE, T_CSV_VARIABLE_SERIALIZER>(exportFolderPath, ";");
 				serializer.Serialize(report);
 			}
 		}

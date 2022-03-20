@@ -6,5 +6,6 @@
     <uie:FloatField label="Min Parameter" value="42,2" name="min-parameter" readonly="true" />
     <uie:FloatField label="Max Parameter" value="42,2" name="max-parameter" readonly="true" />
     <dExplorer.Editor.Mathematics.FloatDEAnalysisValues name="analysis-values" />
-    <ui:Button text="Export" display-tooltip-when-elided="true" name="export" />
+    <ui:Button text="Export to XML" display-tooltip-when-elided="true" name="export-xml" />
+    <ui:Button text="Export to CSV" display-tooltip-when-elided="true" name="export-csv" />
 </ui:UXML>
