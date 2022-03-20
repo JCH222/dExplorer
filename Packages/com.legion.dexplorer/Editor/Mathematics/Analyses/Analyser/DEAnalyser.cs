@@ -76,7 +76,7 @@ namespace dExplorer.Editor.Mathematics
 
 				List<Dictionary<DESolvingType, T_SIMULATION_JOB>> simulationJobs = new List<Dictionary<DESolvingType, T_SIMULATION_JOB>>();
 				List<Dictionary<DESolvingType, T_ANALYSIS_JOB>> analyseJobs = new List<Dictionary<DESolvingType, T_ANALYSIS_JOB>>();
-				_meanAbsoluteErrors = new NativeArray<T_VARIABLE>(ParameterSteps.Count * SolvingTypes.Count, Allocator.Persistent, NativeArrayOptions.ClearMemory);
+				_meanAbsoluteErrors = new NativeArray<T_VARIABLE>(ParameterSteps.Count * (SolvingTypes.Count + 1), Allocator.Persistent, NativeArrayOptions.ClearMemory);
 
 				int globalIndex = 0;
 				int meanAbsoluteErrorsPtrIndex = 0;
@@ -93,7 +93,9 @@ namespace dExplorer.Editor.Mathematics
 					_analysisJobHandles.Add(new Dictionary<DESolvingType, JobHandle>());
 					analyseJobs.Add(new Dictionary<DESolvingType, T_ANALYSIS_JOB>());
 
-					foreach (DESolvingType solvingType in new HashSet<DESolvingType>(SolvingTypes) { DESolvingType.ANALYTICAL })
+					HashSet<DESolvingType> solvingTypes = new HashSet<DESolvingType>(SolvingTypes) { DESolvingType.ANALYTICAL };
+
+					foreach (DESolvingType solvingType in solvingTypes)
 					{
 						NativeArray<float> time = new NativeArray<float>(simulationIterationNb, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
 						NativeArray<T_VARIABLE> result = new NativeArray<T_VARIABLE>(simulationIterationNb, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
@@ -105,12 +107,19 @@ namespace dExplorer.Editor.Mathematics
 						simulationJobHandles.Add(solvingType, simulationJob.Schedule());
 					}
 
-					foreach (DESolvingType solvingType in SolvingTypes)
+					foreach (DESolvingType solvingType in solvingTypes)
 					{
-						analyseJobs[globalIndex].Add(solvingType, GenerateAnalysisJob(solvingType, _results[globalIndex], _meanAbsoluteErrors, meanAbsoluteErrorsPtrIndex));
+						if (solvingType != DESolvingType.ANALYTICAL)
+						{
+							analyseJobs[globalIndex].Add(solvingType, GenerateAnalysisJob(solvingType, _results[globalIndex], _meanAbsoluteErrors, meanAbsoluteErrorsPtrIndex));
 
-						JobHandle dependency = JobHandle.CombineDependencies(simulationJobHandles[solvingType], simulationJobHandles[DESolvingType.ANALYTICAL]);
-						_analysisJobHandles[globalIndex][solvingType] = analyseJobs[globalIndex][solvingType].Schedule(dependency);
+							JobHandle dependency = JobHandle.CombineDependencies(simulationJobHandles[solvingType], simulationJobHandles[DESolvingType.ANALYTICAL]);
+							_analysisJobHandles[globalIndex][solvingType] = analyseJobs[globalIndex][solvingType].Schedule(dependency);
+						}
+						else
+						{
+							_meanAbsoluteErrors[meanAbsoluteErrorsPtrIndex] = new T_VARIABLE();
+						}
 
 						meanAbsoluteErrorsPtrIndex++;
 					}
@@ -201,11 +210,16 @@ namespace dExplorer.Editor.Mathematics
 
 			foreach (float parameterStep in ParameterSteps)
 			{
-				foreach (DESolvingType solvingType in SolvingTypes)
+				foreach (DESolvingType solvingType in new HashSet<DESolvingType>(SolvingTypes) { DESolvingType.ANALYTICAL })
 				{
 					NativeArray<float> time = _times[globalIndex][solvingType];
 					NativeArray<T_VARIABLE> result = _results[globalIndex][solvingType];
-					_analysisJobHandles[globalIndex][solvingType].Complete();
+
+					if (solvingType != DESolvingType.ANALYTICAL)
+					{
+						_analysisJobHandles[globalIndex][solvingType].Complete();
+					}
+
 					report.AddValue(solvingType, parameterStep, _meanAbsoluteErrors[meanAbsoluteErrorIndex], time, result);
 					time.Dispose();
 					result.Dispose();

@@ -47,20 +47,23 @@ namespace dExplorer.Editor.Serializations
 
 			foreach (DESolvingType solvingType in report.GetSolvingTypes())
 			{
-				solvingTypes.Add(solvingType);
-
-				foreach (Tuple<float, T_VARIABLE> meanAbsoluteErrorData in report.GetMeanAbsoluteErrors(solvingType))
+				if (solvingType != DESolvingType.ANALYTICAL)
 				{
-					float parameterStep = meanAbsoluteErrorData.Item1;
+					solvingTypes.Add(solvingType);
 
-					parameterSteps.Add(parameterStep);
-
-					if (meanAbsoluteErrors.ContainsKey(parameterStep) == false)
+					foreach (Tuple<float, T_VARIABLE> meanAbsoluteErrorData in report.GetMeanAbsoluteErrors(solvingType))
 					{
-						meanAbsoluteErrors.Add(parameterStep, new Dictionary<DESolvingType, T_VARIABLE>());
-					}
+						float parameterStep = meanAbsoluteErrorData.Item1;
 
-					meanAbsoluteErrors[parameterStep].Add(solvingType, meanAbsoluteErrorData.Item2);
+						parameterSteps.Add(parameterStep);
+
+						if (meanAbsoluteErrors.ContainsKey(parameterStep) == false)
+						{
+							meanAbsoluteErrors.Add(parameterStep, new Dictionary<DESolvingType, T_VARIABLE>());
+						}
+
+						meanAbsoluteErrors[parameterStep].Add(solvingType, meanAbsoluteErrorData.Item2);
+					}
 				}
 			}
 

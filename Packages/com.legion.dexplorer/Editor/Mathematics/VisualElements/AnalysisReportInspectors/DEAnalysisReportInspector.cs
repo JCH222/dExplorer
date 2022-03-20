@@ -112,24 +112,28 @@ namespace dExplorer.Editor.Mathematics
 			dateTimeVisualizer.Zone = (DateTimeKind)_creationDateTimeZone.enumValueIndex;
 
 			T_ANALYSIS_VALUES analysisValues = root.Q<T_ANALYSIS_VALUES>(ANALYSIS_VALUES_KEY);
+
 			for (int i = 0, length = _dataParameterSteps.arraySize; i < length; i++)
 			{
-				float parameterStep = _dataParameterSteps.GetArrayElementAtIndex(i).floatValue;
-				Dictionary<DESolvingType, T_VARIABLE> value = null;
+				DESolvingType solvingType = (DESolvingType)_dataKeys.GetArrayElementAtIndex(i).enumValueIndex;
 
-				if (analysisValues.ContainsKey(parameterStep))
+				if (solvingType != DESolvingType.ANALYTICAL)
 				{
-					value = analysisValues[parameterStep];
-				}
-				else
-				{
-					value = new Dictionary<DESolvingType, T_VARIABLE>();
-					analysisValues[parameterStep, parameterStep.ToString()] = value;
-				}
+					float parameterStep = _dataParameterSteps.GetArrayElementAtIndex(i).floatValue;
+					Dictionary<DESolvingType, T_VARIABLE> value = null;
 
-				value.Add(
-					(DESolvingType)_dataKeys.GetArrayElementAtIndex(i).enumValueIndex,
-					ExtractMeanAbsoluteError(i));
+					if (analysisValues.ContainsKey(parameterStep))
+					{
+						value = analysisValues[parameterStep];
+					}
+					else
+					{
+						value = new Dictionary<DESolvingType, T_VARIABLE>();
+						analysisValues[parameterStep, parameterStep.ToString()] = value;
+					}
+
+					value.Add(solvingType, ExtractMeanAbsoluteError(i));
+				}
 			}
 
 			Button exportXmlButton = root.Q<Button>(EXPORT_XML_BUTTON_KEY);
