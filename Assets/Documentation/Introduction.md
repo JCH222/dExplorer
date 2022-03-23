@@ -9,7 +9,9 @@
 > **dExplorer can only analyse first order ODE**, corresponding to this form :
 > 
 > `| y' = f(y(t),t) with  t_min <= t <= t_max`
+> 
 > `| y(t_min) = y_t_min`
+> 
 > - `t` is the parameter
 > - `y` is the variable
 > - `y'` is the derivative variable
@@ -33,8 +35,8 @@ Simulation accuracy is calculated from the exact values. **The simulated ODE mus
 
 ## Would you like to know more ?
 
- - [Simulation configuration]([TODO])
- - [Custom ODE model]([TODO])
- - [Analysis report]([TODO])
- - [Numerical errors]([TODO])
- - [Custom variable]([TODO])
+ - [Simulation configuration](Simulation_Configuration.md)
+ - [Custom ODE model](Custom_ODE_Model.md)
+ - [Analysis report](Analysis_Report.md)
+ - [Numerical errors](Numerical_Errors.md)
+ - [Custom variable](Custom_Variable.md)
