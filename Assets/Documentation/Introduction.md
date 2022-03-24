@@ -39,4 +39,5 @@ Simulation accuracy is calculated from the exact values. **The simulated ODE mus
  - [Custom ODE model](Custom_ODE_Model.md)
  - [Analysis report](Analysis_Report.md)
  - [Numerical errors](Numerical_Errors.md)
+ - [Architecture](Architecture.md)
  - [Custom variable](Custom_Variable.md)
