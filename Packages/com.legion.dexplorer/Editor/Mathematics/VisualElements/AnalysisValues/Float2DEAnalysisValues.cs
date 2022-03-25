@@ -4,7 +4,10 @@ namespace dExplorer.Editor.Mathematics
 	using UnityEngine;
 	using UnityEngine.UIElements;
 
-    public class Float2DEAnalysisValues : DEAnalysisValues<Vector2>
+	/// <summary>
+	/// Visualizer of the float 2 analysis values.
+	/// </summary>
+	public class Float2DEAnalysisValues : DEAnalysisValues<Vector2>
     {
 		#region Classes
 		public new class UxmlFactory : UxmlFactory<Float2DEAnalysisValues, UxmlTraits> { }

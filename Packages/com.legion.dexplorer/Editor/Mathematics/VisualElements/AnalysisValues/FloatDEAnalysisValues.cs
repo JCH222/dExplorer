@@ -3,7 +3,10 @@ namespace dExplorer.Editor.Mathematics
 	using System.Collections.Generic;
     using UnityEngine.UIElements;
 
-    public class FloatDEAnalysisValues : DEAnalysisValues<float>
+	/// <summary>
+	/// Visualizer of the float analysis values.
+	/// </summary>
+	public class FloatDEAnalysisValues : DEAnalysisValues<float>
     {
         #region Classes
         public new class UxmlFactory : UxmlFactory<FloatDEAnalysisValues, UxmlTraits> { }

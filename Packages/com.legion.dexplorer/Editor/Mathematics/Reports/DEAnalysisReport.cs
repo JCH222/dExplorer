@@ -11,7 +11,7 @@ namespace dExplorer.Editor.Mathematics
 	/// <summary>
 	/// Base structure of the unit value in the differential equation analysis report.
 	/// </summary>
-	/// <typeparam name="T_VARIABLE"></typeparam>
+	/// <typeparam name="T_VARIABLE">Variable type</typeparam>
 	public interface IAnalysisValue<T_VARIABLE> where T_VARIABLE : struct
 	{
 		#region Properties
@@ -25,8 +25,8 @@ namespace dExplorer.Editor.Mathematics
 	/// <summary>
 	/// Differential equation analysis report.
 	/// </summary>
-	/// <typeparam name="T_ANALYSIS_VALUE"></typeparam>
-	/// <typeparam name="T_VARIABLE"></typeparam>
+	/// <typeparam name="T_ANALYSIS_VALUE">Analysis value type</typeparam>
+	/// <typeparam name="T_VARIABLE">Variable type</typeparam>
 	public abstract partial class DEAnalysisReport<T_ANALYSIS_VALUE, T_VARIABLE> : 
 		ScriptableObject, ISerializationCallbackReceiver, IDEAnalysisReportSerializable<T_VARIABLE>
 		where T_ANALYSIS_VALUE : IAnalysisValue<T_VARIABLE>, new()
@@ -245,26 +245,46 @@ namespace dExplorer.Editor.Mathematics
 			});
 		}
 
+		/// <summary>
+		/// Get name of the report.
+		/// </summary>
+		/// <returns>Name of the report</returns>
 		public string GetName()
 		{
 			return Name;
 		}
 
+		/// <summary>
+		/// Get short description of the report.
+		/// </summary>
+		/// <returns>Short description of the report</returns>
 		public string GetShortDescription()
 		{
 			return ShortDescription;
 		}
 
+		/// <summary>
+		/// Get long description of the report.
+		/// </summary>
+		/// <returns>Long description of the report</returns>
 		public string GetLongDescription()
 		{
 			return LongDescription;
 		}
 
+		/// <summary>
+		/// Get creation date of the report.
+		/// </summary>
+		/// <returns>Creation date of the report</returns>
 		public DateTime GetCreationDate()
 		{
 			return _creationDateTime;
 		}
 
+		/// <summary>
+		/// Get analyzed solving types in the report.
+		/// </summary>
+		/// <returns>Analyzed solving type in the report</returns>
 		public IEnumerable<DESolvingType> GetSolvingTypes()
 		{
 			foreach (DESolvingType solvingType in _data.Keys)
@@ -273,6 +293,11 @@ namespace dExplorer.Editor.Mathematics
 			}
 		}
 
+		/// <summary>
+		/// Get mean absolute errors generated in the report.
+		/// </summary>
+		/// <param name="solvingType">selected solving type</param>
+		/// <returns>Mean absolute errors generated in the report</returns>
 		public IEnumerable<Tuple<float, T_VARIABLE>> GetMeanAbsoluteErrors(DESolvingType solvingType)
 		{
 			List<T_ANALYSIS_VALUE> values = _data[solvingType];
@@ -283,6 +308,12 @@ namespace dExplorer.Editor.Mathematics
 			}
 		}
 
+		/// <summary>
+		/// Get simulation values generated in the report.
+		/// </summary>
+		/// <param name="solvingType">Selected solving type</param>
+		/// <param name="index">Selected simulation value index</param>
+		/// <returns>Simulation values generated in the report</returns>
 		public IEnumerable<Tuple<float, T_VARIABLE>> GetSimulationValues(DESolvingType solvingType, int index)
 		{
 			T_ANALYSIS_VALUE analysisValue = _data[solvingType][index];

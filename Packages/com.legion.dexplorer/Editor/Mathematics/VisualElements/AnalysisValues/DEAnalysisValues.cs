@@ -5,6 +5,10 @@ namespace dExplorer.Editor.Mathematics
 	using System.Collections.Generic;
 	using UnityEngine.UIElements;
 
+	/// <summary>
+	/// Visualizer of the analysis values.
+	/// </summary>
+	/// <typeparam name="T_VARIABLE">Variable type</typeparam>
 	public abstract class DEAnalysisValues<T_VARIABLE> : StaticDictionaryVisualizer<float, Dictionary<DESolvingType, T_VARIABLE>, TextField>
 		where T_VARIABLE : struct
 	{

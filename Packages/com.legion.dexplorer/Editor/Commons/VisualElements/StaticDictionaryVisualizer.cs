@@ -104,6 +104,11 @@ namespace dExplorer.Editor.Commons
             }
         }
 
+		/// <summary>
+		/// Check if the dictionary contains the key.
+		/// </summary>
+		/// <param name="key">Selected key</param>
+		/// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ContainsKey(T_KEY key)
 		{

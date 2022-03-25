@@ -6,9 +6,13 @@ namespace dExplorer.Editor.Mathematics
 	using Unity.Jobs;
 	using UnityEngine;
 
+	/// <summary>
+	/// Information about the analysis progression.
+	/// </summary>
 	public struct AnalysisProgression
 	{
 		#region Fields
+		/// Completion value (0.0f <= Ratio <= 1.0f)
 		public float Ratio;
 		public string Message;
 		#endregion Fields
@@ -134,9 +138,9 @@ namespace dExplorer.Editor.Mathematics
 		}
 
 		/// <summary>
-		/// 
+		/// Get the progression status of the current anaysis.
 		/// </summary>
-		/// <returns></returns>
+		/// <returns>Current anaysis status</returns>
 		public IEnumerable<AnalysisProgression> CheckAnalysisProgression()
 		{
 			if (_isAnalysing)
@@ -202,41 +206,49 @@ namespace dExplorer.Editor.Mathematics
 		/// <returns>The analysis report</returns>
 		public T_REPORT GetAnalysisReport(bool isFullReport)
 		{
-			T_REPORT report = ScriptableObject.CreateInstance<T_REPORT>();
-			report.IsFullReport = isFullReport;
-
-			int globalIndex = 0;
-			int meanAbsoluteErrorIndex = 0;
-
-			foreach (float parameterStep in ParameterSteps)
+			if (_isAnalysing == true)
 			{
-				foreach (DESolvingType solvingType in new HashSet<DESolvingType>(SolvingTypes) { DESolvingType.ANALYTICAL })
-				{
-					NativeArray<float> time = _times[globalIndex][solvingType];
-					NativeArray<T_VARIABLE> result = _results[globalIndex][solvingType];
+				T_REPORT report = ScriptableObject.CreateInstance<T_REPORT>();
+				report.IsFullReport = isFullReport;
 
-					if (solvingType != DESolvingType.ANALYTICAL)
+				int globalIndex = 0;
+				int meanAbsoluteErrorIndex = 0;
+
+				foreach (float parameterStep in ParameterSteps)
+				{
+					foreach (DESolvingType solvingType in new HashSet<DESolvingType>(SolvingTypes) { DESolvingType.ANALYTICAL })
 					{
-						_analysisJobHandles[globalIndex][solvingType].Complete();
+						NativeArray<float> time = _times[globalIndex][solvingType];
+						NativeArray<T_VARIABLE> result = _results[globalIndex][solvingType];
+
+						if (solvingType != DESolvingType.ANALYTICAL)
+						{
+							_analysisJobHandles[globalIndex][solvingType].Complete();
+						}
+
+						report.AddValue(solvingType, parameterStep, _meanAbsoluteErrors[meanAbsoluteErrorIndex], time, result);
+						time.Dispose();
+						result.Dispose();
+						meanAbsoluteErrorIndex++;
 					}
 
-					report.AddValue(solvingType, parameterStep, _meanAbsoluteErrors[meanAbsoluteErrorIndex], time, result);
-					time.Dispose();
-					result.Dispose();
-					meanAbsoluteErrorIndex++;
+					globalIndex++;
 				}
 
-				globalIndex++;
+				_times.Clear();
+				_results.Clear();
+				_analysisJobHandles.Clear();
+				_meanAbsoluteErrors.Dispose();
+
+				_isAnalysing = false;
+
+				return report;
 			}
-
-			_times.Clear();
-			_results.Clear();
-			_analysisJobHandles.Clear();
-			_meanAbsoluteErrors.Dispose();
-
-			_isAnalysing = false;
-
-			return report;
+			else
+			{
+				// TODO : Add error log
+				return null;
+			}
 		}
 
 		protected abstract T_SIMULATION_JOB GenerateSimulationJob(float realMaxParameter, float parameterStep, DESolvingType solvingType, NativeArray<float> times, NativeArray<T_VARIABLE> result);

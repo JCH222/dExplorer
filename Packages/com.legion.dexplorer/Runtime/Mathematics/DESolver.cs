@@ -15,7 +15,7 @@ namespace dExplorer.Runtime.Mathematics
 	}
 
 	/// <summary>
-	/// Differential equation solvers.
+	/// Differential equation solver.
 	/// </summary>
 	public static class DESolver
 	{

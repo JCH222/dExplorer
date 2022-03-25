@@ -20,15 +20,15 @@ namespace dExplorer.Editor.Mathematics
 		protected HashSet<float> _parameterSteps;
 		protected HashSet<DESolvingType> _solvingTypes;
 
-		private Type _variableType;
+		private readonly Type _variableType;
 
-		private FunctionPointer<FloatInitialVariableFunction> _floatInitialVariableFunction;
-		private FunctionPointer<FloatDerivativeFunction> _floatDerivativeFunction;
-		private FunctionPointer<FloatAnalyticalSolutionFunction> _floatAnalyticalSolutionFunction;
+		private readonly FunctionPointer<FloatInitialVariableFunction> _floatInitialVariableFunction;
+		private readonly FunctionPointer<FloatDerivativeFunction> _floatDerivativeFunction;
+		private readonly FunctionPointer<FloatAnalyticalSolutionFunction> _floatAnalyticalSolutionFunction;
 
-		private FunctionPointer<Float2InitialVariableFunction> _float2InitialVariableFunction;
-		private FunctionPointer<Float2DerivativeFunction> _float2DerivativeFunction;
-		private FunctionPointer<Float2AnalyticalSolutionFunction> _float2AnalyticalSolutionFunction;
+		private readonly FunctionPointer<Float2InitialVariableFunction> _float2InitialVariableFunction;
+		private readonly FunctionPointer<Float2DerivativeFunction> _float2DerivativeFunction;
+		private readonly FunctionPointer<Float2AnalyticalSolutionFunction> _float2AnalyticalSolutionFunction;
 		#endregion Fields
 
 		#region Constructors

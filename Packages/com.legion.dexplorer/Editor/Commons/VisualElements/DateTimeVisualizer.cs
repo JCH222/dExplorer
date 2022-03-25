@@ -131,6 +131,7 @@ namespace dExplorer.Editor.Commons
                 Update();
             }
         }
+
         public int Year 
         {
             get
@@ -143,6 +144,7 @@ namespace dExplorer.Editor.Commons
                 Update();
             }
         }
+
         public int Month 
         {
             get
@@ -155,6 +157,7 @@ namespace dExplorer.Editor.Commons
                 Update();
             }
         }
+
         public int Day 
         {
             get
@@ -167,6 +170,7 @@ namespace dExplorer.Editor.Commons
                 Update();
             }
         }
+
         public int Hour 
         {
             get
@@ -179,6 +183,7 @@ namespace dExplorer.Editor.Commons
                 Update();
             }
         }
+
         public int Minute
         {
             get
@@ -191,6 +196,7 @@ namespace dExplorer.Editor.Commons
                 Update();
             }
         }
+
         public int Second 
         {
             get
@@ -203,6 +209,7 @@ namespace dExplorer.Editor.Commons
                 Update();
             }
         }
+
         public int Millisecond 
         {
             get
@@ -215,6 +222,7 @@ namespace dExplorer.Editor.Commons
                 Update();
             }
         }
+
         public DateTimeKind Zone 
         {
             get
@@ -227,6 +235,7 @@ namespace dExplorer.Editor.Commons
                 Update();
             }
         }
+
         public DateTimeFormat Format 
         {
             get
@@ -242,6 +251,12 @@ namespace dExplorer.Editor.Commons
         #endregion Accessors
 
         #region Static Methods
+		/// <summary>
+		/// Convert DateTime into string value.
+		/// </summary>
+		/// <param name="format">DateTime display formal</param>
+		/// <param name="dateTime">Selected DateTime</param>
+		/// <returns></returns>
         public static string ToString(DateTimeFormat format, DateTime dateTime)
         {
 			string result = format switch
@@ -298,6 +313,10 @@ namespace dExplorer.Editor.Commons
             _formatEnumField.value = _format;
         }
 
+		/// <summary>
+		/// Set DateTime value.
+		/// </summary>
+		/// <param name="dateTime">New DateTime value</param>
         public void SetDateTime(DateTime dateTime)
 		{
             DateTimeKind initialZone = dateTime.Kind;

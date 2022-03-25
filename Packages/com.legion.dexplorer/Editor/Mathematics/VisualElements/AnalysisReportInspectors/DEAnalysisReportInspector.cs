@@ -11,6 +11,13 @@ namespace dExplorer.Editor.Mathematics
 	using UnityEditor.UIElements;
 	using UnityEngine.UIElements;
 
+	/// <summary>
+	/// Analysis report visualizer.
+	/// </summary>
+	/// <typeparam name="T_ANALYSIS_VALUES">Analysis values type</typeparam>
+	/// <typeparam name="T_VARIABLE">Variable type</typeparam>
+	/// <typeparam name="T_XML_VARIABLE_SERIALIZER">XML serializer type</typeparam>
+	/// <typeparam name="T_CSV_VARIABLE_SERIALIZER">CSV serializer type</typeparam>
 	public abstract class DEAnalysisReportInspector<T_ANALYSIS_VALUES, T_VARIABLE, T_XML_VARIABLE_SERIALIZER, T_CSV_VARIABLE_SERIALIZER> : Editor
 		where T_ANALYSIS_VALUES : DEAnalysisValues<T_VARIABLE>
 		where T_VARIABLE : struct
