@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "displayName": "dExplorer",
   "description": "Differential equation analysis tool",
-  "documentationUrl": "https://github.com/JCH222/dExplorer/blob/main/Assets/Documentation/Introduction.md",
+  "documentationUrl": "https://github.com/JCH222/dExplorer/blob/release-0.1.0/Assets/Documentation/Introduction.md",
   "unity": "2020.3",
   "dependencies": {
     "com.unity.burst": "1.4.11",
