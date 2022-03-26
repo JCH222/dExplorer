@@ -1,0 +1,18 @@
+{
+    "name": "dExplorer.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:329e890436f0f644dbc3e5d9f7acaa00",
+        "GUID:dd186f7106f202b4ebd1bc8b57a7c994",
+        "GUID:4d0da2499787a614ca92ad1bb2085539"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -5,6 +5,7 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {
+        "com.unity.burst": "1.4.11",
         "com.unity.mathematics": "1.2.5"
       }
     },
