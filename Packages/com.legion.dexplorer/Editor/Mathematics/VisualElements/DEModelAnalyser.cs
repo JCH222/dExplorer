@@ -8,7 +8,7 @@ namespace dExplorer.Editor.Mathematics
     {
 		#region Constants
 		private const string NAME = "Diff Equation Analyser";
-		private const string UXML_FILE_PATH = "Packages/com.legion.dexplorer/Editor/Mathematics/VisualElements/DEModelAnalyser.uxml";
+		private const string UXML_FILE_PATH = "Packages/com.legion.dexplorer/Editor/Mathematics/VisualElements/Templates/DEModelAnalyser.uxml";
 		#endregion Constants
 
 		#region Static Fields
