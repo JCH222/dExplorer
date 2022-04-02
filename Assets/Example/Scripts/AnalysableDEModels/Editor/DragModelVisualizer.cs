@@ -12,6 +12,7 @@ public class DragModelVisualizer : AnalysableDEModelVisualizer
     private FloatField _referenceSurfaceField;
     private FloatField _dragCoefficientField;
     private FloatField _initialSpeedField;
+    private FloatField _additionalForceField;
     #endregion Fields
 
     #region Methods
@@ -80,6 +81,17 @@ public class DragModelVisualizer : AnalysableDEModelVisualizer
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void OnAdditionalForceChanged(ChangeEvent<float> evt)
+    {
+        if (_model != null)
+        {
+            DragModel model = (_model as DragModel);
+            model.AdditionalForce = evt.newValue;
+            _additionalForceField.value = model.AdditionalForce;
+        }
+    }
+
     public override void Init()
 	{
 		base.Init();
@@ -104,11 +116,15 @@ public class DragModelVisualizer : AnalysableDEModelVisualizer
         _initialSpeedField = new FloatField("Initial Speed [m/s]");
         _initialSpeedField.RegisterValueChangedCallback(OnInitialSpeedChanged);
 
+        _additionalForceField = new FloatField("Additional Force [N]");
+        _additionalForceField.RegisterValueChangedCallback(OnAdditionalForceChanged);
+
         Add(_massField);
         Add(_fluidDensityField);
         Add(_referenceSurfaceField);
         Add(_dragCoefficientField);
         Add(_initialSpeedField);
+        Add(_additionalForceField);
     }
 	#endregion Methods
 }

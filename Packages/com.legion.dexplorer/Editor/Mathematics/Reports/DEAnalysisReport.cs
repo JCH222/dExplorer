@@ -5,6 +5,7 @@ namespace dExplorer.Editor.Mathematics
 	using System;
 	using System.Collections.Generic;
 	using System.Runtime.CompilerServices;
+	using Unity.Burst;
 	using Unity.Collections;
 	using UnityEngine;
 
@@ -17,7 +18,7 @@ namespace dExplorer.Editor.Mathematics
 		#region Properties
 		public float ParameterStep { get; set; }
 		public T_VARIABLE MeanAbsoluteError { get; set; }
-		public float[] SimulationTimes { get; set; }
+		public float[] SimulationParameters { get; set; }
 		public T_VARIABLE[] SimulationValues { get; set; }
 		#endregion Properties
 	}
@@ -58,7 +59,7 @@ namespace dExplorer.Editor.Mathematics
 		[HideInInspector] [SerializeField] private float[] _serializedDataParameterSteps;
 		[HideInInspector] [SerializeField] private T_VARIABLE[] _serializedDataMeanAbsoluteErrors;
 		[HideInInspector] [SerializeField] private int[] _serializedSimulationSizes;
-		[HideInInspector] [SerializeField] private float[] _serializedSimulationsTimes;
+		[HideInInspector] [SerializeField] private float[] _serializedSimulationsParameters;
 		[HideInInspector] [SerializeField] private T_VARIABLE[] _serializedSimulationsValues;
 		#endregion Serialization Fields
 		#endregion Fields
@@ -129,13 +130,13 @@ namespace dExplorer.Editor.Mathematics
 			if (IsFullReport)
 			{
 				_serializedSimulationSizes = new int[arraySize];
-				_serializedSimulationsTimes = new float[longArraySize];
+				_serializedSimulationsParameters = new float[longArraySize];
 				_serializedSimulationsValues = new T_VARIABLE[longArraySize];
 			}
 			else
 			{
 				_serializedSimulationSizes = null;
-				_serializedSimulationsTimes = null;
+				_serializedSimulationsParameters = null;
 				_serializedSimulationsValues = null;
 			}
 
@@ -157,7 +158,7 @@ namespace dExplorer.Editor.Mathematics
 
 						for (int i = 0; i < simulationValueNb; i++)
 						{
-							_serializedSimulationsTimes[longIndex] = value.SimulationTimes[i];
+							_serializedSimulationsParameters[longIndex] = value.SimulationParameters[i];
 							_serializedSimulationsValues[longIndex] = value.SimulationValues[i];
 
 							longIndex++;
@@ -192,17 +193,17 @@ namespace dExplorer.Editor.Mathematics
 				}
 
 				T_VARIABLE[] simulationValues = null;
-				float[] simulationTimes = null;
+				float[] simulationParameters = null;
 
 				if (IsFullReport)
 				{
 					int simulationValueNb = _serializedSimulationSizes[i];
 					simulationValues = new T_VARIABLE[simulationValueNb];
-					simulationTimes = new float[simulationValueNb];
+					simulationParameters = new float[simulationValueNb];
 
 					for (int j = 0; j < simulationValueNb; j++)
 					{
-						simulationTimes[j] = _serializedSimulationsTimes[longIndex];
+						simulationParameters[j] = _serializedSimulationsParameters[longIndex];
 						simulationValues[j] = _serializedSimulationsValues[longIndex];
 
 						longIndex++;
@@ -213,7 +214,7 @@ namespace dExplorer.Editor.Mathematics
 				{
 					ParameterStep = _serializedDataParameterSteps[i],
 					MeanAbsoluteError = _serializedDataMeanAbsoluteErrors[i],
-					SimulationTimes = simulationTimes,
+					SimulationParameters = simulationParameters,
 					SimulationValues = simulationValues
 				});
 			}
@@ -225,11 +226,11 @@ namespace dExplorer.Editor.Mathematics
 		/// <param name="solvingType">Solving type of the simulation</param>
 		/// <param name="parameterStep">Parameter step of the simulation</param>
 		/// <param name="meanAbsoluteError">Mean absolute error of the simulation</param>
-		/// <param name="simulationTimes">Simulation times</param>
+		/// <param name="simulationParameters">Simulation parameters</param>
 		/// <param name="simulationValues">Simulation result</param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void AddValue(DESolvingType solvingType, float parameterStep, T_VARIABLE meanAbsoluteError, 
-			NativeArray<float> simulationTimes, NativeArray<T_VARIABLE> simulationValues)
+			NativeArray<float> simulationParameters, NativeArray<T_VARIABLE> simulationValues)
 		{
 			if (_data.ContainsKey(solvingType) == false)
 			{
@@ -240,7 +241,7 @@ namespace dExplorer.Editor.Mathematics
 			{
 				ParameterStep = parameterStep,
 				MeanAbsoluteError = meanAbsoluteError,
-				SimulationTimes = IsFullReport ? simulationTimes.ToArray() : null,
+				SimulationParameters = IsFullReport ? simulationParameters.ToArray() : null,
 				SimulationValues = IsFullReport ? simulationValues.ToArray() : null
 			});
 		}
@@ -318,11 +319,11 @@ namespace dExplorer.Editor.Mathematics
 		{
 			T_ANALYSIS_VALUE analysisValue = _data[solvingType][index];
 			
-			if (analysisValue.SimulationTimes != null)
+			if (analysisValue.SimulationParameters != null)
 			{
-				for (int i = 0, length = analysisValue.SimulationTimes.Length; i < length; i++)
+				for (int i = 0, length = analysisValue.SimulationParameters.Length; i < length; i++)
 				{
-					yield return new Tuple<float, T_VARIABLE>(analysisValue.SimulationTimes[i], analysisValue.SimulationValues[i]);
+					yield return new Tuple<float, T_VARIABLE>(analysisValue.SimulationParameters[i], analysisValue.SimulationValues[i]);
 				}
 			}
 		}

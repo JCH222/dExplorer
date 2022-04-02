@@ -11,6 +11,7 @@ namespace dExplorer.Editor.Mathematics
 	public unsafe delegate void Float2InitialVariableFunction(float* modelData, float2* initialVariable);
 	public unsafe delegate void Float2DerivativeFunction(float* modelData, float2* currentVariable, float currentParameter, float2* currentDerivative);
 	public unsafe delegate void Float2AnalyticalSolutionFunction(float* modelData, float currentParameter, float2* currentVariable);
+	public unsafe delegate void Float2VariableDimensionalizationFunction(float* modelData, float2* nonDimensionalizedVariable, float2* dimensionalizedVariable);
 
 	/// <summary>
 	/// Dimension 2 differential equation simulation with specific solving type, duration and parameter step.
@@ -19,17 +20,20 @@ namespace dExplorer.Editor.Mathematics
     public struct Float2DESimulationJob : IJob
     {
 		#region Fields
+		[ReadOnly] public bool IsNondimensionalized;
 		[ReadOnly] public NativeArray<float> ModelData;
 		[ReadOnly] public FunctionPointer<Float2InitialVariableFunction> InitialVariableFunctionPointer;
 		[ReadOnly] public FunctionPointer<Float2DerivativeFunction> DerivativeFunctionPointer;
 		[ReadOnly] public FunctionPointer<Float2AnalyticalSolutionFunction> AnalyticalSolutionFunctionPointer;
+		[ReadOnly] public FunctionPointer<Float2VariableDimensionalizationFunction> VariableDimensionalizationFunctionPointer;
+		[ReadOnly] public FunctionPointer<ParameterDimensionalizationFunction> ParameterDimensionalizationFunctionPointer;
 
 		[ReadOnly] public float MinParameter;
 		[ReadOnly] public float MaxParameter;
 		[ReadOnly] public float ParameterStep;
 		[ReadOnly] public DESolvingType SolvingType;
 
-		[WriteOnly] public NativeArray<float> Time;
+		[WriteOnly] public NativeArray<float> Parameter;
 		[WriteOnly] public NativeArray<Vector2> Result;
 		#endregion Fields
 
@@ -40,8 +44,20 @@ namespace dExplorer.Editor.Mathematics
 			float2 initialVariable;
 			InitialVariableFunctionPointer.Invoke(modelDataPtr, &initialVariable);
 
-			Time[0] = MinParameter;
-			Result[0] = initialVariable;
+			if (IsNondimensionalized)
+			{
+				float2 dimensionalizedVariable;
+
+				Parameter[0] = ParameterDimensionalizationFunctionPointer.Invoke(modelDataPtr, MinParameter);
+				VariableDimensionalizationFunctionPointer.Invoke(modelDataPtr, &initialVariable, &dimensionalizedVariable);
+				Result[0] = dimensionalizedVariable;
+			}
+			else
+			{
+				Parameter[0] = MinParameter;
+				Result[0] = initialVariable;
+			}
+
 			float2 currentVariable = initialVariable;
 			
 			int index = 1;
@@ -102,8 +118,19 @@ namespace dExplorer.Editor.Mathematics
 
 				currentParameter += ParameterStep;
 
-				Time[index] = currentParameter;
-				Result[index] = nextVariable;
+				if (IsNondimensionalized)
+				{
+					float2 dimensionalizedVariable;
+					Parameter[index] = ParameterDimensionalizationFunctionPointer.Invoke(modelDataPtr, currentParameter);
+					VariableDimensionalizationFunctionPointer.Invoke(modelDataPtr, &nextVariable, &dimensionalizedVariable);
+					Result[index] = dimensionalizedVariable;
+				}
+				else
+				{
+					Parameter[index] = currentParameter;
+					Result[index] = nextVariable;
+				}
+
 				currentVariable = nextVariable;
 
 				index++;

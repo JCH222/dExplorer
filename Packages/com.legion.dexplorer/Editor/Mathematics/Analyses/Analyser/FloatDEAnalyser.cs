@@ -15,6 +15,7 @@ namespace dExplorer.Editor.Mathematics
 		public FunctionPointer<FloatInitialVariableFunction> InitialVariableFunctionPointer { get; private set; }
 		public FunctionPointer<FloatDerivativeFunction> DerivativeFunctionPointer { get; private set; }
 		public FunctionPointer<FloatAnalyticalSolutionFunction> AnalyticalSolutionFunctionPointer { get; private set; }
+		public FunctionPointer<FloatVariableDimensionalizationFunction> VariableDimensionalizationFunctionPointer { get; private set; }
 		#endregion Accessors
 
 		#region Constructors
@@ -27,15 +28,22 @@ namespace dExplorer.Editor.Mathematics
 		/// <param name="analyticalSolutionFunctionPointer">Analytical solution computation function pointer</param>
 		/// <param name="minParameter">Min parameter value</param>
 		/// <param name="maxParameter">Max parameter value</param>
+		/// <param name="isNondimensionalized">Values are nondimensionalized</param>
+		/// <param name="variableDimensionalizationFunctionPointer">Variable dimensionalization function pointer</param>
+		/// <param name="parameterDimensionalizationFunction">Parameter dimensionalization function</param>
 		public FloatDEAnalyser(DEModel model,
 			FunctionPointer<FloatInitialVariableFunction> initialVariableFunctionPointer,
 			FunctionPointer<FloatDerivativeFunction> derivativeFunctionPointer,
 			FunctionPointer<FloatAnalyticalSolutionFunction> analyticalSolutionFunctionPointer,
-			float minParameter = 0.0f, float maxParameter = 0.0f) : base(model, minParameter, maxParameter)
+			float minParameter, float maxParameter, bool isNondimensionalized,
+			FunctionPointer<FloatVariableDimensionalizationFunction> variableDimensionalizationFunctionPointer,
+			ParameterDimensionalizationFunction parameterDimensionalizationFunction) 
+			: base(model, minParameter, maxParameter, isNondimensionalized, parameterDimensionalizationFunction)
 		{
 			InitialVariableFunctionPointer = initialVariableFunctionPointer;
 			DerivativeFunctionPointer = derivativeFunctionPointer;
 			AnalyticalSolutionFunctionPointer = analyticalSolutionFunctionPointer;
+			VariableDimensionalizationFunctionPointer = variableDimensionalizationFunctionPointer;
 		}
 		#endregion Constructors
 
@@ -44,17 +52,20 @@ namespace dExplorer.Editor.Mathematics
 		{
 			return new FloatDESimulationJob()
 			{
+				IsNondimensionalized = IsNondimensionalized,
 				ModelData = Model.Data,
 				InitialVariableFunctionPointer = InitialVariableFunctionPointer,
 				DerivativeFunctionPointer = DerivativeFunctionPointer,
 				AnalyticalSolutionFunctionPointer = AnalyticalSolutionFunctionPointer,
+				VariableDimensionalizationFunctionPointer = VariableDimensionalizationFunctionPointer,
+				ParameterDimensionalizationFunctionPointer = ParameterDimensionalizationFunctionPointer,
 
 				MinParameter = MinParameter,
 				MaxParameter = realMaxParameter,
 				ParameterStep = parameterStep,
 				SolvingType = solvingType,
 
-				Time = time,
+				Parameter = time,
 				Result = result
 			};
 		}

@@ -8,7 +8,7 @@ namespace dExplorer.Editor.Mathematics
 		#region Fields
 		public float ParameterStep { get; set; }
 		public float MeanAbsoluteError { get; set; }
-		public float[] SimulationTimes { get; set; }
+		public float[] SimulationParameters { get; set; }
 		public float[] SimulationValues { get; set; }
 		#endregion Fields
 	}

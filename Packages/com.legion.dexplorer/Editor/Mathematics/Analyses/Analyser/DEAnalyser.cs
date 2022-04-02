@@ -2,7 +2,9 @@ namespace dExplorer.Editor.Mathematics
 {
 	using dExplorer.Runtime.Mathematics;
 	using System.Collections.Generic;
+	using Unity.Burst;
 	using Unity.Collections;
+	using Unity.Collections.LowLevel.Unsafe;
 	using Unity.Jobs;
 	using UnityEngine;
 
@@ -44,6 +46,9 @@ namespace dExplorer.Editor.Mathematics
 		#region Accessors
 		public float MinParameter { get; set; }
 		public float MaxParameter { get; set; }
+		public bool IsNondimensionalized { get; private set; }
+		public ParameterDimensionalizationFunction ParameterDimensionalizationFunction { get; private set; }
+		public FunctionPointer<ParameterDimensionalizationFunction> ParameterDimensionalizationFunctionPointer { get; private set; }
 		public SortedSet<float> ParameterSteps { get; private set; }
 		public HashSet<DESolvingType> SolvingTypes { get; private set; }
 		public DEModel Model { get; private set; }
@@ -56,15 +61,25 @@ namespace dExplorer.Editor.Mathematics
 		/// <param name="model">Decorated differential equation model</param>
 		/// <param name="minParameter">Min parameter value</param>
 		/// <param name="maxParameter">Max parameter value</param>
-		public DEAnalyser(DEModel model, float minParameter = 0.0f, float maxParameter = 0.0f)
+		/// <param name="isNondimensionalized">Values are nondimensionalized</param>
+		/// <param name="parameterDimensionalizationFunction">Parameter dimensionalization function</param>
+		public DEAnalyser(DEModel model, float minParameter, float maxParameter, bool isNondimensionalized = false, 
+			ParameterDimensionalizationFunction parameterDimensionalizationFunction = null)
 		{
 			MinParameter = minParameter;
 			MaxParameter = maxParameter;
+			IsNondimensionalized = isNondimensionalized;
+			ParameterDimensionalizationFunction = parameterDimensionalizationFunction;
 			ParameterSteps = new SortedSet<float>();
 			SolvingTypes = new HashSet<DESolvingType>();
 			Model = model;
 
 			_isAnalysing = false;
+
+			if (isNondimensionalized)
+			{
+				ParameterDimensionalizationFunctionPointer = BurstCompiler.CompileFunctionPointer<ParameterDimensionalizationFunction>(parameterDimensionalizationFunction);
+			}
 		}
 		#endregion Constructors
 
@@ -204,7 +219,7 @@ namespace dExplorer.Editor.Mathematics
 		/// </summary>
 		/// <param name="isFullReport">Generate a report with all simulation data</param>
 		/// <returns>The analysis report</returns>
-		public T_REPORT GetAnalysisReport(bool isFullReport)
+		public unsafe T_REPORT GetAnalysisReport(bool isFullReport)
 		{
 			if (_isAnalysing == true)
 			{
@@ -213,6 +228,7 @@ namespace dExplorer.Editor.Mathematics
 
 				int globalIndex = 0;
 				int meanAbsoluteErrorIndex = 0;
+				float* modelDataPtr = (float*)Model.Data.GetUnsafeReadOnlyPtr();
 
 				foreach (float parameterStep in ParameterSteps)
 				{
@@ -226,7 +242,9 @@ namespace dExplorer.Editor.Mathematics
 							_analysisJobHandles[globalIndex][solvingType].Complete();
 						}
 
-						report.AddValue(solvingType, parameterStep, _meanAbsoluteErrors[meanAbsoluteErrorIndex], time, result);
+						float newParameterStep = IsNondimensionalized ? ParameterDimensionalizationFunction(modelDataPtr, parameterStep) : parameterStep;
+						report.AddValue(solvingType, newParameterStep, _meanAbsoluteErrors[meanAbsoluteErrorIndex], time, result);
+
 						time.Dispose();
 						result.Dispose();
 						meanAbsoluteErrorIndex++;

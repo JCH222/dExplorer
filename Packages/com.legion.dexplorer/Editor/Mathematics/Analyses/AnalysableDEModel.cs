@@ -8,6 +8,9 @@ namespace dExplorer.Editor.Mathematics
 	using Unity.Mathematics;
 	using UnityEditor;
 
+	public unsafe delegate float ParameterNondimensionalizationFunction(in DEModel model, float parameter);
+	public unsafe delegate float ParameterDimensionalizationFunction(float* modelData, float nonDimensionalizedParameter);
+
 	/// <summary>
 	/// Differential equation model wrapper used for analyses.
 	/// </summary>
@@ -21,33 +24,43 @@ namespace dExplorer.Editor.Mathematics
 		protected HashSet<DESolvingType> _solvingTypes;
 
 		private readonly Type _variableType;
+		private readonly bool _isNondimensionalized;
 
-		private readonly FunctionPointer<FloatInitialVariableFunction> _floatInitialVariableFunction;
-		private readonly FunctionPointer<FloatDerivativeFunction> _floatDerivativeFunction;
-		private readonly FunctionPointer<FloatAnalyticalSolutionFunction> _floatAnalyticalSolutionFunction;
+		private readonly FunctionPointer<FloatInitialVariableFunction> _floatInitialVariableFunctionPointer;
+		private readonly FunctionPointer<FloatDerivativeFunction> _floatDerivativeFunctionPointer;
+		private readonly FunctionPointer<FloatAnalyticalSolutionFunction> _floatAnalyticalSolutionFunctionPointer;
+		private readonly FunctionPointer<FloatVariableDimensionalizationFunction> _floatVariableDimensionalizationFunctionPointer;
 
-		private readonly FunctionPointer<Float2InitialVariableFunction> _float2InitialVariableFunction;
-		private readonly FunctionPointer<Float2DerivativeFunction> _float2DerivativeFunction;
-		private readonly FunctionPointer<Float2AnalyticalSolutionFunction> _float2AnalyticalSolutionFunction;
+		private readonly FunctionPointer<Float2InitialVariableFunction> _float2InitialVariableFunctionPointer;
+		private readonly FunctionPointer<Float2DerivativeFunction> _float2DerivativeFunctionPointer;
+		private readonly FunctionPointer<Float2AnalyticalSolutionFunction> _float2AnalyticalSolutionFunctionPointer;
+		private readonly FunctionPointer<Float2VariableDimensionalizationFunction> _float2VariableDimensionalizationFunctionPointer;
+
+		private readonly ParameterNondimensionalizationFunction _parameterNondimensionalizationFunction;
+		private readonly ParameterDimensionalizationFunction _parameterDimensionalizationFunction;
 		#endregion Fields
 
 		#region Constructors
 		/// <summary>
 		/// Constructor.
 		/// </summary>
-		/// <param name="dataNb">Variable number</param>
-		/// <param name="allocator">Allocation type</param>
-		/// <param name="initialVariableFunction">Initial state function</param>
-		/// <param name="derivativeFunction">Derivative computation function</param>
-		/// <param name="analyticalSolutionFunction">Analytical solution computation function</param>
-		public AnalysableDEModel(int dataNb, Allocator allocator, FloatInitialVariableFunction initialVariableFunction,
-			FloatDerivativeFunction derivativeFunction, FloatAnalyticalSolutionFunction analyticalSolutionFunction)
+		/// <param name="parameterNondimensionalizationFunction">Parameter nondimensionalization function</param>
+		/// <param name="parameterDimensionalizationFunction">Parameter nondimensionalization function</param>
+		private AnalysableDEModel(
+			ParameterNondimensionalizationFunction parameterNondimensionalizationFunction = null,
+			ParameterDimensionalizationFunction parameterDimensionalizationFunction = null)
 		{
-			Init(dataNb, allocator);
-			_variableType = Type.GetType("System.Single");
-			_floatInitialVariableFunction = BurstCompiler.CompileFunctionPointer<FloatInitialVariableFunction>(initialVariableFunction);
-			_floatDerivativeFunction = BurstCompiler.CompileFunctionPointer<FloatDerivativeFunction>(derivativeFunction);
-			_floatAnalyticalSolutionFunction = BurstCompiler.CompileFunctionPointer<FloatAnalyticalSolutionFunction>(analyticalSolutionFunction);
+			_parameterNondimensionalizationFunction = parameterNondimensionalizationFunction;
+			_parameterDimensionalizationFunction = parameterDimensionalizationFunction;
+
+			if (parameterNondimensionalizationFunction != null && parameterDimensionalizationFunction != null)
+			{
+				_isNondimensionalized = true;
+			}
+			else
+			{
+				_isNondimensionalized = false;
+			}
 		}
 
 		/// <summary>
@@ -58,14 +71,55 @@ namespace dExplorer.Editor.Mathematics
 		/// <param name="initialVariableFunction">Initial state function</param>
 		/// <param name="derivativeFunction">Derivative computation function</param>
 		/// <param name="analyticalSolutionFunction">Analytical solution computation function</param>
+		/// <param name="variableDimensionalizationFunction">Variable dimensionalization function</param>
+		/// <param name="parameterNondimensionalizationFunction">Parameter nondimensionalization function</param>
+		/// <param name="parameterDimensionalizationFunction">Parameter dimensionalization function</param>
+		public AnalysableDEModel(int dataNb, Allocator allocator, FloatInitialVariableFunction initialVariableFunction,
+			FloatDerivativeFunction derivativeFunction, FloatAnalyticalSolutionFunction analyticalSolutionFunction,
+			FloatVariableDimensionalizationFunction variableDimensionalizationFunction = null,
+			ParameterNondimensionalizationFunction parameterNondimensionalizationFunction = null,
+			ParameterDimensionalizationFunction parameterDimensionalizationFunction = null) : 
+			this(parameterNondimensionalizationFunction, parameterDimensionalizationFunction)
+		{
+			Init(dataNb, allocator);
+			_variableType = Type.GetType("System.Single");
+			_floatInitialVariableFunctionPointer = BurstCompiler.CompileFunctionPointer<FloatInitialVariableFunction>(initialVariableFunction);
+			_floatDerivativeFunctionPointer = BurstCompiler.CompileFunctionPointer<FloatDerivativeFunction>(derivativeFunction);
+			_floatAnalyticalSolutionFunctionPointer = BurstCompiler.CompileFunctionPointer<FloatAnalyticalSolutionFunction>(analyticalSolutionFunction);
+
+			if (_isNondimensionalized)
+			{
+				_floatVariableDimensionalizationFunctionPointer = BurstCompiler.CompileFunctionPointer<FloatVariableDimensionalizationFunction>(variableDimensionalizationFunction);
+			}
+		}
+
+		/// <summary>
+		/// Constructor.
+		/// </summary>
+		/// <param name="dataNb">Variable number</param>
+		/// <param name="allocator">Allocation type</param>
+		/// <param name="initialVariableFunction">Initial state function</param>
+		/// <param name="derivativeFunction">Derivative computation function</param>
+		/// <param name="analyticalSolutionFunction">Analytical solution computation function</param>
+		/// <param name="parameterNondimensionalizationFunction">Parameter nondimensionalization function</param>
+		/// <param name="parameterDimensionalizationFunction">Parameter dimensionalization function</param>
 		public AnalysableDEModel(int dataNb, Allocator allocator, Float2InitialVariableFunction initialVariableFunction,
-			Float2DerivativeFunction derivativeFunction, Float2AnalyticalSolutionFunction analyticalSolutionFunction)
+			Float2DerivativeFunction derivativeFunction, Float2AnalyticalSolutionFunction analyticalSolutionFunction,
+			Float2VariableDimensionalizationFunction variableDimensionalizationFunction = null,
+			ParameterNondimensionalizationFunction parameterNondimensionalizationFunction = null,
+			ParameterDimensionalizationFunction parameterDimensionalizationFunction = null) :
+			this(parameterNondimensionalizationFunction, parameterDimensionalizationFunction)
 		{
 			Init(dataNb, allocator);
 			_variableType = Type.GetType("Unity.Mathematics.float2");
-			_float2InitialVariableFunction = BurstCompiler.CompileFunctionPointer<Float2InitialVariableFunction>(initialVariableFunction); ;
-			_float2DerivativeFunction = BurstCompiler.CompileFunctionPointer<Float2DerivativeFunction>(derivativeFunction);
-			_float2AnalyticalSolutionFunction = BurstCompiler.CompileFunctionPointer<Float2AnalyticalSolutionFunction>(analyticalSolutionFunction);
+			_float2InitialVariableFunctionPointer = BurstCompiler.CompileFunctionPointer<Float2InitialVariableFunction>(initialVariableFunction); ;
+			_float2DerivativeFunctionPointer = BurstCompiler.CompileFunctionPointer<Float2DerivativeFunction>(derivativeFunction);
+			_float2AnalyticalSolutionFunctionPointer = BurstCompiler.CompileFunctionPointer<Float2AnalyticalSolutionFunction>(analyticalSolutionFunction);
+
+			if (_isNondimensionalized)
+			{
+				_float2VariableDimensionalizationFunctionPointer = BurstCompiler.CompileFunctionPointer<Float2VariableDimensionalizationFunction>(variableDimensionalizationFunction);
+			}
 		}
 		#endregion Constructors
 
@@ -160,12 +214,35 @@ namespace dExplorer.Editor.Mathematics
 		{
 			InitAnalysis();
 
-			if (_variableType == Type.GetType("System.Single"))
+			float minParameter;
+			float maxParameter;
+			HashSet<float> parameterSteps;
+
+			if (_isNondimensionalized)
 			{
-				FloatDEAnalyser analyser = new FloatDEAnalyser(_model, _floatInitialVariableFunction,
-					_floatDerivativeFunction, _floatAnalyticalSolutionFunction, _minParameter, _maxParameter);
+				minParameter = _parameterNondimensionalizationFunction(in _model, _minParameter);
+				maxParameter = _parameterNondimensionalizationFunction(in _model, _maxParameter);
+				parameterSteps = new HashSet<float>();
 
 				foreach (float parameterStep in _parameterSteps)
+				{
+					parameterSteps.Add(_parameterNondimensionalizationFunction(in _model, parameterStep));
+				}
+			}
+			else
+			{
+				minParameter = _minParameter;
+				maxParameter = _maxParameter;
+				parameterSteps = _parameterSteps;
+			}
+
+			if (_variableType == Type.GetType("System.Single"))
+			{
+				FloatDEAnalyser analyser = new FloatDEAnalyser(_model, _floatInitialVariableFunctionPointer, _floatDerivativeFunctionPointer, 
+					_floatAnalyticalSolutionFunctionPointer, minParameter, maxParameter, _isNondimensionalized, 
+					_floatVariableDimensionalizationFunctionPointer, _parameterDimensionalizationFunction);
+
+				foreach (float parameterStep in parameterSteps)
 				{
 					analyser.ParameterSteps.Add(parameterStep);
 				}
@@ -210,10 +287,12 @@ namespace dExplorer.Editor.Mathematics
 			}
 			else if (_variableType == Type.GetType("Unity.Mathematics.float2"))
 			{
-				Float2DEAnalyser analyser = new Float2DEAnalyser(_model, _float2InitialVariableFunction,
-					_float2DerivativeFunction, _float2AnalyticalSolutionFunction, _minParameter, _maxParameter);
+				Float2DEAnalyser analyser = new Float2DEAnalyser(_model, _float2InitialVariableFunctionPointer, _float2DerivativeFunctionPointer, 
+					_float2AnalyticalSolutionFunctionPointer, minParameter, maxParameter, _isNondimensionalized, 
+					_float2VariableDimensionalizationFunctionPointer, _parameterDimensionalizationFunction);
 
-				foreach (float parameterStep in _parameterSteps)
+
+				foreach (float parameterStep in parameterSteps)
 				{
 					analyser.ParameterSteps.Add(parameterStep);
 				}
