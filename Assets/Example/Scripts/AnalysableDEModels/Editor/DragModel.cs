@@ -85,7 +85,7 @@ public unsafe class DragModel : AnalysableDEModel
 	#region Constructors
 	public DragModel(float mass = 1.0f, float fluidDensity = 0.0f, float referenceSurface = 0.0f,
 		float dragCoefficient = 0.0f, float initialSpeed = 0.0f, float additionalForce = 0.0f) : 
-		base(6, Allocator.Persistent, GetInitialVariable, ComputeDerivative, ComputeAnalyticalSolution, 
+		base(6, 0, Allocator.Persistent, GetInitialVariable, ComputeDerivative, ComputeAnalyticalSolution, 
 			DimensionalizeVariable, NondimensionalizeParameter, DimensionalizeParameter)
 	{
 		Mass = mass;

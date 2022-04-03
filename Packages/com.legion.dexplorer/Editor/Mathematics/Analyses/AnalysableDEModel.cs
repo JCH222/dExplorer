@@ -67,6 +67,7 @@ namespace dExplorer.Editor.Mathematics
 		/// Constructor.
 		/// </summary>
 		/// <param name="dataNb">Variable number</param>
+		/// <param name="temporaryDataNb">Variable number</param>
 		/// <param name="allocator">Allocation type</param>
 		/// <param name="initialVariableFunction">Initial state function</param>
 		/// <param name="derivativeFunction">Derivative computation function</param>
@@ -74,14 +75,14 @@ namespace dExplorer.Editor.Mathematics
 		/// <param name="variableDimensionalizationFunction">Variable dimensionalization function</param>
 		/// <param name="parameterNondimensionalizationFunction">Parameter nondimensionalization function</param>
 		/// <param name="parameterDimensionalizationFunction">Parameter dimensionalization function</param>
-		public AnalysableDEModel(int dataNb, Allocator allocator, FloatInitialVariableFunction initialVariableFunction,
+		public AnalysableDEModel(int dataNb, int temporaryDataNb, Allocator allocator, FloatInitialVariableFunction initialVariableFunction,
 			FloatDerivativeFunction derivativeFunction, FloatAnalyticalSolutionFunction analyticalSolutionFunction,
 			FloatVariableDimensionalizationFunction variableDimensionalizationFunction = null,
 			ParameterNondimensionalizationFunction parameterNondimensionalizationFunction = null,
 			ParameterDimensionalizationFunction parameterDimensionalizationFunction = null) : 
 			this(parameterNondimensionalizationFunction, parameterDimensionalizationFunction)
 		{
-			Init(dataNb, allocator);
+			Init(dataNb, temporaryDataNb, allocator);
 			_variableType = Type.GetType("System.Single");
 			_floatInitialVariableFunctionPointer = BurstCompiler.CompileFunctionPointer<FloatInitialVariableFunction>(initialVariableFunction);
 			_floatDerivativeFunctionPointer = BurstCompiler.CompileFunctionPointer<FloatDerivativeFunction>(derivativeFunction);
@@ -97,20 +98,21 @@ namespace dExplorer.Editor.Mathematics
 		/// Constructor.
 		/// </summary>
 		/// <param name="dataNb">Variable number</param>
+		/// <param name="temporaryDataNb">Variable number</param>
 		/// <param name="allocator">Allocation type</param>
 		/// <param name="initialVariableFunction">Initial state function</param>
 		/// <param name="derivativeFunction">Derivative computation function</param>
 		/// <param name="analyticalSolutionFunction">Analytical solution computation function</param>
 		/// <param name="parameterNondimensionalizationFunction">Parameter nondimensionalization function</param>
 		/// <param name="parameterDimensionalizationFunction">Parameter dimensionalization function</param>
-		public AnalysableDEModel(int dataNb, Allocator allocator, Float2InitialVariableFunction initialVariableFunction,
+		public AnalysableDEModel(int dataNb, int temporaryDataNb, Allocator allocator, Float2InitialVariableFunction initialVariableFunction,
 			Float2DerivativeFunction derivativeFunction, Float2AnalyticalSolutionFunction analyticalSolutionFunction,
 			Float2VariableDimensionalizationFunction variableDimensionalizationFunction = null,
 			ParameterNondimensionalizationFunction parameterNondimensionalizationFunction = null,
 			ParameterDimensionalizationFunction parameterDimensionalizationFunction = null) :
 			this(parameterNondimensionalizationFunction, parameterDimensionalizationFunction)
 		{
-			Init(dataNb, allocator);
+			Init(dataNb, temporaryDataNb, allocator);
 			_variableType = Type.GetType("Unity.Mathematics.float2");
 			_float2InitialVariableFunctionPointer = BurstCompiler.CompileFunctionPointer<Float2InitialVariableFunction>(initialVariableFunction); ;
 			_float2DerivativeFunctionPointer = BurstCompiler.CompileFunctionPointer<Float2DerivativeFunction>(derivativeFunction);
@@ -160,10 +162,11 @@ namespace dExplorer.Editor.Mathematics
 		/// Initialize.
 		/// </summary>
 		/// <param name="dataNb">Variable number</param>
+		/// <param name="temporaryDataNb">Temporary variable number</param>
 		/// <param name="allocator">Allocation type</param>
-		private void Init(int dataNb, Allocator allocator)
+		private void Init(int dataNb, int temporaryDataNb, Allocator allocator)
 		{
-			_model = new DEModel(dataNb, allocator);
+			_model = new DEModel(dataNb, temporaryDataNb, allocator);
 			_minParameter = 0.0f;
 			_maxParameter = 0.0f;
 			_parameterSteps = new HashSet<float>();

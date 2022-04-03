@@ -71,7 +71,7 @@ public unsafe class SpringModel : AnalysableDEModel
 
 	#region Constructors
 	public SpringModel(float mass = 1.0f, float stiffness = 0.0f, float neutralLength = 0.0f, 
-		float initialLength = 0.0f, float initialSpeed = 0.0f) : base(8, Allocator.Persistent,
+		float initialLength = 0.0f, float initialSpeed = 0.0f) : base(8, 0, Allocator.Persistent,
 			GetInitialVariable, ComputeDerivative, ComputeAnalyticalSolution) 
 	{
 		Mass = mass;
