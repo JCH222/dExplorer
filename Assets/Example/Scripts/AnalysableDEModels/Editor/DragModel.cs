@@ -85,7 +85,7 @@ public unsafe class DragModel : AnalysableDEModel
 	#region Constructors
 	public DragModel(float mass = 1.0f, float fluidDensity = 0.0f, float referenceSurface = 0.0f,
 		float dragCoefficient = 0.0f, float initialSpeed = 0.0f, float additionalForce = 0.0f) : 
-		base(6, 0, Allocator.Persistent, GetInitialVariable, ComputeDerivative, ComputeAnalyticalSolution, 
+		base(6, 2, Allocator.Persistent, GetInitialVariable, ComputeDerivative, ComputeAnalyticalSolution, 
 			DimensionalizeVariable, NondimensionalizeParameter, DimensionalizeParameter)
 	{
 		Mass = mass;
@@ -98,7 +98,20 @@ public unsafe class DragModel : AnalysableDEModel
 	#endregion Constructors
 
 	#region Methods
-	protected override void InitAnalysis() { }
+	protected override void InitAnalysis() 
+	{
+		float mass = _model.Data[0];
+		float fluidDensity = _model.Data[1];
+		float referenceSurface = _model.Data[2];
+		float dragCoefficient = _model.Data[3];
+		float additionalForce = _model.Data[5];
+
+		Initialize(mass, fluidDensity, referenceSurface, dragCoefficient,
+			additionalForce, out float coefficientA, out float coefficientB);
+
+		_model.SetTemporaryDataValue(0, coefficientA);
+		_model.SetTemporaryDataValue(1, coefficientB);
+	}
 
 	protected override void GenerateDefaultDescriptions(out string shortDescription, out string longDescription)
 	{
@@ -114,47 +127,48 @@ public unsafe class DragModel : AnalysableDEModel
 	#endregion Methods
 
 	#region Static Methods
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	private static void Initialize(float mass, float fluidDensity, float referenceSurface,
+		float dragCoefficient, float additionalForce, out float coefficientA, out float coefficientB)
+	{
+		coefficientA = 0.5f * fluidDensity * referenceSurface * dragCoefficient;
+		coefficientB = additionalForce / mass;
+	}
+
 	[BurstCompile]
 	[MonoPInvokeCallback(typeof(FloatInitialVariableFunction))]
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public unsafe static void GetInitialVariable(float* data, float* initialVariable)
+	public unsafe static void GetInitialVariable(float* modelData, float* modelTemporaryData, float* initialVariable)
 	{
-		float mass = data[0];
-		float fluidDensity = data[1];
-		float referenceSurface = data[2];
-		float dragCoefficient = data[3];
-		float additionalForce = data[5];
+		float additionalForce = modelData[5];
 
-		float coefficientA = 0.5f * fluidDensity * referenceSurface * dragCoefficient;
-		float coefficientB = additionalForce / mass;
+		float coefficientA = modelTemporaryData[0];
+		float coefficientB = modelTemporaryData[1];
 
 		if (coefficientB > math.EPSILON)
 		{
 			float limitSpeed = math.sqrt(additionalForce / coefficientA);
 
-			*initialVariable = data[4] / limitSpeed;
+			*initialVariable = modelData[4] / limitSpeed;
 		}
 		else if (coefficientB < -math.EPSILON)
 		{
 			float limitSpeed = math.sqrt(-additionalForce / coefficientA);
 
-			*initialVariable = data[4] / limitSpeed;
+			*initialVariable = modelData[4] / limitSpeed;
 		}
 		else
 		{
-			*initialVariable = data[4];
+			*initialVariable = modelData[4];
 		}
 	}
 
 	[BurstCompile]
 	[MonoPInvokeCallback(typeof(FloatInitialVariableFunction))]
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void ComputeDerivative(float* data, float* currentVariable, float currentParameter, float* currentDerivative)
+	public static void ComputeDerivative(float* modelData, float* modelTemporaryData, float* currentVariable, float currentParameter, float* currentDerivative)
 	{
-		float mass = data[0];
-		float additionalForce = data[5];
-
-		float coefficientB = additionalForce / mass;
+		float coefficientB = modelTemporaryData[1];
 
 		if (coefficientB > math.EPSILON)
 		{
@@ -179,22 +193,16 @@ public unsafe class DragModel : AnalysableDEModel
 	[BurstCompile]
 	[MonoPInvokeCallback(typeof(FloatInitialVariableFunction))]
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void ComputeAnalyticalSolution(float* data, float currentParameter, float *currentVariable)
+	public static void ComputeAnalyticalSolution(float* modelData, float* modelTemporaryData, float currentParameter, float *currentVariable)
 	{
-		float mass = data[0];
-		float fluidDensity = data[1];
-		float referenceSurface = data[2];
-		float dragCoefficient = data[3];
-		float additionalForce = data[5];
-
-		float coefficientA = 0.5f * fluidDensity * referenceSurface * dragCoefficient;
-		float coefficientB = additionalForce / mass;
+		float coefficientA = modelTemporaryData[0];
+		float coefficientB = modelTemporaryData[1];
 
 		if (coefficientB > math.EPSILON)
 		{
 			float defaultValue = float.NaN;
 			float* initialSpeedRatio = &defaultValue;
-			GetInitialVariable(data, initialSpeedRatio);
+			GetInitialVariable(modelData, modelTemporaryData, initialSpeedRatio);
 
 			float constant = (*initialSpeedRatio - 1.0f) / (*initialSpeedRatio + 1.0f);
 			float coefficient = constant * math.exp(-2.0f * currentParameter);
@@ -205,7 +213,7 @@ public unsafe class DragModel : AnalysableDEModel
 		{
 			float defaultValue = float.NaN;
 			float* initialSpeedRatio = &defaultValue;
-			GetInitialVariable(data, initialSpeedRatio);
+			GetInitialVariable(modelData, modelTemporaryData, initialSpeedRatio);
 
 			float tanParameter = math.tan(-currentParameter);
 			float tanConstant = -*initialSpeedRatio;
@@ -216,7 +224,7 @@ public unsafe class DragModel : AnalysableDEModel
 		{
 			float defaultValue = float.NaN;
 			float* initialSpeed = &defaultValue;
-			GetInitialVariable(data, initialSpeed);
+			GetInitialVariable(modelData, modelTemporaryData, initialSpeed);
 
 			float constant = 1.0f / *initialSpeed;
 
@@ -230,14 +238,11 @@ public unsafe class DragModel : AnalysableDEModel
 	public static float NondimensionalizeParameter(in DEModel model, float parameter)
 	{
 		float mass = model.Data[0];
-		float fluidDensity = model.Data[1];
-		float referenceSurface = model.Data[2];
-		float dragCoefficient = model.Data[3];
 		float additionalForce = model.Data[5];
 
 		float invMass = 1.0f / mass;
-		float coefficientA = 0.5f * fluidDensity * referenceSurface * dragCoefficient;
-		float coefficientB = additionalForce * invMass;
+		float coefficientA = model.TemporaryData[0];
+		float coefficientB = model.TemporaryData[1];
 
 		if (coefficientB > math.EPSILON)
 		{
@@ -256,16 +261,13 @@ public unsafe class DragModel : AnalysableDEModel
 	[BurstCompile]
 	[MonoPInvokeCallback(typeof(ParameterDimensionalizationFunction))]
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static float DimensionalizeParameter(float* modelData, float nonDimensionalizedParameter)
+	public static float DimensionalizeParameter(float* modelData, float* modelTemporaryData, float nonDimensionalizedParameter)
 	{
 		float mass = modelData[0];
-		float fluidDensity = modelData[1];
-		float referenceSurface = modelData[2];
-		float dragCoefficient = modelData[3];
 		float additionalForce = modelData[5];
 
-		float coefficientA = 0.5f * fluidDensity * referenceSurface * dragCoefficient;
-		float coefficientB = additionalForce / mass;
+		float coefficientA = modelTemporaryData[0];
+		float coefficientB = modelTemporaryData[1];
 
 		if (coefficientB > math.EPSILON)
 		{
@@ -284,16 +286,12 @@ public unsafe class DragModel : AnalysableDEModel
 	[BurstCompile]
 	[MonoPInvokeCallback(typeof(FloatVariableDimensionalizationFunction))]
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void DimensionalizeVariable(float* modelData, float* nonDimensionalizedVariable, float* dimensionalizedVariable)
+	public static void DimensionalizeVariable(float* modelData, float* modelTemporaryData, float* nonDimensionalizedVariable, float* dimensionalizedVariable)
 	{
-		float mass = modelData[0];
-		float fluidDensity = modelData[1];
-		float referenceSurface = modelData[2];
-		float dragCoefficient = modelData[3];
 		float additionalForce = modelData[5];
 
-		float coefficientA = 0.5f * fluidDensity * referenceSurface * dragCoefficient;
-		float coefficientB = additionalForce / mass;
+		float coefficientA = modelTemporaryData[0];
+		float coefficientB = modelTemporaryData[1];
 
 		if (coefficientB > math.EPSILON)
 		{

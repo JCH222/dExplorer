@@ -9,7 +9,7 @@ namespace dExplorer.Editor.Mathematics
 	using UnityEditor;
 
 	public unsafe delegate float ParameterNondimensionalizationFunction(in DEModel model, float parameter);
-	public unsafe delegate float ParameterDimensionalizationFunction(float* modelData, float nonDimensionalizedParameter);
+	public unsafe delegate float ParameterDimensionalizationFunction(float* modelData, float* modelTemporaryData, float nonDimensionalizedParameter);
 
 	/// <summary>
 	/// Differential equation model wrapper used for analyses.
@@ -75,7 +75,8 @@ namespace dExplorer.Editor.Mathematics
 		/// <param name="variableDimensionalizationFunction">Variable dimensionalization function</param>
 		/// <param name="parameterNondimensionalizationFunction">Parameter nondimensionalization function</param>
 		/// <param name="parameterDimensionalizationFunction">Parameter dimensionalization function</param>
-		public AnalysableDEModel(int dataNb, int temporaryDataNb, Allocator allocator, FloatInitialVariableFunction initialVariableFunction,
+		public AnalysableDEModel(int dataNb, int temporaryDataNb, Allocator allocator, 
+			FloatInitialVariableFunction initialVariableFunction,
 			FloatDerivativeFunction derivativeFunction, FloatAnalyticalSolutionFunction analyticalSolutionFunction,
 			FloatVariableDimensionalizationFunction variableDimensionalizationFunction = null,
 			ParameterNondimensionalizationFunction parameterNondimensionalizationFunction = null,
@@ -105,7 +106,8 @@ namespace dExplorer.Editor.Mathematics
 		/// <param name="analyticalSolutionFunction">Analytical solution computation function</param>
 		/// <param name="parameterNondimensionalizationFunction">Parameter nondimensionalization function</param>
 		/// <param name="parameterDimensionalizationFunction">Parameter dimensionalization function</param>
-		public AnalysableDEModel(int dataNb, int temporaryDataNb, Allocator allocator, Float2InitialVariableFunction initialVariableFunction,
+		public AnalysableDEModel(int dataNb, int temporaryDataNb, Allocator allocator,
+			Float2InitialVariableFunction initialVariableFunction,
 			Float2DerivativeFunction derivativeFunction, Float2AnalyticalSolutionFunction analyticalSolutionFunction,
 			Float2VariableDimensionalizationFunction variableDimensionalizationFunction = null,
 			ParameterNondimensionalizationFunction parameterNondimensionalizationFunction = null,
@@ -241,7 +243,8 @@ namespace dExplorer.Editor.Mathematics
 
 			if (_variableType == Type.GetType("System.Single"))
 			{
-				FloatDEAnalyser analyser = new FloatDEAnalyser(_model, _floatInitialVariableFunctionPointer, _floatDerivativeFunctionPointer, 
+				FloatDEAnalyser analyser = new FloatDEAnalyser(_model, 
+					_floatInitialVariableFunctionPointer, _floatDerivativeFunctionPointer, 
 					_floatAnalyticalSolutionFunctionPointer, minParameter, maxParameter, _isNondimensionalized, 
 					_floatVariableDimensionalizationFunctionPointer, _parameterDimensionalizationFunction);
 
@@ -290,7 +293,8 @@ namespace dExplorer.Editor.Mathematics
 			}
 			else if (_variableType == Type.GetType("Unity.Mathematics.float2"))
 			{
-				Float2DEAnalyser analyser = new Float2DEAnalyser(_model, _float2InitialVariableFunctionPointer, _float2DerivativeFunctionPointer, 
+				Float2DEAnalyser analyser = new Float2DEAnalyser(_model, 
+					_float2InitialVariableFunctionPointer, _float2DerivativeFunctionPointer, 
 					_float2AnalyticalSolutionFunctionPointer, minParameter, maxParameter, _isNondimensionalized, 
 					_float2VariableDimensionalizationFunctionPointer, _parameterDimensionalizationFunction);
 

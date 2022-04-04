@@ -54,6 +54,7 @@ namespace dExplorer.Editor.Mathematics
 			{
 				IsNondimensionalized = IsNondimensionalized,
 				ModelData = Model.Data,
+				ModelTemporaryData = Model.TemporaryData,
 				InitialVariableFunctionPointer = InitialVariableFunctionPointer,
 				DerivativeFunctionPointer = DerivativeFunctionPointer,
 				AnalyticalSolutionFunctionPointer = AnalyticalSolutionFunctionPointer,

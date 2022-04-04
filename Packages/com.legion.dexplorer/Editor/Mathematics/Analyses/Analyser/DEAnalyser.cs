@@ -229,6 +229,7 @@ namespace dExplorer.Editor.Mathematics
 				int globalIndex = 0;
 				int meanAbsoluteErrorIndex = 0;
 				float* modelDataPtr = (float*)Model.Data.GetUnsafeReadOnlyPtr();
+				float* modelTemporaryDataPtr = (float*)Model.TemporaryData.GetUnsafeReadOnlyPtr();
 
 				foreach (float parameterStep in ParameterSteps)
 				{
@@ -242,7 +243,7 @@ namespace dExplorer.Editor.Mathematics
 							_analysisJobHandles[globalIndex][solvingType].Complete();
 						}
 
-						float newParameterStep = IsNondimensionalized ? ParameterDimensionalizationFunction(modelDataPtr, parameterStep) : parameterStep;
+						float newParameterStep = IsNondimensionalized ? ParameterDimensionalizationFunction(modelDataPtr, modelTemporaryDataPtr, parameterStep) : parameterStep;
 						report.AddValue(solvingType, newParameterStep, _meanAbsoluteErrors[meanAbsoluteErrorIndex], time, result);
 
 						time.Dispose();
