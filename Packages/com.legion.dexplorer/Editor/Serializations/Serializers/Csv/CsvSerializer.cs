@@ -46,6 +46,7 @@ namespace dExplorer.Editor.Serializations
 			List<DESolvingType> solvingTypes = new List<DESolvingType>();
 			Dictionary<float, Dictionary<DESolvingType, T_VARIABLE>> meanAbsoluteErrors = new Dictionary<float, Dictionary<DESolvingType, T_VARIABLE>>();
 			Dictionary<float, Dictionary<float, List<Tuple<DESolvingType, T_VARIABLE>>>> simulationValues = new Dictionary<float, Dictionary<float, List<Tuple<DESolvingType, T_VARIABLE>>>>();
+			bool hasSimulationValues = false;
 
 			foreach (DESolvingType solvingType in report.GetSolvingTypes())
 			{
@@ -94,6 +95,8 @@ namespace dExplorer.Editor.Serializations
 						}
 
 						simulations[time].Add(new Tuple<DESolvingType, T_VARIABLE>(solvingType, value.Item2));
+
+						hasSimulationValues = true;
 					}
 
 					index++;
@@ -145,45 +148,48 @@ namespace dExplorer.Editor.Serializations
 				}
 			}
 
-			string simulationsFolderPath = Path.Combine(mainFolderPath, "simulations");
-			Directory.CreateDirectory(simulationsFolderPath);
-
-			foreach (float parameterStep in parameterSteps)
+			if (hasSimulationValues)
 			{
-				string header = "Time";
-				List<DESolvingType> currentSolvingTypes = new HashSet<DESolvingType>(solvingTypes) { DESolvingType.ANALYTICAL }.ToList();
+				string simulationsFolderPath = Path.Combine(mainFolderPath, "simulations");
+				Directory.CreateDirectory(simulationsFolderPath);
 
-				foreach (DESolvingType solvingType in currentSolvingTypes)
+				foreach (float parameterStep in parameterSteps)
 				{
-					_variableSerializer.VariableName = solvingType.ToString();
-					_variableSerializer.Variable = new T_VARIABLE();
-					_variableSerializer.Separator = _separator;
-					_variableSerializer.UpdateSerialization();
+					string header = "Time";
+					List<DESolvingType> currentSolvingTypes = new HashSet<DESolvingType>(solvingTypes) { DESolvingType.ANALYTICAL }.ToList();
 
-					header += _variableSerializer.Separator + _variableSerializer.SerializedHeader;
-				}
-
-				using (StreamWriter writer = new StreamWriter(Path.Combine(simulationsFolderPath, string.Format("parameter_step_{0}.csv", parameterStep))))
-				{
-					writer.WriteLine(header);
-
-					foreach (float time in times[parameterStep])
+					foreach (DESolvingType solvingType in currentSolvingTypes)
 					{
-						int index = 0;
-						string line = time.ToString();
+						_variableSerializer.VariableName = solvingType.ToString();
+						_variableSerializer.Variable = new T_VARIABLE();
+						_variableSerializer.Separator = _separator;
+						_variableSerializer.UpdateSerialization();
 
-						foreach (DESolvingType solvingType in currentSolvingTypes)
+						header += _variableSerializer.Separator + _variableSerializer.SerializedHeader;
+					}
+
+					using (StreamWriter writer = new StreamWriter(Path.Combine(simulationsFolderPath, string.Format("parameter_step_{0}.csv", parameterStep))))
+					{
+						writer.WriteLine(header);
+
+						foreach (float time in times[parameterStep])
 						{
-							_variableSerializer.VariableName = solvingType.ToString();
-							_variableSerializer.Variable = simulationValues.ContainsKey(parameterStep) && simulationValues[parameterStep].ContainsKey(time) ? simulationValues[parameterStep][time][index].Item2 : new T_VARIABLE();
-							_variableSerializer.Separator = _separator;
-							_variableSerializer.UpdateSerialization();
+							int index = 0;
+							string line = time.ToString();
 
-							index++;
-							line += _separator + _variableSerializer.SerializedVariable;
+							foreach (DESolvingType solvingType in currentSolvingTypes)
+							{
+								_variableSerializer.VariableName = solvingType.ToString();
+								_variableSerializer.Variable = simulationValues.ContainsKey(parameterStep) && simulationValues[parameterStep].ContainsKey(time) ? simulationValues[parameterStep][time][index].Item2 : new T_VARIABLE();
+								_variableSerializer.Separator = _separator;
+								_variableSerializer.UpdateSerialization();
+
+								index++;
+								line += _separator + _variableSerializer.SerializedVariable;
+							}
+
+							writer.WriteLine(line);
 						}
-
-						writer.WriteLine(line);
 					}
 				}
 			}
