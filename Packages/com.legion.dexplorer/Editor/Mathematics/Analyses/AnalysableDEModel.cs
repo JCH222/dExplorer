@@ -34,6 +34,8 @@ namespace dExplorer.Editor.Mathematics
 		private readonly FunctionPointer<FloatVariableDimensionalizationFunction> _floatVariableDimensionalizationFunctionPointer;
 
 		private readonly FunctionPointer<Float2InitialVariableFunction> _float2InitialVariableFunctionPointer;
+		private readonly FunctionPointer<Float2PreSimulationFunction> _float2PreSimulationFunctionPointer;
+		private readonly FunctionPointer<Float2PostSimulationFunction> _float2PostSimulationFunctionPointer;
 		private readonly FunctionPointer<Float2DerivativeFunction> _float2DerivativeFunctionPointer;
 		private readonly FunctionPointer<Float2AnalyticalSolutionFunction> _float2AnalyticalSolutionFunctionPointer;
 		private readonly FunctionPointer<Float2VariableDimensionalizationFunction> _float2VariableDimensionalizationFunctionPointer;
@@ -108,12 +110,14 @@ namespace dExplorer.Editor.Mathematics
 		/// <param name="temporaryDataNb">Variable number</param>
 		/// <param name="allocator">Allocation type</param>
 		/// <param name="initialVariableFunction">Initial state function</param>
+		/// <param name="preSimulationFunction">Pre-simulation function</param>
+		/// <param name="postSimulationFunction">Post-simulation function</param>
 		/// <param name="derivativeFunction">Derivative computation function</param>
 		/// <param name="analyticalSolutionFunction">Analytical solution computation function</param>
 		/// <param name="parameterNondimensionalizationFunction">Parameter nondimensionalization function</param>
 		/// <param name="parameterDimensionalizationFunction">Parameter dimensionalization function</param>
-		public AnalysableDEModel(int dataNb, int temporaryDataNb, Allocator allocator,
-			Float2InitialVariableFunction initialVariableFunction,
+		public AnalysableDEModel(int dataNb, int temporaryDataNb, Allocator allocator, Float2InitialVariableFunction initialVariableFunction,
+			Float2PreSimulationFunction preSimulationFunction, Float2PostSimulationFunction postSimulationFunction,
 			Float2DerivativeFunction derivativeFunction, Float2AnalyticalSolutionFunction analyticalSolutionFunction,
 			Float2VariableDimensionalizationFunction variableDimensionalizationFunction = null,
 			ParameterNondimensionalizationFunction parameterNondimensionalizationFunction = null,
@@ -122,7 +126,9 @@ namespace dExplorer.Editor.Mathematics
 		{
 			Init(dataNb, temporaryDataNb, allocator);
 			_variableType = Type.GetType("Unity.Mathematics.float2");
-			_float2InitialVariableFunctionPointer = BurstCompiler.CompileFunctionPointer<Float2InitialVariableFunction>(initialVariableFunction); ;
+			_float2InitialVariableFunctionPointer = BurstCompiler.CompileFunctionPointer<Float2InitialVariableFunction>(initialVariableFunction);
+			_float2PreSimulationFunctionPointer = BurstCompiler.CompileFunctionPointer<Float2PreSimulationFunction>(preSimulationFunction);
+			_float2PostSimulationFunctionPointer = BurstCompiler.CompileFunctionPointer<Float2PostSimulationFunction>(postSimulationFunction);
 			_float2DerivativeFunctionPointer = BurstCompiler.CompileFunctionPointer<Float2DerivativeFunction>(derivativeFunction);
 			_float2AnalyticalSolutionFunctionPointer = BurstCompiler.CompileFunctionPointer<Float2AnalyticalSolutionFunction>(analyticalSolutionFunction);
 
@@ -299,8 +305,8 @@ namespace dExplorer.Editor.Mathematics
 			}
 			else if (_variableType == Type.GetType("Unity.Mathematics.float2"))
 			{
-				Float2DEAnalyser analyser = new Float2DEAnalyser(_model, 
-					_float2InitialVariableFunctionPointer, _float2DerivativeFunctionPointer, 
+				Float2DEAnalyser analyser = new Float2DEAnalyser(_model, _float2InitialVariableFunctionPointer,
+					_float2PreSimulationFunctionPointer, _float2PostSimulationFunctionPointer, _float2DerivativeFunctionPointer, 
 					_float2AnalyticalSolutionFunctionPointer, minParameter, maxParameter, _isNondimensionalized, 
 					_float2VariableDimensionalizationFunctionPointer, _parameterDimensionalizationFunction);
 

@@ -85,7 +85,7 @@ public unsafe class SpringModel : AnalysableDEModel
 	#region Constructors
 	public SpringModel(float mass = 1.0f, float stiffness = 0.0f, float neutralLength = 0.0f, 
 		float initialLength = 0.0f, float initialSpeed = 0.0f) : base(5, 3, Allocator.Persistent,
-			GetInitialVariable, ComputeDerivative, ComputeAnalyticalSolution)
+			GetInitialVariable, PreSimulate, PostSimulate, ComputeDerivative, ComputeAnalyticalSolution)
 	{
 		Mass = mass;
 		Stiffness = stiffness;
@@ -136,6 +136,22 @@ public unsafe class SpringModel : AnalysableDEModel
 		naturalFrequency = math.sqrt(stiffness / mass);
 		phase = math.atan(-initialSpeed / (displacement * naturalFrequency));
 		amplitude = displacement / math.cos(phase);
+	}
+
+	[BurstCompile]
+	[MonoPInvokeCallback(typeof(Float2PreSimulationFunction))]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static void PreSimulate(float* modelData, float* modelTemporaryData, float2* currentVariable, float* currentParameter)
+	{
+		// EMPTY
+	}
+
+	[BurstCompile]
+	[MonoPInvokeCallback(typeof(Float2PostSimulationFunction))]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static void PostSimulate(float* modelData, float* modelTemporaryData, float2* nextVariable)
+	{
+		// EMPTY
 	}
 
 	[BurstCompile]

@@ -9,6 +9,8 @@ namespace dExplorer.Editor.Mathematics
 	using UnityEngine;
 
 	public unsafe delegate void Float2InitialVariableFunction(float* modelData, float* modelTemporaryData, float2* initialVariable);
+	public unsafe delegate void Float2PreSimulationFunction(float* modelData, float* modelTemporaryData, float2* currentVariable, float* currentParameter);
+	public unsafe delegate void Float2PostSimulationFunction(float* modelData, float* modelTemporaryData, float2* nextVariable);
 	public unsafe delegate void Float2DerivativeFunction(float* modelData, float* modelTemporaryData, float2* currentVariable, float currentParameter, float2* currentDerivative);
 	public unsafe delegate void Float2AnalyticalSolutionFunction(float* modelData, float* modelTemporaryData, float currentParameter, float2* currentVariable);
 	public unsafe delegate void Float2VariableDimensionalizationFunction(float* modelData, float* modelTemporaryData, float2* nonDimensionalizedVariable, float2* dimensionalizedVariable);
@@ -23,6 +25,8 @@ namespace dExplorer.Editor.Mathematics
 		[ReadOnly] public bool IsNondimensionalized;
 		[ReadOnly] public NativeArray<float> ModelData;
 		[ReadOnly] public FunctionPointer<Float2InitialVariableFunction> InitialVariableFunctionPointer;
+		[ReadOnly] public FunctionPointer<Float2PreSimulationFunction> PreSimulationFunctionPointer;
+		[ReadOnly] public FunctionPointer<Float2PostSimulationFunction> PostSimulationFunctionPointer;
 		[ReadOnly] public FunctionPointer<Float2DerivativeFunction> DerivativeFunctionPointer;
 		[ReadOnly] public FunctionPointer<Float2AnalyticalSolutionFunction> AnalyticalSolutionFunctionPointer;
 		[ReadOnly] public FunctionPointer<Float2VariableDimensionalizationFunction> VariableDimensionalizationFunctionPointer;
@@ -51,7 +55,6 @@ namespace dExplorer.Editor.Mathematics
 			if (IsNondimensionalized)
 			{
 				float2 dimensionalizedVariable;
-
 				Parameter[0] = ParameterDimensionalizationFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, MinParameter);
 				VariableDimensionalizationFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, &initialVariable, &dimensionalizedVariable);
 				Result[0] = dimensionalizedVariable;
@@ -66,30 +69,33 @@ namespace dExplorer.Editor.Mathematics
 			
 			int index = 1;
 			float currentParameter = MinParameter;
+			float currentLocalParameter = MinParameter;
 
 			while (currentParameter < MaxParameter && index < Result.Length)
 			{
 				float2 nextVariable;
 
+				PreSimulationFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, &currentVariable, &currentLocalParameter);
+
 				switch (SolvingType)
 				{
 					case DESolvingType.ANALYTICAL:
-						AnalyticalSolutionFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, currentParameter + ParameterStep, &nextVariable);
+						AnalyticalSolutionFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, currentLocalParameter + ParameterStep, &nextVariable);
 						break;
 
 					case DESolvingType.EXPLICIT_EULER:
 						float2 currentDerivative;
-						DerivativeFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, &currentVariable, currentParameter, &currentDerivative);
+						DerivativeFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, &currentVariable, currentLocalParameter, &currentDerivative);
 						nextVariable = DESolver.SolveWithExplicitEuler(currentVariable, currentDerivative, ParameterStep);
 						break;
 
 					case DESolvingType.EXPLICIT_RUNGE_KUTTA_2:
 						float2 rk2_k1;
-						DerivativeFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, &currentVariable, currentParameter, &rk2_k1);
+						DerivativeFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, &currentVariable, currentLocalParameter, &rk2_k1);
 
 						float2 tempVariable = DESolver.SolveWithExplicitEuler(currentVariable, rk2_k1, ParameterStep);
 						float2 rk2_k2;
-						DerivativeFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, &tempVariable, currentParameter, &rk2_k2);
+						DerivativeFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, &tempVariable, currentLocalParameter, &rk2_k2);
 
 						nextVariable = DESolver.SolveWithExplicitRungeKutta2(currentVariable, rk2_k1, rk2_k2, ParameterStep);
 						break;
@@ -98,19 +104,19 @@ namespace dExplorer.Editor.Mathematics
 						float halfParameterStep = 0.5f * ParameterStep;
 
 						float2 rk4_k1;
-						DerivativeFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, &currentVariable, currentParameter, &rk4_k1);
+						DerivativeFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, &currentVariable, currentLocalParameter, &rk4_k1);
 
 						tempVariable = DESolver.SolveWithExplicitEuler(currentVariable, rk4_k1, halfParameterStep);
 						float2 rk4_k2;
-						DerivativeFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, &tempVariable, currentParameter + halfParameterStep, &rk4_k2);
+						DerivativeFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, &tempVariable, currentLocalParameter + halfParameterStep, &rk4_k2);
 
 						tempVariable = DESolver.SolveWithExplicitEuler(currentVariable, rk4_k2, halfParameterStep);
 						float2 rk4_k3;
-						DerivativeFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, &tempVariable, currentParameter + halfParameterStep, &rk4_k3);
+						DerivativeFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, &tempVariable, currentLocalParameter + halfParameterStep, &rk4_k3);
 
 						tempVariable = DESolver.SolveWithExplicitEuler(currentVariable, rk4_k3, ParameterStep);
 						float2 rk4_k4;
-						DerivativeFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, &tempVariable, currentParameter + ParameterStep, &rk4_k4);
+						DerivativeFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, &tempVariable, currentLocalParameter + ParameterStep, &rk4_k4);
 
 						nextVariable = DESolver.SolveWithExplicitRungeKutta4(currentVariable, rk4_k1, rk4_k2, rk4_k3, rk4_k4, ParameterStep);
 						break;
@@ -120,19 +126,23 @@ namespace dExplorer.Editor.Mathematics
 						break;
 				}
 
+				float2 modifiedNextVariable = nextVariable;
+				PostSimulationFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, &modifiedNextVariable);
+
 				currentParameter += ParameterStep;
+				currentLocalParameter += ParameterStep;
 
 				if (IsNondimensionalized)
 				{
 					float2 dimensionalizedVariable;
 					Parameter[index] = ParameterDimensionalizationFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, currentParameter);
-					VariableDimensionalizationFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, &nextVariable, &dimensionalizedVariable);
+					VariableDimensionalizationFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, &modifiedNextVariable, &dimensionalizedVariable);
 					Result[index] = dimensionalizedVariable;
 				}
 				else
 				{
 					Parameter[index] = currentParameter;
-					Result[index] = nextVariable;
+					Result[index] = modifiedNextVariable;
 				}
 
 				currentVariable = nextVariable;

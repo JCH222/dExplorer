@@ -115,7 +115,7 @@ namespace dExplorer.Editor.Mathematics
 
 						tempVariable = DESolver.SolveWithExplicitEuler(currentVariable, rk4_k3, ParameterStep);
 						float rk4_k4;
-						DerivativeFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr , &tempVariable, currentLocalParameter + ParameterStep, &rk4_k4);
+						DerivativeFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, &tempVariable, currentLocalParameter + ParameterStep, &rk4_k4);
 
 						nextVariable = DESolver.SolveWithExplicitRungeKutta4(currentVariable, rk4_k1, rk4_k2, rk4_k3, rk4_k4, ParameterStep);
 						break;
