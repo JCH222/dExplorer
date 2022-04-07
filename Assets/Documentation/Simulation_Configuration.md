@@ -16,7 +16,7 @@ The behaviour of ODE simulations depends on four parameter types :
 > - `Cx` is the drag coefficient *[N.A]*
 > - `m` is the mass *[kg]*
 > - `t` is the time parameter *[s]*
-> - `v` is the speed relative to the fluid *[m.s^-1]*
+> - `v` is the speed relative to the fluid *[m.s^-1]* and `v >= 0`
 > - `v'` is the acceleration relative to the fluid *[m.s^-2]*
 
 ## Model constant
@@ -46,5 +46,21 @@ NB : dExplorer doesn't handle non-constant paramater steps.
 
 
 ## Solving type
+
+Numerical simulations are discretized. It is therefore necessary to define the simulation solving type.
+
+### Explicit Euler
+
+[TODO]
+
+### Explicit Runge-Kutta
+
+[TODO]
+
+#### Second order
+
+[TODO]
+
+#### Fourth order
 
 [TODO]
