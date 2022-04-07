@@ -6,7 +6,7 @@
   "documentationUrl": "https://github.com/JCH222/dExplorer/blob/main/Assets/Documentation/Introduction.md",
   "unity": "2020.3",
   "dependencies": {
-    "com.unity.burst": "1.4.11",
+    "com.unity.burst": "1.6.4",
     "com.unity.mathematics": "1.2.5"
   },
   "type": "tool"
