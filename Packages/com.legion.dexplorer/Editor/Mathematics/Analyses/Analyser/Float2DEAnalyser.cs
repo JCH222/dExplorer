@@ -51,11 +51,13 @@ namespace dExplorer.Editor.Mathematics
 		#region Methods
 		protected override Float2DESimulationJob GenerateSimulationJob(float realMaxParameter, float parameterStep, DESolvingType solvingType, NativeArray<float> time, NativeArray<Vector2> result)
 		{
+			NativeArray<float> duplicatedModelTemporaryData = Model.DuplicateTemporaryData();
+			DuplicatedModelTemporaryDataContainer.Add(duplicatedModelTemporaryData);
+
 			return new Float2DESimulationJob()
 			{
 				IsNondimensionalized = IsNondimensionalized,
 				ModelData = Model.Data,
-				ModelTemporaryData = Model.TemporaryData,
 				InitialVariableFunctionPointer = InitialVariableFunctionPointer,
 				DerivativeFunctionPointer = DerivativeFunctionPointer,
 				AnalyticalSolutionFunctionPointer = AnalyticalSolutionFunctionPointer,
@@ -68,7 +70,9 @@ namespace dExplorer.Editor.Mathematics
 				SolvingType = solvingType,
 
 				Parameter = time,
-				Result = result
+				Result = result,
+
+				ModelTemporaryData = duplicatedModelTemporaryData
 			};
 		}
 

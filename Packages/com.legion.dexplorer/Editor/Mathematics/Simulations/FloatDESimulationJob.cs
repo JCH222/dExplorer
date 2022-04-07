@@ -7,6 +7,8 @@ namespace dExplorer.Editor.Mathematics
 	using Unity.Jobs;
 
 	public unsafe delegate void FloatInitialVariableFunction(float* modelData, float* modelTemporaryData, float* initialVariable);
+	public unsafe delegate void FloatPreSimulationFunction(float* modelData, float* modelTemporaryData, float* currentVariable, float* currentParameter);
+	public unsafe delegate void FloatPostSimulationFunction(float* modelData, float* modelTemporaryData, float* nextVariable);
 	public unsafe delegate void FloatDerivativeFunction(float* modelData, float* modelTemporaryData, float* currentVariable, float currentParameter, float* currentDerivative);
 	public unsafe delegate void FloatAnalyticalSolutionFunction(float* modelData, float* modelTemporaryData, float currentParameter, float* currentVariable);
 	public unsafe delegate void FloatVariableDimensionalizationFunction(float* modelData, float* modelTemporaryData, float* nonDimensionalizedVariable, float* dimensionalizedVariable);
@@ -20,8 +22,9 @@ namespace dExplorer.Editor.Mathematics
 		#region Fields
 		[ReadOnly] public bool IsNondimensionalized;
 		[ReadOnly] public NativeArray<float> ModelData;
-		[ReadOnly] public NativeArray<float> ModelTemporaryData;
 		[ReadOnly] public FunctionPointer<FloatInitialVariableFunction> InitialVariableFunctionPointer;
+		[ReadOnly] public FunctionPointer<FloatPreSimulationFunction> PreSimulationFunctionPointer;
+		[ReadOnly] public FunctionPointer<FloatPostSimulationFunction> PostSimulationFunctionPointer;
 		[ReadOnly] public FunctionPointer<FloatDerivativeFunction> DerivativeFunctionPointer;
 		[ReadOnly] public FunctionPointer<FloatAnalyticalSolutionFunction> AnalyticalSolutionFunctionPointer;
 		[ReadOnly] public FunctionPointer<FloatVariableDimensionalizationFunction> VariableDimensionalizationFunctionPointer;
@@ -34,13 +37,15 @@ namespace dExplorer.Editor.Mathematics
 
 		[WriteOnly] public NativeArray<float> Parameter;
 		[WriteOnly] public NativeArray<float> Result;
+
+		public NativeArray<float> ModelTemporaryData;
 		#endregion Fields
 
 		#region Methods
 		public unsafe void Execute()
 		{
 			float* modelDataPtr = (float*)ModelData.GetUnsafeReadOnlyPtr();
-			float* modelTemporaryDataPtr = (float*)ModelTemporaryData.GetUnsafeReadOnlyPtr();
+			float* modelTemporaryDataPtr = (float*)ModelTemporaryData.GetUnsafePtr();
 
 			float initialVariable;
 			InitialVariableFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, &initialVariable);
@@ -68,6 +73,8 @@ namespace dExplorer.Editor.Mathematics
 			{
 				float nextVariable;
 				float tempVariable;
+
+				PreSimulationFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, &currentVariable, &currentLocalParameter);
 
 				switch (SolvingType)
 				{
@@ -118,6 +125,9 @@ namespace dExplorer.Editor.Mathematics
 						break;
 				}
 
+				float modifiedNextVariable = nextVariable;
+				PostSimulationFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, &modifiedNextVariable);
+
 				currentParameter += ParameterStep;
 				currentLocalParameter += ParameterStep;
 
@@ -125,13 +135,13 @@ namespace dExplorer.Editor.Mathematics
 				{
 					float dimensionalizedVariable;
 					Parameter[index] = ParameterDimensionalizationFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, currentParameter);
-					VariableDimensionalizationFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, &nextVariable, &dimensionalizedVariable);
+					VariableDimensionalizationFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, &modifiedNextVariable, &dimensionalizedVariable);
 					Result[index] = dimensionalizedVariable;
 				}
 				else
 				{
 					Parameter[index] = currentParameter;
-					Result[index] = nextVariable;
+					Result[index] = modifiedNextVariable;
 				}
 				
 				currentVariable = nextVariable;

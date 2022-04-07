@@ -123,14 +123,13 @@ namespace dExplorer.Editor.Mathematics
         {
             if (_model != null)
             {
-                if (sanityCheck == true && minParameter > _model.MaxParameter)
-                {
-                    _model.MaxParameter = minParameter;
-                    _maxParameterField.value = minParameter;
-                }
-
                 _model.MinParameter = minParameter;
-                _minParameterField.value = minParameter;
+                _minParameterField.value = _model.MinParameter;
+
+                if (sanityCheck == true)
+                {
+                    _maxParameterField.value = _model.MaxParameter;
+                }
             }
         }
 
@@ -146,14 +145,13 @@ namespace dExplorer.Editor.Mathematics
         {
             if (_model != null)
             {
-                if (sanityCheck == true && maxParameter < _model.MinParameter)
-                {
-                    _model.MinParameter = maxParameter;
-                    _minParameterField.value = maxParameter;
-                }
-
                 _model.MaxParameter = maxParameter;
-                _maxParameterField.value = maxParameter;
+                _maxParameterField.value = _model.MaxParameter;
+
+                if (sanityCheck == true)
+                {
+                    _minParameterField.value = _model.MinParameter;
+                }
             }
         }
 

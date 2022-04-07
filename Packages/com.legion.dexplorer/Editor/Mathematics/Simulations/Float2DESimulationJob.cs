@@ -22,7 +22,6 @@ namespace dExplorer.Editor.Mathematics
 		#region Fields
 		[ReadOnly] public bool IsNondimensionalized;
 		[ReadOnly] public NativeArray<float> ModelData;
-		[ReadOnly] public NativeArray<float> ModelTemporaryData;
 		[ReadOnly] public FunctionPointer<Float2InitialVariableFunction> InitialVariableFunctionPointer;
 		[ReadOnly] public FunctionPointer<Float2DerivativeFunction> DerivativeFunctionPointer;
 		[ReadOnly] public FunctionPointer<Float2AnalyticalSolutionFunction> AnalyticalSolutionFunctionPointer;
@@ -36,13 +35,15 @@ namespace dExplorer.Editor.Mathematics
 
 		[WriteOnly] public NativeArray<float> Parameter;
 		[WriteOnly] public NativeArray<Vector2> Result;
+
+		public NativeArray<float> ModelTemporaryData;
 		#endregion Fields
 
 		#region Methods
 		public unsafe void Execute()
         {
 			float* modelDataPtr = (float*)ModelData.GetUnsafeReadOnlyPtr();
-			float* modelTemporaryDataPtr = (float*)ModelTemporaryData.GetUnsafeReadOnlyPtr();
+			float* modelTemporaryDataPtr = (float*)ModelTemporaryData.GetUnsafePtr();
 
 			float2 initialVariable;
 			InitialVariableFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, &initialVariable);

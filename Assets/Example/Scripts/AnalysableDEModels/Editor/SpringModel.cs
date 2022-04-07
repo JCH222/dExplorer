@@ -67,6 +67,19 @@ public unsafe class SpringModel : AnalysableDEModel
 			_model.SetDataValue(4, value);
 		}
 	}
+
+	public override float MinParameter
+	{
+		get
+		{
+			return _minParameter;
+		}
+		set
+		{
+			_minParameter = 0.0f;
+			_maxParameter = math.max(0.0f, _maxParameter);
+		}
+	}
 	#endregion Properties
 
 	#region Constructors
@@ -128,7 +141,7 @@ public unsafe class SpringModel : AnalysableDEModel
 	[BurstCompile]
 	[MonoPInvokeCallback(typeof(Float2InitialVariableFunction))]
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public unsafe static void GetInitialVariable(float* modelData, float* modelTemporaryDataPtr, float2* initialVariable)
+	public static void GetInitialVariable(float* modelData, float* modelTemporaryDataPtr, float2* initialVariable)
 	{
 		float initialLength = modelData[3];
 		float initialSpeed = modelData[4];

@@ -27,6 +27,8 @@ namespace dExplorer.Editor.Mathematics
 		private readonly bool _isNondimensionalized;
 
 		private readonly FunctionPointer<FloatInitialVariableFunction> _floatInitialVariableFunctionPointer;
+		private readonly FunctionPointer<FloatPreSimulationFunction> _floatPreSimulationFunctionPointer;
+		private readonly FunctionPointer<FloatPostSimulationFunction> _floatPostSimulationFunctionPointer;
 		private readonly FunctionPointer<FloatDerivativeFunction> _floatDerivativeFunctionPointer;
 		private readonly FunctionPointer<FloatAnalyticalSolutionFunction> _floatAnalyticalSolutionFunctionPointer;
 		private readonly FunctionPointer<FloatVariableDimensionalizationFunction> _floatVariableDimensionalizationFunctionPointer;
@@ -70,13 +72,15 @@ namespace dExplorer.Editor.Mathematics
 		/// <param name="temporaryDataNb">Variable number</param>
 		/// <param name="allocator">Allocation type</param>
 		/// <param name="initialVariableFunction">Initial state function</param>
+		/// <param name="preSimulationFunction">Pre-simulation function</param>
+		/// <param name="postSimulationFunction">Post-simulation function</param>
 		/// <param name="derivativeFunction">Derivative computation function</param>
 		/// <param name="analyticalSolutionFunction">Analytical solution computation function</param>
 		/// <param name="variableDimensionalizationFunction">Variable dimensionalization function</param>
 		/// <param name="parameterNondimensionalizationFunction">Parameter nondimensionalization function</param>
 		/// <param name="parameterDimensionalizationFunction">Parameter dimensionalization function</param>
-		public AnalysableDEModel(int dataNb, int temporaryDataNb, Allocator allocator, 
-			FloatInitialVariableFunction initialVariableFunction,
+		public AnalysableDEModel(int dataNb, int temporaryDataNb, Allocator allocator, FloatInitialVariableFunction initialVariableFunction,  
+			FloatPreSimulationFunction preSimulationFunction, FloatPostSimulationFunction postSimulationFunction,
 			FloatDerivativeFunction derivativeFunction, FloatAnalyticalSolutionFunction analyticalSolutionFunction,
 			FloatVariableDimensionalizationFunction variableDimensionalizationFunction = null,
 			ParameterNondimensionalizationFunction parameterNondimensionalizationFunction = null,
@@ -86,6 +90,8 @@ namespace dExplorer.Editor.Mathematics
 			Init(dataNb, temporaryDataNb, allocator);
 			_variableType = Type.GetType("System.Single");
 			_floatInitialVariableFunctionPointer = BurstCompiler.CompileFunctionPointer<FloatInitialVariableFunction>(initialVariableFunction);
+			_floatPreSimulationFunctionPointer = BurstCompiler.CompileFunctionPointer<FloatPreSimulationFunction>(preSimulationFunction);
+			_floatPostSimulationFunctionPointer = BurstCompiler.CompileFunctionPointer<FloatPostSimulationFunction>(postSimulationFunction);
 			_floatDerivativeFunctionPointer = BurstCompiler.CompileFunctionPointer<FloatDerivativeFunction>(derivativeFunction);
 			_floatAnalyticalSolutionFunctionPointer = BurstCompiler.CompileFunctionPointer<FloatAnalyticalSolutionFunction>(analyticalSolutionFunction);
 
@@ -131,7 +137,7 @@ namespace dExplorer.Editor.Mathematics
 		/// <summary>
 		/// Min parameter of the simulations.
 		/// </summary>
-		public float MinParameter
+		public virtual float MinParameter
 		{
 			get
 			{
@@ -146,7 +152,7 @@ namespace dExplorer.Editor.Mathematics
 		/// <summary>
 		/// Max parameter of the simulations.
 		/// </summary>
-		public float MaxParameter
+		public virtual float MaxParameter
 		{
 			get
 			{
@@ -243,8 +249,8 @@ namespace dExplorer.Editor.Mathematics
 
 			if (_variableType == Type.GetType("System.Single"))
 			{
-				FloatDEAnalyser analyser = new FloatDEAnalyser(_model, 
-					_floatInitialVariableFunctionPointer, _floatDerivativeFunctionPointer, 
+				FloatDEAnalyser analyser = new FloatDEAnalyser(_model, _floatInitialVariableFunctionPointer, 
+					_floatPreSimulationFunctionPointer, _floatPostSimulationFunctionPointer, _floatDerivativeFunctionPointer, 
 					_floatAnalyticalSolutionFunctionPointer, minParameter, maxParameter, _isNondimensionalized, 
 					_floatVariableDimensionalizationFunctionPointer, _parameterDimensionalizationFunction);
 

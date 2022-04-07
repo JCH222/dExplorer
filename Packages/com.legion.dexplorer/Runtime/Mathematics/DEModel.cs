@@ -9,6 +9,7 @@ namespace dExplorer.Runtime.Mathematics
 	public struct DEModel
 	{
 		#region Fields
+		private Allocator _allocator;
 		// Variables container
 		private NativeArray<float> _data;
 		// Temporary variable container
@@ -29,6 +30,7 @@ namespace dExplorer.Runtime.Mathematics
 		/// <param name="allocator">Allocation type</param>
 		public DEModel(int dataNb, int temporaryDataNb, Allocator allocator)
 		{
+			_allocator = allocator;
 			_data = new NativeArray<float>(dataNb, allocator, NativeArrayOptions.ClearMemory);
 			_temporaryData = new NativeArray<float>(temporaryDataNb, allocator, NativeArrayOptions.ClearMemory);
 		}
@@ -77,6 +79,16 @@ namespace dExplorer.Runtime.Mathematics
 		public void SetTemporaryDataValue(int index, float value)
 		{
 			_temporaryData[index] = value;
+		}
+
+		/// <summary>
+		/// Duplicate temporary variables container
+		/// </summary>
+		/// <returns>Duplicated temporary variables container</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public NativeArray<float> DuplicateTemporaryData()
+		{
+			return new NativeArray<float>(_temporaryData.ToArray(), _allocator);
 		}
 
 		/// <summary>

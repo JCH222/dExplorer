@@ -52,6 +52,7 @@ namespace dExplorer.Editor.Mathematics
 		public SortedSet<float> ParameterSteps { get; private set; }
 		public HashSet<DESolvingType> SolvingTypes { get; private set; }
 		public DEModel Model { get; private set; }
+		protected List<NativeArray<float>> DuplicatedModelTemporaryDataContainer { get; private set; }
 		#endregion Accessors
 
 		#region Constructors
@@ -73,6 +74,7 @@ namespace dExplorer.Editor.Mathematics
 			ParameterSteps = new SortedSet<float>();
 			SolvingTypes = new HashSet<DESolvingType>();
 			Model = model;
+			DuplicatedModelTemporaryDataContainer = new List<NativeArray<float>>();
 
 			_isAnalysing = false;
 
@@ -260,6 +262,13 @@ namespace dExplorer.Editor.Mathematics
 				_meanAbsoluteErrors.Dispose();
 
 				_isAnalysing = false;
+
+				foreach (NativeArray<float> duplicatedModelTemporaryData in DuplicatedModelTemporaryDataContainer)
+				{
+					duplicatedModelTemporaryData.Dispose();
+				}
+
+				DuplicatedModelTemporaryDataContainer.Clear();
 
 				return report;
 			}

@@ -13,6 +13,8 @@ namespace dExplorer.Editor.Mathematics
 	{
 		#region Accessors
 		public FunctionPointer<FloatInitialVariableFunction> InitialVariableFunctionPointer { get; private set; }
+		public FunctionPointer<FloatPreSimulationFunction> PreSimulationFunctionPointer { get; private set; }
+		public FunctionPointer<FloatPostSimulationFunction> PostSimulationFunctionPointer { get; private set; }
 		public FunctionPointer<FloatDerivativeFunction> DerivativeFunctionPointer { get; private set; }
 		public FunctionPointer<FloatAnalyticalSolutionFunction> AnalyticalSolutionFunctionPointer { get; private set; }
 		public FunctionPointer<FloatVariableDimensionalizationFunction> VariableDimensionalizationFunctionPointer { get; private set; }
@@ -24,6 +26,8 @@ namespace dExplorer.Editor.Mathematics
 		/// </summary>
 		/// <param name="model">Decorated differential equation model</param>
 		/// <param name="initialVariableFunctionPointer">Initial state function pointer</param>
+		/// <param name="preSimulationFunctionPointer">Pre-simulation function pointer</param>
+		/// <param name="postSimulationFunctionPointer">Post-simulation function pointer</param>
 		/// <param name="derivativeFunctionPointer">Derivative computation function pointer</param>
 		/// <param name="analyticalSolutionFunctionPointer">Analytical solution computation function pointer</param>
 		/// <param name="minParameter">Min parameter value</param>
@@ -33,6 +37,8 @@ namespace dExplorer.Editor.Mathematics
 		/// <param name="parameterDimensionalizationFunction">Parameter dimensionalization function</param>
 		public FloatDEAnalyser(DEModel model,
 			FunctionPointer<FloatInitialVariableFunction> initialVariableFunctionPointer,
+			FunctionPointer<FloatPreSimulationFunction> preSimulationFunctionPointer, 
+			FunctionPointer<FloatPostSimulationFunction> postSimulationFunctionPointer,
 			FunctionPointer<FloatDerivativeFunction> derivativeFunctionPointer,
 			FunctionPointer<FloatAnalyticalSolutionFunction> analyticalSolutionFunctionPointer,
 			float minParameter, float maxParameter, bool isNondimensionalized,
@@ -41,6 +47,8 @@ namespace dExplorer.Editor.Mathematics
 			: base(model, minParameter, maxParameter, isNondimensionalized, parameterDimensionalizationFunction)
 		{
 			InitialVariableFunctionPointer = initialVariableFunctionPointer;
+			PreSimulationFunctionPointer = preSimulationFunctionPointer;
+			PostSimulationFunctionPointer = postSimulationFunctionPointer;
 			DerivativeFunctionPointer = derivativeFunctionPointer;
 			AnalyticalSolutionFunctionPointer = analyticalSolutionFunctionPointer;
 			VariableDimensionalizationFunctionPointer = variableDimensionalizationFunctionPointer;
@@ -50,12 +58,16 @@ namespace dExplorer.Editor.Mathematics
 		#region Methods
 		protected override FloatDESimulationJob GenerateSimulationJob(float realMaxParameter, float parameterStep, DESolvingType solvingType, NativeArray<float> time, NativeArray<float> result)
 		{
+			NativeArray<float> duplicatedModelTemporaryData = Model.DuplicateTemporaryData();
+			DuplicatedModelTemporaryDataContainer.Add(duplicatedModelTemporaryData);
+
 			return new FloatDESimulationJob()
 			{
 				IsNondimensionalized = IsNondimensionalized,
 				ModelData = Model.Data,
-				ModelTemporaryData = Model.TemporaryData,
 				InitialVariableFunctionPointer = InitialVariableFunctionPointer,
+				PreSimulationFunctionPointer = PreSimulationFunctionPointer,
+				PostSimulationFunctionPointer = PostSimulationFunctionPointer,
 				DerivativeFunctionPointer = DerivativeFunctionPointer,
 				AnalyticalSolutionFunctionPointer = AnalyticalSolutionFunctionPointer,
 				VariableDimensionalizationFunctionPointer = VariableDimensionalizationFunctionPointer,
@@ -67,7 +79,9 @@ namespace dExplorer.Editor.Mathematics
 				SolvingType = solvingType,
 
 				Parameter = time,
-				Result = result
+				Result = result,
+
+				ModelTemporaryData = duplicatedModelTemporaryData
 			};
 		}
 
