@@ -15,7 +15,7 @@
 > - `t` is the parameter
 > - `y` is the variable
 > - `y'` is the derivative variable
-> - `f(t,y(t))` is the derivative function
+> - `f(y(t),t)` is the derivative function
 
 It can be used for :
 
