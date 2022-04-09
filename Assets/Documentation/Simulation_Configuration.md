@@ -9,7 +9,7 @@ The behaviour of [ODE](Introduction.md) simulations depends on four parameter ty
 
 > [Classic drag model](https://en.wikipedia.org/wiki/Drag_(physics)#The_drag_equation) will be used as example :
 > 
-> `v' = -0.5 *  Rho * S * Cx * v(t)^2 / m`
+> `v' = -0.5 *  Rho * S * Cx * v(t)^2 / m + F / m`
 > 
 > - `Rho` is the density of the fluid [*kg.m^-3*]
 > - `S` is the cross sectional area *[m^2]*
@@ -18,12 +18,13 @@ The behaviour of [ODE](Introduction.md) simulations depends on four parameter ty
 > - `t` is the time parameter *[s]*
 > - `v` is the speed relative to the fluid *[m.s^-1]* and `v >= 0`
 > - `v'` is the acceleration relative to the fluid *[m.s^-2]*
+> - `F` is the additional force *[N]* 
 
 ## Model constant
 
 ODE models can have constant values influencing the simulation behaviour.
 
-> `Rho`, `S`, `Cx` and `m` are the model constants.
+> `Rho`, `S`, `Cx` `m` and `F` are the model constants.
 >
 > [ADD SIMULATIONS RESULTS WITH DIFFERENT VALUES]
 
@@ -55,15 +56,15 @@ If the ODE form is :
 >
 > `| v' = dv / dt`
 
-The analytical solution is :
+The analytical solution of `v(t_max)` is :
 
-> `| v = INTEGRATION[t_min->t_max] (dv / dt)`
+> `| v(t_max) = v(t_min) + INTEGRATION[t_min->t_max] (dv / dt)`
 >
-> `| v = INTEGRATION[t_min->t_max] (f(v(t),t))`
+> `| v(t_max) = v(t_min) + INTEGRATION[t_min->t_max] (f(v(t),t))`
 
 But the numerical solution is :
 
-> `| v = SUM[INTEGRATION[t->t+h] (f(v(t),t)] with t_min <= t <= t_max`
+> `| v(t_max) = v(t_min) + SUM[INTEGRATION[t->t+h] (f(v(t),t)] with t_min <= t <= t_max`
 
 `h` is the parameter step used to define the range of each integration in the sum.
 
