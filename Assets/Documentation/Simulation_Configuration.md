@@ -70,7 +70,9 @@ But the numerical solution is :
 
 It can be viewed in a graphic :
 
-> [ADD GRAPHIC]
+> `v'` with `m = 100`, `F = 100`, `Rho = 1.225`, `S = 1`, `Cx = 1` and `v(0) = 0`
+> 
+> ![Class diagram](Images/Integration.png "Integration")
 
 Contrary to the anlalytical solution, the numerical solution is an approximation. In fact, each integration of the sum is computed with a specific solving type.
 The selected solving type has an impact on :
