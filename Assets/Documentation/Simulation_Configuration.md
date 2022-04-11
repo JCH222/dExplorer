@@ -72,9 +72,9 @@ It can be viewed in a graphic :
 
 > `v'` with `m = 100`, `F = 100`, `Rho = 1.225`, `S = 1`, `Cx = 1` and `v(0) = 0`
 > 
-> ![Class diagram](Images/Integration.png "Integration")
+> ![Integration](Images/Integration.png "Integration")
 
-Contrary to the anlalytical solution, the numerical solution is an approximation. In fact, each integration of the sum is computed with a specific solving type.
+Contrary to the analytical solution, the numerical solution is an approximation. In fact, each integration of the sum is computed with a specific solving type.
 The selected solving type has an impact on :
  - The accuracy
  - The computational load
@@ -82,7 +82,17 @@ The selected solving type has an impact on :
 
 ### Explicit Euler
 
-[TODO]
+The explicit euler method is one of the simplest available solving type. It uses the finite differente expression as approximation :
+
+> `| INTEGRATION[t->t+h] (f(v(t),t)) ~= f(v(t),t) * h`
+> 
+> `| v(t_max) ~= v(t_min) + SUM[f(v(t),t) * h] with t_min <= t <= t_max`
+
+It can be viewed in a graphic :
+
+> `v'` with `m = 100`, `F = 100`, `Rho = 1.225`, `S = 1`, `Cx = 1` and `v(0) = 0`
+> 
+> ![Explicit Euler](Images/Explicit_Euler.png "Explicit Euler")
 
 ### Explicit Runge-Kutta
 
