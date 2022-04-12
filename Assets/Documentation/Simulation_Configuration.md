@@ -97,14 +97,18 @@ It can be viewed in a graphic :
 >
 > ![Explicit Euler](Images/Explicit_Euler.png "Explicit Euler")
 
-### Explicit Runge-Kutta
+### Second order explicit Runge-Kutta 
 
-[TODO]
+It uses the [trapezoidal rule](https://en.wikipedia.org/wiki/Trapezoidal_rule) as approximation method of the integration parts :
 
-#### Second order
+> `| INTEGRATION[t->t+h] (f(v(t),t)) ~= 0.5 * h * (f(v(t),t) + f(v(t+h),t+h))`
+> 
+> `| v(t_max) ~= v(t_min) + SUM[0.5 * h * (f(v(t),t) + f(v(t+h),t+h))] with t_min <= t <= t_max`
 
-[TODO]
+### Fourth order explicit Runge-Kutta 
 
-#### Fourth order
+It uses the [Simpson's rule](https://en.wikipedia.org/wiki/Simpson%27s_rule) as approximation method of the integration parts :
 
-[TODO]
+> `| INTEGRATION[t->t+h] (f(v(t),t)) ~= (1/6) * h * (f(v(t),t) + 4 * f(v(0.5*(t+h)),0.5*(t+h)) + f(v(t+h),t+h))`
+> 
+> `| v(t_max) ~= v(t_min) + SUM[(1/6) * h * (f(v(t),t) + 4 * f(v(0.5*(t+h)),0.5*(t+h)) + f(v(t+h),t+h))] with t_min <= t <= t_max`
