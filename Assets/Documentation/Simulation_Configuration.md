@@ -44,7 +44,7 @@ Numerical simulations are discretized. It is therefore necessary to define the s
 
 NB : dExplorer doesn't handle non-constant paramater steps.
 
-> [ADD SIMULATIONS RESULTS WITH DIFFERENT VALUES]
+> ![Parameter step](Images/Parameter_Step.png "Parameter step")
 
 ## Solving type
 
