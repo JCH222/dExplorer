@@ -25,8 +25,10 @@ The behaviour of [ODE](Introduction.md) simulations depends on four parameter ty
 ODE models can have constant values influencing the simulation behaviour.
 
 > `Rho`, `S`, `Cx` `m` and `F` are the model constants.
->
-> [ADD SIMULATIONS RESULTS WITH DIFFERENT VALUES]
+> - Configuration 1 : `m = 100`, `F = 100`, `Rho = 1.225`, `S = 1`, `Cx = 1` and `v(0) = 0`
+> - Configuration 2 : `m = 200`, `F = 100`, `Rho = 1.225`, `S = 0.5`, `Cx = 0.5` and `v(0) = 0`
+> 
+> ![Constants](Images/Constants.png "Constants")
 
 ## Parameter range
 
@@ -43,8 +45,6 @@ Numerical simulations are discretized. It is therefore necessary to define the s
 NB : dExplorer doesn't handle non-constant paramater steps.
 
 > [ADD SIMULATIONS RESULTS WITH DIFFERENT VALUES]
-
-
 
 ## Solving type
 
