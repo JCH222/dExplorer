@@ -82,7 +82,7 @@ The selected solving type has an impact on :
 
 ### Explicit Euler
 
-The explicit euler method is one of the simplest available solving type. It uses the finite differente expression as approximation :
+The explicit euler method is one of the simplest available solving type. It uses the [finite difference](https://en.wikipedia.org/wiki/Finite_difference_method) expression as approximation :
 
 > `| INTEGRATION[t->t+h] (f(v(t),t)) ~= f(v(t),t) * h`
 > 
@@ -91,7 +91,10 @@ The explicit euler method is one of the simplest available solving type. It uses
 It can be viewed in a graphic :
 
 > `v'` with `m = 100`, `F = 100`, `Rho = 1.225`, `S = 1`, `Cx = 1` and `v(0) = 0`
-> 
+>
+> - The red curve is the analytical solution
+> - The blue curve is the (fake) simulated result
+>
 > ![Explicit Euler](Images/Explicit_Euler.png "Explicit Euler")
 
 ### Explicit Runge-Kutta
