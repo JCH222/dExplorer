@@ -48,4 +48,7 @@ Computing functions are non-generic Delegates and several variable types are ava
 > - `FloatAnalyticalSolutionFunction`
 > - `FloatVariableDimensionalizationFunction`
 
-[ADD ANALYSIS DIAGRAM]
+Delegates customize the behaviour of the [simulation job](Architecture.md) :
+
+![Simulation Job](Images/Simulation_Job.png "Simulation Job")
+
