@@ -16,6 +16,7 @@ Custom [ODE](Introduction.md) models can (must) be added by inheriting from two 
 > - `t` is the time parameter *[s]*
 > - `v` is the speed relative to the fluid *[m.s^-1]*, `v > 0`
 > - `v'` is the acceleration relative to the fluid *[m.s^-2]*
+> - `t_min = 0` and `v(t_min) = v_init`
 
 ## AnalysableDEModel
 
@@ -52,3 +53,17 @@ Delegates customize the behaviour of the [simulation job](Architecture.md) :
 
 ![Simulation Job](Images/Simulation_Job.png "Simulation Job")
 
+All model data have to be stored in the `_model` attribute containing two static arrays :
+
+ - The constant data array
+ - The temporay data array
+
+> Drag model has 5 constant data :
+>  - mass `m`
+>  - fluid density `Rho`
+>  - reference surface `S`
+>  - drag coefficient `Cx`
+>  - initial speed `v_init`
+>  
+>   and 1 temporary data :
+>  - coefficient A : `-0.5 *  Rho * S * Cx / m`
