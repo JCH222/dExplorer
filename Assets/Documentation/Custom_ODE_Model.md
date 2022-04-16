@@ -14,13 +14,19 @@ Custom [ODE](Introduction.md) models can (must) be added by inheriting from two 
 > - `Cx` is the drag coefficient *[N.A]*
 > - `m` is the mass *[kg]*
 > - `t` is the time parameter *[s]*
-> - `v` is the speed relative to the fluid *[m.s^-1]*, `v > 0`
+> - `v` is the speed relative to the fluid *[m.s^-1]*, `v >= 0`
 > - `v'` is the acceleration relative to the fluid *[m.s^-2]*
 > - `t_min = 0` and `v(t_min) = v_init`
 
 ## AnalysableDEModel
 
 `AnalysableDEModel` is the core class of the model.
+
+> The empty model class :
+> ```
+> [BurstCompile]
+> public unsafe class DragModel : AnalysableDEModel { }
+> ```
 
 It contains all computing functions for the analysis :
 
@@ -40,7 +46,7 @@ and a few additional methods :
 
 Computing functions are non-generic Delegates and several variable types are available (`float` and `float2`). Delegates names differs therefore according to the variable type of the model.
 
-> Drag model has only the longitudinal speed (`v`) as variable (dimension 1). The selected Delegates are therefore :
+> The drag model has only the longitudinal speed (`v`) as variable (dimension 1). The selected Delegates are therefore :
 > 
 > - `FloatInitialVariableFunction`
 > - `FloatPreSimulationFunction`
@@ -67,3 +73,66 @@ All model data have to be stored in the `_model` attribute containing two static
 >  
 >   and 1 temporary data :
 >  - coefficient A : `-0.5 *  Rho * S * Cx / m`
+>  
+> ```
+> [BurstCompile]
+> public unsafe class DragModel : AnalysableDEModel
+> {
+>    #region Properties
+>    public float Mass
+>    {
+>       get { return _model.GetDataValue(0); }
+>       set { _model.SetDataValue(0, value); }
+>    }
+>   
+>    public float FluidDensity
+>    {
+>       get { return _model.GetDataValue(1); }
+>       set { _model.SetDataValue(1, value); }
+>    }
+>   
+>    public float ReferenceSurface
+>    {
+>       get { return _model.GetDataValue(2); }
+>       set { _model.SetDataValue(2, value); }
+>    }
+>   
+>    public float DragCoefficient
+>    {
+>       get { return _model.GetDataValue(3); }
+>       set { _model.SetDataValue(3, value); }
+>    }
+>   
+>    public float InitialSpeed
+>    {
+>       get { return _model.GetDataValue(4); }
+>       set { _model.SetDataValue(4, value); }
+>    }
+>    
+>    // Add t_min = 0 condition
+>    public override float MinParameter
+>    {
+>       get { return _minParameter; }
+>       set 
+>       { 
+>         _minParameter = 0.0f;
+>         _maxParameter = math.max(0.0f, _maxParameter);
+>       }
+>    }
+>    #endregion Properties
+>    
+>    #region Methods
+>    protected override void InitAnalysis()
+>    {
+>      float coefficientA = -0.5f * FluidDensity * ReferenceSurface * DragCoefficient;
+>      _model.SetTemporaryDataValue(0, coefficientA);
+>    }
+>    #endregion Methods
+> }
+> ```
+> 
+> The drag equation can be [non-dimensionalized](Simple_Drag_Model_Solving.md). The new variable is `V` and the new parameter is `T` :
+> 
+> `V = v / v_init`
+> 
+> `T = v_init * A * t` with `A = 0.5 * Rho * S * Cx`
