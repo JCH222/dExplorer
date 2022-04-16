@@ -4,7 +4,7 @@ using Unity.Mathematics;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
-public class DragModelVisualizer : AnalysableDEModelVisualizer
+public class SimpleDragModelVisualizer : AnalysableDEModelVisualizer
 {
     #region Fields
     private FloatField _massField;
@@ -12,26 +12,25 @@ public class DragModelVisualizer : AnalysableDEModelVisualizer
     private FloatField _referenceSurfaceField;
     private FloatField _dragCoefficientField;
     private FloatField _initialSpeedField;
-    private FloatField _additionalForceField;
     #endregion Fields
 
     #region Methods
     public override string GetName()
     {
-        return "Drag";
+        return "Simple drag";
     }
 
     public override AnalysableDEModel InstantiateModel()
     {
-        return new DragModel();
+        return new SimpleDragModel();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void OnMassChanged(ChangeEvent<float> evt)
     {
         if (_model != null)
-		{
-            DragModel model = (_model as DragModel);
+        {
+            SimpleDragModel model = (_model as SimpleDragModel);
             model.Mass = math.max(0.0f, evt.newValue);
             _massField.value = model.Mass;
         }
@@ -42,7 +41,7 @@ public class DragModelVisualizer : AnalysableDEModelVisualizer
     {
         if (_model != null)
         {
-            DragModel model = (_model as DragModel);
+            SimpleDragModel model = (_model as SimpleDragModel);
             model.FluidDensity = math.max(0.0f, evt.newValue);
             _fluidDensityField.value = model.FluidDensity;
         }
@@ -53,7 +52,7 @@ public class DragModelVisualizer : AnalysableDEModelVisualizer
     {
         if (_model != null)
         {
-            DragModel model = (_model as DragModel);
+            SimpleDragModel model = (_model as SimpleDragModel);
             model.ReferenceSurface = math.max(0.0f, evt.newValue);
             _referenceSurfaceField.value = model.ReferenceSurface;
         }
@@ -64,7 +63,7 @@ public class DragModelVisualizer : AnalysableDEModelVisualizer
     {
         if (_model != null)
         {
-            DragModel model = (_model as DragModel);
+            SimpleDragModel model = (_model as SimpleDragModel);
             model.DragCoefficient = math.max(0.0f, evt.newValue);
             _dragCoefficientField.value = model.DragCoefficient;
         }
@@ -75,26 +74,15 @@ public class DragModelVisualizer : AnalysableDEModelVisualizer
     {
         if (_model != null)
         {
-            DragModel model = (_model as DragModel);
-            model.InitialSpeed = evt.newValue;
+            SimpleDragModel model = (_model as SimpleDragModel);
+            model.InitialSpeed = math.max(0.0f, evt.newValue);
             _initialSpeedField.value = model.InitialSpeed;
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void OnAdditionalForceChanged(ChangeEvent<float> evt)
-    {
-        if (_model != null)
-        {
-            DragModel model = (_model as DragModel);
-            model.AdditionalForce = evt.newValue;
-            _additionalForceField.value = model.AdditionalForce;
-        }
-    }
-
     public override void Init()
-	{
-		base.Init();
+    {
+        base.Init();
 
         _minParameterField.label = "Initial Time [s]";
         _maxParameterField.label = "Final Time [s]";
@@ -116,15 +104,11 @@ public class DragModelVisualizer : AnalysableDEModelVisualizer
         _initialSpeedField = new FloatField("Initial Speed [m/s]");
         _initialSpeedField.RegisterValueChangedCallback(OnInitialSpeedChanged);
 
-        _additionalForceField = new FloatField("Additional Force [N]");
-        _additionalForceField.RegisterValueChangedCallback(OnAdditionalForceChanged);
-
         Add(_massField);
         Add(_fluidDensityField);
         Add(_referenceSurfaceField);
         Add(_dragCoefficientField);
         Add(_initialSpeedField);
-        Add(_additionalForceField);
     }
-	#endregion Methods
+    #endregion Methods
 }
