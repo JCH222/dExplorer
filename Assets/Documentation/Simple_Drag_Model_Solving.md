@@ -38,6 +38,8 @@ The non-dimensionalized drag equation is therefore :
 
 ![Simple Drag Equation Solution 2](Images/Simple_Drag_Equation_Solution_2.png "Simple Drag Equation Solution 2")
 
+`C` is a constant.
+
 ![Simple Drag Equation Solution 3](Images/Simple_Drag_Equation_Solution_3.png "Simple Drag Equation Solution 3")
 
 The non-dimensionalized analytical solution is therefore :
