@@ -43,7 +43,20 @@ namespace dExplorer.Editor.Mathematics
                             visualizer.SetEnabled(false);
                             visualizer.visible = false;
 
-                            analysableDEModelSelector._valueFields.Add(key, visualizer);
+                            if (analysableDEModelSelector._valueFields.ContainsKey(key))
+							{
+                                AnalysableDEModel model = analysableDEModelSelector[key];
+
+                                if (model != null)
+								{
+                                    model.Dispose();
+                                }
+                            }
+                            else
+							{
+                                analysableDEModelSelector._valueFields.Add(key, visualizer);
+                            }
+                            
                             analysableDEModelSelector[key, visualizer.GetName()] = visualizer.InstantiateModel();
                         }
                     }
@@ -54,7 +67,7 @@ namespace dExplorer.Editor.Mathematics
         #endregion Classes
 
         #region Fields
-        private Dictionary<Guid, AnalysableDEModelVisualizer> _valueFields;
+        private Dictionary<Guid, AnalysableDEModelVisualizer> _valueFields = null;
 		#endregion Fields
 
 		#region Accessors
@@ -116,6 +129,22 @@ namespace dExplorer.Editor.Mathematics
                 yield return progression;
 			}
         }
+
+        public void Dispose()
+		{
+            if (_valueFields != null)
+			{
+                foreach (AnalysableDEModelVisualizer modelVisualizer in _valueFields.Values)
+                {
+                    if (modelVisualizer != null)
+					{
+                        modelVisualizer.Dispose();
+                    }
+                }
+
+                _valueFields.Clear();
+            }
+		}
         #endregion Methods
     }
 }

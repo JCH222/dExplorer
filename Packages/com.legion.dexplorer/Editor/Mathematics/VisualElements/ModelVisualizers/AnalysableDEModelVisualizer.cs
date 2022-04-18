@@ -317,6 +317,18 @@ namespace dExplorer.Editor.Mathematics
                 };
 			}
         }
+
+        /// <summary>
+		/// Dispose the data in the unmanaged memory.
+		/// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void Dispose()
+        {
+            if (_model != null)
+			{
+                _model.Dispose();
+            }
+        }
         #endregion Methods
 
         #region Abstract Methods

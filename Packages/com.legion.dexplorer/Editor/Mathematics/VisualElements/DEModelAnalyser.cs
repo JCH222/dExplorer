@@ -16,12 +16,16 @@ namespace dExplorer.Editor.Mathematics
 		private const string GENERATE_BUTTON_KEY = "generate-button";
 		#endregion Static Fields
 
+		#region Properties
+		private AnalysableDEModelSelector ModelSelector { get; set; } = null;
+		#endregion Properties
+
 		#region Static Methods
 		[MenuItem("Window/Legion/" + NAME, priority = 40)]
 
         public static void ShowWindow()
         {
-			EditorWindow editorWindow = GetWindow(typeof(DEModelAnalyser), false, NAME);
+			DEModelAnalyser editorWindow = GetWindow(typeof(DEModelAnalyser), false, NAME) as DEModelAnalyser;
 
 			VisualTreeAsset asset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UXML_FILE_PATH);
 			VisualElement root = asset.CloneTree();
@@ -31,6 +35,13 @@ namespace dExplorer.Editor.Mathematics
 
 			generateButton.clicked += () => OnAnalyseAsked(modelSelector, generateButton);
 
+			if (editorWindow.ModelSelector != null)
+			{
+				editorWindow.ModelSelector.Dispose();
+			}
+
+			editorWindow.ModelSelector = modelSelector;
+			editorWindow.rootVisualElement.Clear();
 			editorWindow.rootVisualElement.Add(root);
 		}
 
@@ -51,5 +62,13 @@ namespace dExplorer.Editor.Mathematics
 			generateButton.SetEnabled(true);
 		}
 		#endregion Static Methods
+
+		#region Methods
+		public void OnDestroy()
+		{
+			ModelSelector.Dispose();
+			UnityEngine.Debug.Log("AAAA");
+		}
+		#endregion Methods
 	}
 }

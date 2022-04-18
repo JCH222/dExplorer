@@ -97,8 +97,15 @@ namespace dExplorer.Runtime.Mathematics
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void Dispose()
 		{
-			_data.Dispose();
-			_temporaryData.Dispose();
+			if (_data.IsCreated)
+			{
+				_data.Dispose();
+			}
+			
+			if (_temporaryData.IsCreated)
+			{
+				_temporaryData.Dispose();
+			}
 		}
 		#endregion Methods
 	}
