@@ -1,0 +1,1 @@
+# Simple compression model solving
