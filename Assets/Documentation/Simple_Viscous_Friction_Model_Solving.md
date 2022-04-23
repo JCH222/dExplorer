@@ -4,6 +4,8 @@ Classic viscous friction model of a rotating cylinder in a fluid without additio
 
 ![Simple Viscous Friction Equation 1](Images/Simple_Viscous_Friction_Equation_1.png "[Simple Viscous Friction Equation 1")
 
+![Simple Viscous Friction Equation 2](Images/Simple_Viscous_Friction_Equation_2.png "[Simple Viscous Friction Equation 2")
+
 - `Alpha` is the viscous friction coefficient of the fluid [*N.s.m^-1*]
 - `r` is the radius of the cylinder *[m]*
 - `I` is the moment of inertia *[kg.m^2]*
@@ -21,13 +23,15 @@ Angular speed tends towards zero over time. It can therefore be non-dimensionali
 
 ![Simple Viscous Friction Non Dimensionalized Equation 2](Images/Simple_Viscous_Friction_Non_Dimensionalized_Equation_2.png "Simple Viscous Friction Non Dimensionalized Equation 2")
 
+![Simple Viscous Friction Non Dimensionalized Equation 3](Images/Simple_Viscous_Friction_Non_Dimensionalized_Equation_3.png "Simple Viscous Friction Non Dimensionalized Equation 3")
+
 `t_star` is the non-dimensionalized time :
 
 ![Simple Viscous Friction Time Non Dimensionalization](Images/Simple_Viscous_Friction_Time_Non_Dimensionalization.png "Simple Viscous Friction Time Non Dimensionalization")
 
-The non-dimensionalized viscous friction equation is therefore :
+![Simple Viscous Friction Non Dimensionalized Equation 4](Images/Simple_Viscous_Friction_Non_Dimensionalized_Equation_4.png "Simple Viscous Friction Non Dimensionalized Equation 4")
 
-![Simple Viscous Friction Non Dimensionalized Equation 3](Images/Simple_Viscous_Friction_Non_Dimensionalized_Equation_3.png "Simple Viscous Friction Non Dimensionalized Equation 3")
+The non-dimensionalized viscous friction equation is therefore :
 
 ![Simple Viscous Friction Equation Solution 1](Images/Simple_Viscous_Friction_Equation_Solution_1.png "Simple Viscous Friction Equation Solution 1")
 
