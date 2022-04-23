@@ -101,39 +101,42 @@ public unsafe class SimpleViscousFrictionModel : AnalysableDEModel
 			"Parameter Step :\n" +
 			"-> Time Step [s]\n\n" +
 			"Mean Absolute Errors :\n" +
+			"-> Object angular position [rad]" +
 			"-> Object angular speed [rad/s]";
 	}
 	#endregion Methods
 
 	#region Static Methods
 	[BurstCompile]
-	[MonoPInvokeCallback(typeof(FloatPreSimulationFunction))]
-	public static void PreSimulate(float* modelData, float* modelTemporaryData, float* currentVariable, float* currentParameter) { }
+	[MonoPInvokeCallback(typeof(Float2PreSimulationFunction))]
+	public static void PreSimulate(float* modelData, float* modelTemporaryData, float2* currentVariable, float* currentParameter) { }
 
 	[BurstCompile]
 	[MonoPInvokeCallback(typeof(Float2PostSimulationFunction))]
-	public static void PostSimulate(float* modelData, float* modelTemporaryData, float* nextVariable) { }
+	public static void PostSimulate(float* modelData, float* modelTemporaryData, float2* nextVariable) { }
 
 	[BurstCompile]
 	[MonoPInvokeCallback(typeof(Float2InitialVariableFunction))]
-	public static void GetInitialVariable(float* modelData, float* modelTemporaryData, float* initialVariable)
+	public static void GetInitialVariable(float* modelData, float* modelTemporaryData, float2* initialVariable)
 	{
-		*initialVariable = 1.0f;
+		*initialVariable = new float2(0.0f, 1.0f);
 	}
 
 	[BurstCompile]
 	[MonoPInvokeCallback(typeof(Float2DerivativeFunction))]
-	public static void ComputeDerivative(float* modelData, float* modelTemporaryData, float* currentVariable, float currentParameter, float* currentDerivative)
+	public static void ComputeDerivative(float* modelData, float* modelTemporaryData, float2* currentVariable, float currentParameter, float2* currentDerivative)
 	{
-		float angularSpeedRatio = *currentVariable;
-		*currentDerivative = -angularSpeedRatio;
+		float angularSpeedRatio = (*currentVariable).y;
+		*currentDerivative = new float2(angularSpeedRatio, -angularSpeedRatio);
 	}
 
 	[BurstCompile]
-	[MonoPInvokeCallback(typeof(FloatAnalyticalSolutionFunction))]
-	public static void ComputeAnalyticalSolution(float* modelData, float* modelTemporaryData, float currentParameter, float* currentVariable)
+	[MonoPInvokeCallback(typeof(Float2AnalyticalSolutionFunction))]
+	public static void ComputeAnalyticalSolution(float* modelData, float* modelTemporaryData, float currentParameter, float2* currentVariable)
 	{
-		*currentVariable = math.exp(-currentParameter);
+		*currentVariable = new float2(
+			1.0f - math.exp(-currentParameter),
+			math.exp(-currentParameter));
 	}
 
 	[MonoPInvokeCallback(typeof(ParameterNondimensionalizationFunction))]
@@ -153,12 +156,18 @@ public unsafe class SimpleViscousFrictionModel : AnalysableDEModel
 	}
 
 	[BurstCompile]
-	[MonoPInvokeCallback(typeof(FloatVariableDimensionalizationFunction))]
-	public static void DimensionalizeVariable(float* modelData, float* modelTemporaryData, float* nonDimensionalizedVariable, float* dimensionalizedVariable)
+	[MonoPInvokeCallback(typeof(Float2VariableDimensionalizationFunction))]
+	public static void DimensionalizeVariable(float* modelData, float* modelTemporaryData, float2* nonDimensionalizedVariable, float2* dimensionalizedVariable)
 	{
 		float initialAngularSpeed = modelData[3];
-		float angularSpeedRatio = *nonDimensionalizedVariable;
-		*dimensionalizedVariable = initialAngularSpeed * angularSpeedRatio;
+		float coefficientA = modelTemporaryData[0];
+
+		float angularPositionRatio = (*nonDimensionalizedVariable).x;
+		float angularSpeedRatio = (*nonDimensionalizedVariable).y;
+
+		*dimensionalizedVariable = new float2(
+			angularPositionRatio * initialAngularSpeed / coefficientA,
+			initialAngularSpeed * angularSpeedRatio);
 	}
 	#endregion Static Methods
 }
