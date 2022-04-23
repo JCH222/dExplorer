@@ -44,3 +44,7 @@ The non-dimensionalized viscous friction equation is therefore :
 The non-dimensionalized analytical solution is therefore :
 
 ![Simple Viscous Friction Equation Solution 4](Images/Simple_Viscous_Friction_Equation_Solution_4.png "Simple Viscous Friction Equation Solution 4")
+
+The position equation can be solved :
+
+![Simple Viscous Friction Position Equation 1](Images/Simple_Viscous_Friction_Position_Equation_1.png "Simple Viscous Friction Position Equation 1")
