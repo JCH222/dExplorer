@@ -67,7 +67,6 @@ namespace dExplorer.Editor.Mathematics
 		public void OnDestroy()
 		{
 			ModelSelector.Dispose();
-			UnityEngine.Debug.Log("AAAA");
 		}
 		#endregion Methods
 	}
