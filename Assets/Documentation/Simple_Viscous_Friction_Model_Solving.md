@@ -48,3 +48,19 @@ The non-dimensionalized analytical solution is therefore :
 The position equation can be solved :
 
 ![Simple Viscous Friction Position Equation 1](Images/Simple_Viscous_Friction_Position_Equation_1.png "Simple Viscous Friction Position Equation 1")
+
+![Simple Viscous Friction Position Equation 2](Images/Simple_Viscous_Friction_Position_Equation_2.png "Simple Viscous Friction Position Equation 2")
+
+![Simple Viscous Friction Position Equation 3](Images/Simple_Viscous_Friction_Position_Equation_3.png "Simple Viscous Friction Position Equation 3")
+
+`Theta_star` is the non-dimensionalized angular position :
+
+![Simple Viscous Friction Position Non-Dimensionalization](Images/Simple_Viscous_Friction_Position_Non_Dimensionalization.png "Simple Viscous Friction Position Non-Dimensionalization")
+
+The non-dimensionalized position equation is therefore :
+
+![Simple Viscous Friction Position Equation Solution 1](Images/Simple_Viscous_Friction_Position_Equation_Solution_1.png "Simple Viscous Friction Position Equation Solution 1")
+
+![Simple Viscous Friction Position Equation Solution 2](Images/Simple_Viscous_Friction_Position_Equation_Solution_2.png "Simple Viscous Friction Position Equation Solution 2")
+
+![Simple Viscous Friction Position Equation Solution 3](Images/Simple_Viscous_Friction_Position_Equation_Solution_3.png "Simple Viscous Friction Position Equation Solution 3")
