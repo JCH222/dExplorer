@@ -68,19 +68,7 @@ with :
 
 ![Simple Compression Equation 3](Images/Simple_Compression_Equation_3.png "Simple Compression Equation 3")
 
-`X` is the non-dimensionalized position. It tends towards 1 over time because `x <= xm` :
-
-![Simple Compression Position Non Dimensionalization](Images/Simple_Compression_Position_Non_Dimensionalization.png "Simple Compression Position Non Dimensionalization")
-
-`T` is the non-dimensionalized time :
-
-![Simple Compression Time Non Dimensionalization](Images/Simple_Compression_Time_Non_Dimensionalization.png "Simple Compression Time Non Dimensionalization")
-
-The non-dimensionalized model equation is therefore :
-
-![Simple Compression Non Dimensionalized Equation 1](Images/Simple_Compression_Non_Dimensionalized_Equation_1.png "Simple Compression Non Dimensionalized Equation 1")
-
-The non-dimensionalized analytical solution is therefore :
+The analytical solution is therefore :
 
 ![Simple Compression Equation Solution 1](Images/Simple_Compression_Equation_Solution_1.png "Simple Compression Equation Solution 1")
 
@@ -88,9 +76,9 @@ The non-dimensionalized analytical solution is therefore :
 
 ![Simple Compression Equation Solution 3](Images/Simple_Compression_Equation_Solution_3.png "Simple Compression Equation Solution 3")
 
-`B`, `C` and `D` are constants.
+`A`, `B` and `C` are constants.
 
-![Simple Compression Initial Non Dimensionalized Position](Images/Simple_Compression_Initial_Non_Dimensionalized_Position.png "Simple Compression Initial Non Dimensionalized Position")
+![Simple Compression C Constant](Images/Simple_Compression_C_Constant.png "Simple Compression C Constant")
 
 ![Simple Compression U Function](Images/Simple_Compression_U_Function.png "Simple Compression U Function")
 
@@ -100,8 +88,8 @@ The non-dimensionalized analytical solution is therefore :
 
 ![Simple Compression Equation Speed Solution](Images/Simple_Compression_Equation_Speed_Solution.png "Simple Compression Equation Speed Solution")
 
-![Simple Compression C Constant 1](Images/Simple_Compression_C_Constant_1.png "Simple Compression C Constant 1")
+![Simple Compression B Constant 1](Images/Simple_Compression_B_Constant_1.png "Simple Compression B Constant 1")
 
-![Simple Compression C Constant 2](Images/Simple_Compression_C_Constant_2.png "Simple Compression C Constant 2")
+![Simple Compression B Constant 2](Images/Simple_Compression_B_Constant_2.png "Simple Compression B Constant 2")
 
-![Simple Compression C Constant 3](Images/Simple_Compression_C_Constant_3.png "Simple Compression C Constant 3")
+![Simple Compression B Constant 3](Images/Simple_Compression_B_Constant_3.png "Simple Compression B Constant 3")
