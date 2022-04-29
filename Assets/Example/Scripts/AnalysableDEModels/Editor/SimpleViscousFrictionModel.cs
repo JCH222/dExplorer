@@ -100,7 +100,7 @@ public unsafe class SimpleViscousFrictionModel : AnalysableDEModel
 			"-> Elapsed Time [s]\n\n" +
 			"Parameter Step :\n" +
 			"-> Time Step [s]\n\n" +
-			"Mean Absolute Errors :\n" +
+			"Variable :\n" +
 			"-> Object angular position [rad]" +
 			"-> Object angular speed [rad/s]";
 	}
@@ -113,7 +113,10 @@ public unsafe class SimpleViscousFrictionModel : AnalysableDEModel
 
 	[BurstCompile]
 	[MonoPInvokeCallback(typeof(Float2PostSimulationFunction))]
-	public static void PostSimulate(float* modelData, float* modelTemporaryData, float2* nextVariable) { }
+	public static void PostSimulate(float* modelData, float* modelTemporaryData, float2* nextVariable, float2* exportedNextVariable) 
+	{
+		*exportedNextVariable = *nextVariable;
+	}
 
 	[BurstCompile]
 	[MonoPInvokeCallback(typeof(Float2InitialVariableFunction))]

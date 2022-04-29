@@ -1,7 +1,5 @@
 using AOT;
 using dExplorer.Editor.Mathematics;
-using dExplorer.Runtime.Mathematics;
-using System.Runtime.CompilerServices;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Mathematics;
@@ -70,7 +68,7 @@ public unsafe class SimpleCompressionModel : AnalysableDEModel
 		}
 	}
 
-	public float InitialPressure
+	public float OuterPressure
 	{
 		get
 		{
@@ -82,7 +80,7 @@ public unsafe class SimpleCompressionModel : AnalysableDEModel
 		}
 	}
 
-	public float InitialLength
+	public float InitialPressure
 	{
 		get
 		{
@@ -94,7 +92,7 @@ public unsafe class SimpleCompressionModel : AnalysableDEModel
 		}
 	}
 
-	public float InitialSpeed
+	public float InitialLength
 	{
 		get
 		{
@@ -103,6 +101,18 @@ public unsafe class SimpleCompressionModel : AnalysableDEModel
 		set
 		{
 			_model.SetDataValue(7, value);
+		}
+	}
+
+	public float InitialSpeed
+	{
+		get
+		{
+			return _model.GetDataValue(8);
+		}
+		set
+		{
+			_model.SetDataValue(8, value);
 		}
 	}
 
@@ -122,16 +132,16 @@ public unsafe class SimpleCompressionModel : AnalysableDEModel
 
 	#region Constructors
 	public SimpleCompressionModel(float mass = 1.0f, float surface = 0.0f, float heatCapacityRatio = 0.0f, 
-		float incompressibleLength = 0.0f, float maxCompressibleLength = 0.0f, float initialPressure = 0.0f, 
-		float initialLength = 0.0f, float initialSpeed = 0.0f) :
-		base(8, 1, Allocator.Persistent, GetInitialVariable, PreSimulate, PostSimulate, ComputeDerivative,
-		ComputeAnalyticalSolution, DimensionalizeVariable, NondimensionalizeParameter, DimensionalizeParameter)
+		float incompressibleLength = 0.0f, float maxCompressibleLength = 0.0f, float outerPressure = 0.0f,
+		float initialPressure = 0.0f, float initialLength = 0.0f, float initialSpeed = 0.0f) :
+		base(9, 1, Allocator.Persistent, GetInitialVariable, PreSimulate, PostSimulate, ComputeDerivative, ComputeAnalyticalSolution)
 	{
 		Mass = mass;
 		Surface = surface;
 		HeatCapacityRatio = heatCapacityRatio;
 		IncompressibleLength = incompressibleLength;
 		MaxCompressibleLength = maxCompressibleLength;
+		OuterPressure = outerPressure;
 		InitialPressure = initialPressure;
 		InitialLength = initialLength;
 		InitialSpeed = initialSpeed;
@@ -141,7 +151,7 @@ public unsafe class SimpleCompressionModel : AnalysableDEModel
 	#region Methods
 	protected override void InitAnalysis()
 	{
-		float coefficientA = (Surface * InitialPressure) / (Mass * (InitialLength - IncompressibleLength));
+		float coefficientA = Surface * InitialPressure * math.pow(InitialLength - IncompressibleLength, HeatCapacityRatio) / Mass;
 		_model.SetTemporaryDataValue(0, coefficientA);
 	}
 
@@ -153,9 +163,10 @@ public unsafe class SimpleCompressionModel : AnalysableDEModel
 			"-> Elapsed Time [s]\n\n" +
 			"Parameter Step :\n" +
 			"-> Time Step [s]\n\n" +
-			"Mean Absolute Errors :\n" +
-			"-> Piston speed [m/s]" +
-			"-> Piston position [m]";
+			"Variable :\n" +
+			"-> Piston speed [m/s]\n" +
+			"-> Piston position [m]\n\n" +
+			"NB : There is no simple analytical solution";
 	}
 	#endregion Methods
 
@@ -166,31 +177,31 @@ public unsafe class SimpleCompressionModel : AnalysableDEModel
 
 	[BurstCompile]
 	[MonoPInvokeCallback(typeof(Float2PostSimulationFunction))]
-	public static void PostSimulate(float* modelData, float* modelTemporaryData, float2* nextVariable) 
+	public static void PostSimulate(float* modelData, float* modelTemporaryData, float2* nextVariable, float2* exportedNextVariable) 
 	{
-		float maxCompressibleLength = modelData[3];
+		float maxCompressibleLength = modelData[4];
 		float nextSpeed = (*nextVariable).x;
-		float nextPosition = (*nextVariable).y;
+		float nextLength = (*nextVariable).y;
 
-		if (nextPosition < 0.0f)
+		if (nextLength <= 0.0f)
 		{
-			nextPosition = 0.0f;
-			nextSpeed = 0.0f;
+			*nextVariable = new float2(0.0f, 0.0f);
 		}
-		else if (nextPosition > maxCompressibleLength)
+		else if (nextLength >= maxCompressibleLength)
 		{
-			nextPosition = maxCompressibleLength;
-			nextSpeed = 0.0f;
+			*nextVariable = new float2(0.0f, maxCompressibleLength);
 		}
+
+		*exportedNextVariable = *nextVariable;
 	}
 
 	[BurstCompile]
 	[MonoPInvokeCallback(typeof(Float2InitialVariableFunction))]
 	public static void GetInitialVariable(float* modelData, float* modelTemporaryData, float2* initialVariable)
 	{
-		float initialLength = modelData[6];
-		float maxCompressibleLength = modelData[3];
-		*initialVariable = new float2(0.0f, initialLength / maxCompressibleLength);
+		float initialLength = modelData[7];
+		float initialSpeed = modelData[8];
+		*initialVariable = new float2(initialSpeed, initialLength);
 	}
 
 	[BurstCompile]
@@ -198,15 +209,17 @@ public unsafe class SimpleCompressionModel : AnalysableDEModel
 	public static void ComputeDerivative(float* modelData, float* modelTemporaryData, float2* currentVariable, float currentParameter, float2* currentDerivative)
 	{
 		float coefficientA = modelTemporaryData[0];
+		float mass = modelData[0];
+		float surface = modelData[1];
 		float heatCapacityRatio = modelData[2];
 		float incompressibleLength = modelData[3];
-		float initialLength = modelData[6];
+		float outerPressure = modelData[5];
 
 		float currentSpeed = (*currentVariable).x;
 		float currentLength = (*currentVariable).y;
 
 		*currentDerivative = new float2(
-			coefficientA * math.pow(initialLength - incompressibleLength, heatCapacityRatio + 1.0f) / math.pow(currentLength - incompressibleLength, heatCapacityRatio),
+			(coefficientA / math.pow(currentLength - incompressibleLength, heatCapacityRatio)) - surface * outerPressure / mass,
 			currentSpeed);
 	}
 
@@ -214,33 +227,8 @@ public unsafe class SimpleCompressionModel : AnalysableDEModel
 	[MonoPInvokeCallback(typeof(Float2AnalyticalSolutionFunction))]
 	public static void ComputeAnalyticalSolution(float* modelData, float* modelTemporaryData, float currentParameter, float2* currentVariable)
 	{
-		*currentVariable = 0.0f;
-	}
-
-	[MonoPInvokeCallback(typeof(ParameterNondimensionalizationFunction))]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static float NondimensionalizeParameter(in DEModel model, float parameter)
-	{
-		float coefficientA = model.TemporaryData[0];
-		return math.sqrt(coefficientA) * parameter;
-	}
-
-	[BurstCompile]
-	[MonoPInvokeCallback(typeof(ParameterDimensionalizationFunction))]
-	public static float DimensionalizeParameter(float* modelData, float* modelTemporaryData, float nonDimensionalizedParameter)
-	{
-		float coefficientA = modelTemporaryData[0];
-		return nonDimensionalizedParameter / math.sqrt(coefficientA);
-	}
-
-	[BurstCompile]
-	[MonoPInvokeCallback(typeof(Float2VariableDimensionalizationFunction))]
-	public static void DimensionalizeVariable(float* modelData, float* modelTemporaryData, float2* nonDimensionalizedVariable, float2* dimensionalizedVariable)
-	{
-		float maxCompressibleLength = modelData[4];
-		float nonDimensionalizedSpeed = (*nonDimensionalizedVariable).x;
-		float nonDimensionalizedPosition = (*nonDimensionalizedVariable).y;
-		*dimensionalizedVariable = new float2(nonDimensionalizedSpeed, nonDimensionalizedPosition * maxCompressibleLength);
+		// There is no simple analytical solution.
+		*currentVariable = new float2(float.NaN, float.NaN);
 	}
 	#endregion Static Methods
 }

@@ -10,7 +10,7 @@ namespace dExplorer.Editor.Mathematics
 
 	public unsafe delegate void Float2InitialVariableFunction(float* modelData, float* modelTemporaryData, float2* initialVariable);
 	public unsafe delegate void Float2PreSimulationFunction(float* modelData, float* modelTemporaryData, float2* currentVariable, float* currentParameter);
-	public unsafe delegate void Float2PostSimulationFunction(float* modelData, float* modelTemporaryData, float2* nextVariable);
+	public unsafe delegate void Float2PostSimulationFunction(float* modelData, float* modelTemporaryData, float2* nextVariable, float2* exportedNextVariable);
 	public unsafe delegate void Float2DerivativeFunction(float* modelData, float* modelTemporaryData, float2* currentVariable, float currentParameter, float2* currentDerivative);
 	public unsafe delegate void Float2AnalyticalSolutionFunction(float* modelData, float* modelTemporaryData, float currentParameter, float2* currentVariable);
 	public unsafe delegate void Float2VariableDimensionalizationFunction(float* modelData, float* modelTemporaryData, float2* nonDimensionalizedVariable, float2* dimensionalizedVariable);
@@ -126,8 +126,8 @@ namespace dExplorer.Editor.Mathematics
 						break;
 				}
 
-				float2 modifiedNextVariable = nextVariable;
-				PostSimulationFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, &modifiedNextVariable);
+				float2 exportedNextVariable;
+				PostSimulationFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, &nextVariable, &exportedNextVariable);
 
 				currentParameter += ParameterStep;
 				currentLocalParameter += ParameterStep;
@@ -136,13 +136,13 @@ namespace dExplorer.Editor.Mathematics
 				{
 					float2 dimensionalizedVariable;
 					Parameter[index] = ParameterDimensionalizationFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, currentParameter);
-					VariableDimensionalizationFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, &modifiedNextVariable, &dimensionalizedVariable);
+					VariableDimensionalizationFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, &exportedNextVariable, &dimensionalizedVariable);
 					Result[index] = dimensionalizedVariable;
 				}
 				else
 				{
 					Parameter[index] = currentParameter;
-					Result[index] = modifiedNextVariable;
+					Result[index] = exportedNextVariable;
 				}
 
 				currentVariable = nextVariable;

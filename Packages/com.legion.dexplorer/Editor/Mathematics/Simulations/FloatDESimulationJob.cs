@@ -8,7 +8,7 @@ namespace dExplorer.Editor.Mathematics
 
 	public unsafe delegate void FloatInitialVariableFunction(float* modelData, float* modelTemporaryData, float* initialVariable);
 	public unsafe delegate void FloatPreSimulationFunction(float* modelData, float* modelTemporaryData, float* currentVariable, float* currentParameter);
-	public unsafe delegate void FloatPostSimulationFunction(float* modelData, float* modelTemporaryData, float* nextVariable);
+	public unsafe delegate void FloatPostSimulationFunction(float* modelData, float* modelTemporaryData, float* nextVariable, float* exportedNextVariable);
 	public unsafe delegate void FloatDerivativeFunction(float* modelData, float* modelTemporaryData, float* currentVariable, float currentParameter, float* currentDerivative);
 	public unsafe delegate void FloatAnalyticalSolutionFunction(float* modelData, float* modelTemporaryData, float currentParameter, float* currentVariable);
 	public unsafe delegate void FloatVariableDimensionalizationFunction(float* modelData, float* modelTemporaryData, float* nonDimensionalizedVariable, float* dimensionalizedVariable);
@@ -125,8 +125,8 @@ namespace dExplorer.Editor.Mathematics
 						break;
 				}
 
-				float modifiedNextVariable = nextVariable;
-				PostSimulationFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, &modifiedNextVariable);
+				float modifiedNextVariable;
+				PostSimulationFunctionPointer.Invoke(modelDataPtr, modelTemporaryDataPtr, &nextVariable, &modifiedNextVariable);
 
 				currentParameter += ParameterStep;
 				currentLocalParameter += ParameterStep;

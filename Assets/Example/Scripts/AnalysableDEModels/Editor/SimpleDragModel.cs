@@ -113,7 +113,7 @@ public unsafe class SimpleDragModel : AnalysableDEModel
 			"-> Elapsed Time [s]\n\n" +
 			"Parameter Step :\n" +
 			"-> Time Step [s]\n\n" +
-			"Mean Absolute Errors :\n" +
+			"Variable :\n" +
 			"-> Object speed [m/s]";
 	}
 	#endregion Methods
@@ -125,7 +125,10 @@ public unsafe class SimpleDragModel : AnalysableDEModel
 
 	[BurstCompile]
 	[MonoPInvokeCallback(typeof(FloatPostSimulationFunction))]
-	public static void PostSimulate(float* modelData, float* modelTemporaryData, float* nextVariable) { }
+	public static void PostSimulate(float* modelData, float* modelTemporaryData, float* nextVariable, float* exportedNextVariable) 
+	{
+		*exportedNextVariable = *nextVariable;
+	}
 
 	[BurstCompile]
 	[MonoPInvokeCallback(typeof(FloatInitialVariableFunction))]
