@@ -64,32 +64,6 @@ The model equation is therefore :
 
 with :
 
-- `x` is the initial position of the piston *[m]*
+- `x_i` is the initial position of the piston *[m]*
 
-![Simple Compression Equation 3](Images/Simple_Compression_Equation_3.png "Simple Compression Equation 3")
-
-The analytical solution is therefore :
-
-![Simple Compression Equation Solution 1](Images/Simple_Compression_Equation_Solution_1.png "Simple Compression Equation Solution 1")
-
-![Simple Compression Equation Solution 2](Images/Simple_Compression_Equation_Solution_2.png "Simple Compression Equation Solution 2")
-
-![Simple Compression Equation Solution 3](Images/Simple_Compression_Equation_Solution_3.png "Simple Compression Equation Solution 3")
-
-`A`, `B` and `C` are constants.
-
-![Simple Compression C Constant](Images/Simple_Compression_C_Constant.png "Simple Compression C Constant")
-
-![Simple Compression U Function](Images/Simple_Compression_U_Function.png "Simple Compression U Function")
-
-![Simple Compression U Derivative Function](Images/Simple_Compression_U_Derivative_Function.png "Simple Compression U Derivative Function")
-
-![Simple Compression Equation Solution 4](Images/Simple_Compression_Equation_Solution_4.png "Simple Compression Equation Solution 4")
-
-![Simple Compression Equation Speed Solution](Images/Simple_Compression_Equation_Speed_Solution.png "Simple Compression Equation Speed Solution")
-
-![Simple Compression B Constant 1](Images/Simple_Compression_B_Constant_1.png "Simple Compression B Constant 1")
-
-![Simple Compression B Constant 2](Images/Simple_Compression_B_Constant_2.png "Simple Compression B Constant 2")
-
-![Simple Compression B Constant 3](Images/Simple_Compression_B_Constant_3.png "Simple Compression B Constant 3")
+**There is no simple analytical solution.**
