@@ -16,7 +16,7 @@ public class SimpleViscousFrictionModelVisualizer : AnalysableDEModelVisualizer
     #region Methods
     public override string GetName()
     {
-        return "Simple viscous friction";
+        return "Viscous friction";
     }
 
     public override AnalysableDEModel InstantiateModel()

@@ -157,7 +157,7 @@ public unsafe class SimpleCompressionModel : AnalysableDEModel
 
 	protected override void GenerateDefaultDescriptions(out string shortDescription, out string longDescription)
 	{
-		shortDescription = "Classic compression model";
+		shortDescription = "Adiabatic compression model";
 		longDescription =
 			"Parameter :\n" +
 			"-> Elapsed Time [s]\n\n" +

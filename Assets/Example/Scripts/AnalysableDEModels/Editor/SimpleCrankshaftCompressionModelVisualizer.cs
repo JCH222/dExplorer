@@ -22,7 +22,7 @@ public class SimpleCrankshaftCompressionModelVisualizer : AnalysableDEModelVisua
     #region Methods
     public override string GetName()
     {
-        return "Crankshaft compression";
+        return "Adiabatic compression with crankshaft";
     }
 
     public override AnalysableDEModel InstantiateModel()

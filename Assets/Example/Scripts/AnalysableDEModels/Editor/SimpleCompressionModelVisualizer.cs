@@ -21,7 +21,7 @@ public class SimpleCompressionModelVisualizer : AnalysableDEModelVisualizer
     #region Methods
     public override string GetName()
     {
-        return "Simple compression";
+        return "Adiabatic compression";
     }
 
     public override AnalysableDEModel InstantiateModel()

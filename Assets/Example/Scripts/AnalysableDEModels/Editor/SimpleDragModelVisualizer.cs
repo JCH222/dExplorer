@@ -17,7 +17,7 @@ public class SimpleDragModelVisualizer : AnalysableDEModelVisualizer
     #region Methods
     public override string GetName()
     {
-        return "Simple drag";
+        return "Drag";
     }
 
     public override AnalysableDEModel InstantiateModel()

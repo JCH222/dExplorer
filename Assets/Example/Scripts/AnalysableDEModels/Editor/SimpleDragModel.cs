@@ -107,7 +107,7 @@ public unsafe class SimpleDragModel : AnalysableDEModel
 
 	protected override void GenerateDefaultDescriptions(out string shortDescription, out string longDescription)
 	{
-		shortDescription = "Classic drag model";
+		shortDescription = "Drag model";
 		longDescription =
 			"Parameter :\n" +
 			"-> Elapsed Time [s]\n\n" +

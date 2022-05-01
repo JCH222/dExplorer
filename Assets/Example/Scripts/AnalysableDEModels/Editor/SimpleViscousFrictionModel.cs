@@ -94,7 +94,7 @@ public unsafe class SimpleViscousFrictionModel : AnalysableDEModel
 
 	protected override void GenerateDefaultDescriptions(out string shortDescription, out string longDescription)
 	{
-		shortDescription = "Classic viscous friction model";
+		shortDescription = "Viscous friction model";
 		longDescription =
 			"Parameter :\n" +
 			"-> Elapsed Time [s]\n\n" +
