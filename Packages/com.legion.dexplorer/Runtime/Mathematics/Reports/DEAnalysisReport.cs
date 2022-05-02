@@ -1,11 +1,9 @@
-namespace dExplorer.Editor.Mathematics
+namespace dExplorer.Runtime.Mathematics
 {
-	using dExplorer.Editor.Serializations;
 	using dExplorer.Runtime.Mathematics;
 	using System;
 	using System.Collections.Generic;
 	using System.Runtime.CompilerServices;
-	using Unity.Burst;
 	using Unity.Collections;
 	using UnityEngine;
 
@@ -28,8 +26,8 @@ namespace dExplorer.Editor.Mathematics
 	/// </summary>
 	/// <typeparam name="T_ANALYSIS_VALUE">Analysis value type</typeparam>
 	/// <typeparam name="T_VARIABLE">Variable type</typeparam>
-	public abstract partial class DEAnalysisReport<T_ANALYSIS_VALUE, T_VARIABLE> : 
-		ScriptableObject, ISerializationCallbackReceiver, IDEAnalysisReportSerializable<T_VARIABLE>
+	public abstract class DEAnalysisReport<T_ANALYSIS_VALUE, T_VARIABLE> :
+		ScriptableObject, ISerializationCallbackReceiver
 		where T_ANALYSIS_VALUE : IAnalysisValue<T_VARIABLE>, new()
 		where T_VARIABLE : struct
 	{
@@ -42,8 +40,8 @@ namespace dExplorer.Editor.Mathematics
 		[HideInInspector] public float MinParameter;
 		[HideInInspector] public float MaxParameter;
 
-		private DateTime _creationDateTime;
-		private Dictionary<DESolvingType, List<T_ANALYSIS_VALUE>> _data;
+		protected DateTime _creationDateTime;
+		protected Dictionary<DESolvingType, List<T_ANALYSIS_VALUE>> _data;
 
 		#region Serialization Fields
 		[HideInInspector] [SerializeField] private int _serializedCreationYear = 0;
@@ -229,7 +227,7 @@ namespace dExplorer.Editor.Mathematics
 		/// <param name="simulationParameters">Simulation parameters</param>
 		/// <param name="simulationValues">Simulation result</param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void AddValue(DESolvingType solvingType, float parameterStep, T_VARIABLE meanAbsoluteError, 
+		public void AddValue(DESolvingType solvingType, float parameterStep, T_VARIABLE meanAbsoluteError,
 			NativeArray<float> simulationParameters, NativeArray<T_VARIABLE> simulationValues)
 		{
 			if (_data.ContainsKey(solvingType) == false)
@@ -302,7 +300,7 @@ namespace dExplorer.Editor.Mathematics
 		public IEnumerable<Tuple<float, T_VARIABLE>> GetMeanAbsoluteErrors(DESolvingType solvingType)
 		{
 			List<T_ANALYSIS_VALUE> values = _data[solvingType];
-			
+
 			foreach (T_ANALYSIS_VALUE value in values)
 			{
 				yield return new Tuple<float, T_VARIABLE>(value.ParameterStep, value.MeanAbsoluteError);
@@ -318,7 +316,7 @@ namespace dExplorer.Editor.Mathematics
 		public IEnumerable<Tuple<float, T_VARIABLE>> GetSimulationValues(DESolvingType solvingType, int index)
 		{
 			T_ANALYSIS_VALUE analysisValue = _data[solvingType][index];
-			
+
 			if (analysisValue.SimulationParameters != null)
 			{
 				for (int i = 0, length = analysisValue.SimulationParameters.Length; i < length; i++)

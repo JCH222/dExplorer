@@ -10,7 +10,7 @@ namespace dExplorer.Editor.Mathematics
 	/// <summary>
 	/// Dimension 2 differential equation simulations with multiple solving types and parameter steps.
 	/// </summary>
-	public class Float2DEAnalyser : DEAnalyser<Float2DEAnalysisReport, Float2DEAnalysisValue, Vector2, Float2DESimulationJob, Float2DEAnalysisJob>
+	public class Float2DEAnalyser : DEAnalyser<Float2DESerializableAnalysisReport, Float2DEAnalysisValue, Vector2, Float2DESimulationJob, Float2DEAnalysisJob>
 	{
 		#region Accessors
 		public FunctionPointer<Float2InitialVariableFunction> InitialVariableFunctionPointer { get; private set; }

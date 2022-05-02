@@ -1,4 +1,4 @@
-namespace dExplorer.Editor.Mathematics
+namespace dExplorer.Runtime.Mathematics
 {
 	/// <summary>
 	/// Unit value in the report of the dimension 1 differential equation analysis report.
@@ -16,5 +16,5 @@ namespace dExplorer.Editor.Mathematics
 	/// <summary>
 	/// Dimension 1 differential equation analysis report.
 	/// </summary>
-	public class FloatDEAnalysisReport : DEAnalysisReport<FloatDEAnalysisValue, float> { }
+	public class FloatDEnalysisReport : DEAnalysisReport<FloatDEAnalysisValue, float> { }
 }

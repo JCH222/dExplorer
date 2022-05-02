@@ -1,4 +1,4 @@
-namespace dExplorer.Editor.Mathematics
+namespace dExplorer.Runtime.Mathematics
 {
 	using UnityEngine;
 

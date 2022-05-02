@@ -7,7 +7,7 @@ namespace dExplorer.Editor.Mathematics
 	/// <summary>
 	/// Float 3 analysis report visualizer.
 	/// </summary>
-	[CustomEditor(typeof(Float3DEAnalysisReport))]
+	[CustomEditor(typeof(Float3DESerializableAnalysisReport))]
 	public class Float3DEAnalysisReportInspector : DEAnalysisReportInspector<Float3DEAnalysisValues, Vector3, Float3XmlVariableSerializer, Float3CsvVariableSerializer>
 	{
 		#region Methods

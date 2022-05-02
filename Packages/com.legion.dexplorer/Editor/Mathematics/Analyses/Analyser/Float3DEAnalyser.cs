@@ -10,7 +10,7 @@ namespace dExplorer.Editor.Mathematics
 	/// <summary>
 	/// Dimension 3 differential equation simulations with multiple solving types and parameter steps.
 	/// </summary>
-	public class Float3DEAnalyser : DEAnalyser<Float3DEAnalysisReport, Float3DEAnalysisValue, Vector3, Float3DESimulationJob, Float3DEAnalysisJob>
+	public class Float3DEAnalyser : DEAnalyser<Float3DESerializableAnalysisReport, Float3DEAnalysisValue, Vector3, Float3DESimulationJob, Float3DEAnalysisJob>
 	{
 		#region Accessors
 		public FunctionPointer<Float3InitialVariableFunction> InitialVariableFunctionPointer { get; private set; }

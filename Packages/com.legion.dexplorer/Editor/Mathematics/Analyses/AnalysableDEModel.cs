@@ -40,6 +40,13 @@ namespace dExplorer.Editor.Mathematics
 		private readonly FunctionPointer<Float2AnalyticalSolutionFunction> _float2AnalyticalSolutionFunctionPointer;
 		private readonly FunctionPointer<Float2VariableDimensionalizationFunction> _float2VariableDimensionalizationFunctionPointer;
 
+		private readonly FunctionPointer<Float3InitialVariableFunction> _float3InitialVariableFunctionPointer;
+		private readonly FunctionPointer<Float3PreSimulationFunction> _float3PreSimulationFunctionPointer;
+		private readonly FunctionPointer<Float3PostSimulationFunction> _float3PostSimulationFunctionPointer;
+		private readonly FunctionPointer<Float3DerivativeFunction> _float3DerivativeFunctionPointer;
+		private readonly FunctionPointer<Float3AnalyticalSolutionFunction> _float3AnalyticalSolutionFunctionPointer;
+		private readonly FunctionPointer<Float3VariableDimensionalizationFunction> _float3VariableDimensionalizationFunctionPointer;
+
 		private readonly ParameterNondimensionalizationFunction _parameterNondimensionalizationFunction;
 		private readonly ParameterDimensionalizationFunction _parameterDimensionalizationFunction;
 		#endregion Fields
@@ -135,6 +142,41 @@ namespace dExplorer.Editor.Mathematics
 			if (_isNondimensionalized)
 			{
 				_float2VariableDimensionalizationFunctionPointer = BurstCompiler.CompileFunctionPointer<Float2VariableDimensionalizationFunction>(variableDimensionalizationFunction);
+			}
+		}
+
+		/// <summary>
+		/// Constructor.
+		/// </summary>
+		/// <param name="dataNb">Variable number</param>
+		/// <param name="temporaryDataNb">Variable number</param>
+		/// <param name="allocator">Allocation type</param>
+		/// <param name="initialVariableFunction">Initial state function</param>
+		/// <param name="preSimulationFunction">Pre-simulation function</param>
+		/// <param name="postSimulationFunction">Post-simulation function</param>
+		/// <param name="derivativeFunction">Derivative computation function</param>
+		/// <param name="analyticalSolutionFunction">Analytical solution computation function</param>
+		/// <param name="parameterNondimensionalizationFunction">Parameter nondimensionalization function</param>
+		/// <param name="parameterDimensionalizationFunction">Parameter dimensionalization function</param>
+		public AnalysableDEModel(int dataNb, int temporaryDataNb, Allocator allocator, Float3InitialVariableFunction initialVariableFunction,
+			Float3PreSimulationFunction preSimulationFunction, Float3PostSimulationFunction postSimulationFunction,
+			Float3DerivativeFunction derivativeFunction, Float3AnalyticalSolutionFunction analyticalSolutionFunction,
+			Float3VariableDimensionalizationFunction variableDimensionalizationFunction = null,
+			ParameterNondimensionalizationFunction parameterNondimensionalizationFunction = null,
+			ParameterDimensionalizationFunction parameterDimensionalizationFunction = null) :
+			this(parameterNondimensionalizationFunction, parameterDimensionalizationFunction)
+		{
+			Init(dataNb, temporaryDataNb, allocator);
+			_variableType = Type.GetType("Unity.Mathematics.float3");
+			_float3InitialVariableFunctionPointer = BurstCompiler.CompileFunctionPointer<Float3InitialVariableFunction>(initialVariableFunction);
+			_float3PreSimulationFunctionPointer = BurstCompiler.CompileFunctionPointer<Float3PreSimulationFunction>(preSimulationFunction);
+			_float3PostSimulationFunctionPointer = BurstCompiler.CompileFunctionPointer<Float3PostSimulationFunction>(postSimulationFunction);
+			_float3DerivativeFunctionPointer = BurstCompiler.CompileFunctionPointer<Float3DerivativeFunction>(derivativeFunction);
+			_float3AnalyticalSolutionFunctionPointer = BurstCompiler.CompileFunctionPointer<Float3AnalyticalSolutionFunction>(analyticalSolutionFunction);
+
+			if (_isNondimensionalized)
+			{
+				_float3VariableDimensionalizationFunctionPointer = BurstCompiler.CompileFunctionPointer<Float3VariableDimensionalizationFunction>(variableDimensionalizationFunction);
 			}
 		}
 		#endregion Constructors
@@ -287,7 +329,7 @@ namespace dExplorer.Editor.Mathematics
 					Message = "Report generation..."
 				};
 
-				FloatDEAnalysisReport report = analyser.GetAnalysisReport(isFullReport);
+				FloatDESerializableAnalysisReport report = analyser.GetAnalysisReport(isFullReport);
 				report.Name = reportName;
 				GenerateDefaultDescriptions(out string shortDescription, out string longDescription);
 				report.ShortDescription = shortDescription;
@@ -338,7 +380,58 @@ namespace dExplorer.Editor.Mathematics
 					Message = "Report generation..."
 				};
 
-				Float2DEAnalysisReport report = analyser.GetAnalysisReport(isFullReport);
+				Float2DESerializableAnalysisReport report = analyser.GetAnalysisReport(isFullReport);
+				report.Name = reportName;
+				GenerateDefaultDescriptions(out string shortDescription, out string longDescription);
+				report.ShortDescription = shortDescription;
+				report.LongDescription = longDescription;
+				report.MinParameter = _minParameter;
+				report.MaxParameter = _maxParameter;
+				AssetDatabase.CreateAsset(report, reportPath + "/" + reportName + ".asset");
+				AssetDatabase.SaveAssets();
+
+				yield return new AnalysisProgression()
+				{
+					Ratio = 1.0f,
+					Message = "Finalization..."
+				};
+			}
+			else if (_variableType == Type.GetType("Unity.Mathematics.float3"))
+			{
+				Float3DEAnalyser analyser = new Float3DEAnalyser(_model, _float3InitialVariableFunctionPointer,
+					_float3PreSimulationFunctionPointer, _float3PostSimulationFunctionPointer, _float3DerivativeFunctionPointer,
+					_float3AnalyticalSolutionFunctionPointer, minParameter, maxParameter, _isNondimensionalized,
+					_float3VariableDimensionalizationFunctionPointer, _parameterDimensionalizationFunction);
+
+
+				foreach (float parameterStep in parameterSteps)
+				{
+					analyser.ParameterSteps.Add(parameterStep);
+				}
+
+				foreach (DESolvingType solvingType in _solvingTypes)
+				{
+					analyser.SolvingTypes.Add(solvingType);
+				}
+
+				analyser.StartAnalysis();
+
+				foreach (AnalysisProgression progression in analyser.CheckAnalysisProgression())
+				{
+					yield return new AnalysisProgression()
+					{
+						Ratio = progression.Ratio * 0.9f,
+						Message = progression.Message
+					};
+				}
+
+				yield return new AnalysisProgression()
+				{
+					Ratio = 0.9f,
+					Message = "Report generation..."
+				};
+
+				Float3DESerializableAnalysisReport report = analyser.GetAnalysisReport(isFullReport);
 				report.Name = reportName;
 				GenerateDefaultDescriptions(out string shortDescription, out string longDescription);
 				report.ShortDescription = shortDescription;
