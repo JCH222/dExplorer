@@ -1,0 +1,11 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <ui:TextField picking-mode="Ignore" label="Name" name="name" />
+    <dExplorer.Editor.Commons.DescriptionVisualizer name="description" Title="Description" />
+    <dExplorer.Editor.Commons.DateTimeVisualizer name="creation-date" Title="Creation Date" />
+    <ui:Toggle label="Is Full Report" name="is-full-report" />
+    <uie:FloatField label="Min Parameter" value="0" name="min-parameter" />
+    <uie:FloatField label="Max Parameter" value="0" name="max-parameter" />
+    <dExplorer.Editor.Mathematics.Float3DEAnalysisValues name="analysis-values" />
+    <ui:Button text="Export to XML" display-tooltip-when-elided="true" name="export-xml" />
+    <ui:Button text="Export to CSV" display-tooltip-when-elided="true" name="export-csv" />
+</ui:UXML>
