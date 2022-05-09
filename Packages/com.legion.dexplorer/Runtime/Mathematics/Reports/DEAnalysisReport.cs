@@ -311,11 +311,11 @@ namespace dExplorer.Runtime.Mathematics
 		/// Get simulation values generated in the report.
 		/// </summary>
 		/// <param name="solvingType">Selected solving type</param>
-		/// <param name="index">Selected simulation value index</param>
+		/// <param name="parameterStepIndex">Selected parameter step index</param>
 		/// <returns>Simulation values generated in the report</returns>
-		public IEnumerable<Tuple<float, T_VARIABLE>> GetSimulationValues(DESolvingType solvingType, int index)
+		public IEnumerable<Tuple<float, T_VARIABLE>> GetSimulationValues(DESolvingType solvingType, int parameterStepIndex)
 		{
-			T_ANALYSIS_VALUE analysisValue = _data[solvingType][index];
+			T_ANALYSIS_VALUE analysisValue = _data[solvingType][parameterStepIndex];
 
 			if (analysisValue.SimulationParameters != null)
 			{
@@ -323,6 +323,40 @@ namespace dExplorer.Runtime.Mathematics
 				{
 					yield return new Tuple<float, T_VARIABLE>(analysisValue.SimulationParameters[i], analysisValue.SimulationValues[i]);
 				}
+			}
+		}
+
+		/// <summary>
+		/// Get simulation value generated in the report.
+		/// </summary>
+		/// <param name="solvingType">Selected solving type</param>
+		/// <param name="parameterStepIndex">Selected parameter step index</param>
+		/// <param name="parameterIndex">Selected parameter index</param>
+		/// <param name="parameterStep">Selected parameter step</param>
+		/// <returns>Simulation value generated in the report</returns>
+		public Tuple<float, T_VARIABLE> GetSimulationValue(DESolvingType solvingType, int parameterStepIndex, int parameterIndex, out float parameterStep)
+		{
+			T_ANALYSIS_VALUE analysisValue = _data[solvingType][parameterStepIndex];
+
+			if (analysisValue.SimulationParameters != null)
+			{
+				parameterStep = analysisValue.ParameterStep;
+
+				if (parameterIndex >= 0 && parameterIndex < analysisValue.SimulationParameters.Length)
+				{
+					return new Tuple<float, T_VARIABLE>(analysisValue.SimulationParameters[parameterIndex], analysisValue.SimulationValues[parameterIndex]);
+				}
+				else
+				{
+					// TODO : Add error log
+					return null;
+				}
+			}
+			else
+			{
+				// TODO : Add error log
+				parameterStep = float.NaN;
+				return null;
 			}
 		}
 		#endregion Methods
