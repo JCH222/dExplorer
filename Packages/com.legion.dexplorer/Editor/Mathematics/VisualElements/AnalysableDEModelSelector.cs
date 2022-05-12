@@ -75,10 +75,12 @@ namespace dExplorer.Editor.Mathematics
 		{
             get { return _valueField.Model; }
 		}
+
+        public Button GenerateButton { get; set; } = null;
 		#endregion Accessors
 
-		#region Methods
-		protected override AnalysableDEModelVisualizer InitValueField()
+        #region Methods
+        protected override AnalysableDEModelVisualizer InitValueField()
         {
             EmptyAnalysableDEModelVisualizer visualizer = new EmptyAnalysableDEModelVisualizer();
             visualizer.Init();
@@ -119,6 +121,8 @@ namespace dExplorer.Editor.Mathematics
 
         protected override void OnSelectionChange(IEnumerable<object> _)
         {
+            GenerateButton.SetEnabled(true);
+            GenerateButton.visible = true;
             UpdateValueField(_keys[_keysField.selectedIndex]);
         }
 

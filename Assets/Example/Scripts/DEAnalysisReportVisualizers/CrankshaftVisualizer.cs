@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class CrankshaftVisualizer : DEAnalysisReportVisualizer<Float2DEAnalysisReport, Float2DEAnalysisValue, Vector2>
 {
+
     #region Fields
     public float CrankRadius = 1.5f;
     public float ConnectingRodLength = 3.0f;

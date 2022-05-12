@@ -25,24 +25,7 @@ namespace dExplorer.Editor.Mathematics
 
         public static void ShowWindow()
         {
-			DEModelAnalyser editorWindow = GetWindow(typeof(DEModelAnalyser), false, NAME) as DEModelAnalyser;
-
-			VisualTreeAsset asset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UXML_FILE_PATH);
-			VisualElement root = asset.CloneTree();
-
-			AnalysableDEModelSelector modelSelector = root.Query<AnalysableDEModelSelector>(MODEL_SELECTOR_KEY).First();
-			Button generateButton = root.Query<Button>(GENERATE_BUTTON_KEY).First();
-
-			generateButton.clicked += () => OnAnalyseAsked(modelSelector, generateButton);
-
-			if (editorWindow.ModelSelector != null)
-			{
-				editorWindow.ModelSelector.Dispose();
-			}
-
-			editorWindow.ModelSelector = modelSelector;
-			editorWindow.rootVisualElement.Clear();
-			editorWindow.rootVisualElement.Add(root);
+			DEModelAnalyser _ = GetWindow(typeof(DEModelAnalyser), false, NAME) as DEModelAnalyser;
 		}
 
 		private static void OnAnalyseAsked(AnalysableDEModelSelector modelSelector, Button generateButton)
@@ -64,9 +47,36 @@ namespace dExplorer.Editor.Mathematics
 		#endregion Static Methods
 
 		#region Methods
+		public void OnEnable()
+		{
+			VisualTreeAsset asset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UXML_FILE_PATH);
+			VisualElement root = asset.CloneTree();
+
+			AnalysableDEModelSelector modelSelector = root.Query<AnalysableDEModelSelector>(MODEL_SELECTOR_KEY).First();
+			Button generateButton = root.Query<Button>(GENERATE_BUTTON_KEY).First();
+
+			modelSelector.GenerateButton = generateButton;
+
+			generateButton.SetEnabled(false);
+			generateButton.visible = false;
+			generateButton.clicked += () => OnAnalyseAsked(modelSelector, generateButton);
+
+			if (ModelSelector != null)
+			{
+				ModelSelector.Dispose();
+			}
+
+			ModelSelector = modelSelector;
+			rootVisualElement.Clear();
+			rootVisualElement.Add(root);
+		}
+
 		public void OnDestroy()
 		{
-			ModelSelector.Dispose();
+			if (ModelSelector != null)
+			{
+				ModelSelector.Dispose();
+			}
 		}
 		#endregion Methods
 	}
