@@ -183,7 +183,7 @@ namespace dExplorer.Editor.Mathematics
 
 		#region Properties
 		/// <summary>
-		/// Min parameter of the simulations.
+		/// Min parameter of simulations.
 		/// </summary>
 		public virtual float MinParameter
 		{
@@ -198,7 +198,7 @@ namespace dExplorer.Editor.Mathematics
 		}
 
 		/// <summary>
-		/// Max parameter of the simulations.
+		/// Max parameter of simulations.
 		/// </summary>
 		public virtual float MaxParameter
 		{

@@ -4,12 +4,21 @@ namespace dExplorer.Runtime.Mathematics
 	using Unity.Mathematics;
 	using UnityEngine;
 
+    /// <summary>
+    /// Base class for simulation diplay contained in the analysis reports.
+    /// </summary>
+    /// <typeparam name="T_REPORT">Analysis report type</typeparam>
+    /// <typeparam name="T_ANALYSIS_VALUE">Analysis value type</typeparam>
+    /// <typeparam name="T_VARIABLE">Variable type</typeparam>
     public abstract class DEAnalysisReportVisualizer<T_REPORT, T_ANALYSIS_VALUE, T_VARIABLE> : MonoBehaviour
         where T_REPORT : DEAnalysisReport<T_ANALYSIS_VALUE, T_VARIABLE>
         where T_ANALYSIS_VALUE : IAnalysisValue<T_VARIABLE>, new()
         where T_VARIABLE : struct
     {
 		#region Local Structures
+        /// <summary>
+        /// Unit value of the simulation display.
+        /// </summary>
         private struct ReadingData
 		{
             public DESolvingType SolvingType;

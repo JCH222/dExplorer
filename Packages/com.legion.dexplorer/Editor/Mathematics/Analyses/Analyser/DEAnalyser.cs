@@ -43,7 +43,7 @@ namespace dExplorer.Editor.Mathematics
 		private bool _isAnalysing;
 		#endregion Fields
 
-		#region Accessors
+		#region Properties
 		public float MinParameter { get; set; }
 		public float MaxParameter { get; set; }
 		public bool IsNondimensionalized { get; private set; }
@@ -53,7 +53,7 @@ namespace dExplorer.Editor.Mathematics
 		public HashSet<DESolvingType> SolvingTypes { get; private set; }
 		public DEModel Model { get; private set; }
 		protected List<NativeArray<float>> DuplicatedModelTemporaryDataContainer { get; private set; }
-		#endregion Accessors
+		#endregion Properties
 
 		#region Constructors
 		/// <summary>
