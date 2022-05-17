@@ -12,7 +12,7 @@ namespace dExplorer.Editor.Mathematics
 	using UnityEngine.UIElements;
 
 	/// <summary>
-	/// Analysis report visualizer.
+	/// Analysis report user interface.
 	/// </summary>
 	/// <typeparam name="T_ANALYSIS_VALUES">Analysis values type</typeparam>
 	/// <typeparam name="T_VARIABLE">Variable type</typeparam>
