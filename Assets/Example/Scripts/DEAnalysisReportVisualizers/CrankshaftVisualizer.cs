@@ -1,10 +1,10 @@
 using dExplorer.Runtime.Mathematics;
+using System;
 using Unity.Mathematics;
 using UnityEngine;
 
-public class CrankshaftVisualizer : DEAnalysisReportVisualizer<Float2DEAnalysisReport, Float2DEAnalysisValue, Vector2>
+public class CrankshaftVisualizer : DESimulationVisualizer<Float2DEAnalysisReport, Vector2>
 {
-
     #region Fields
     public float CrankRadius = 1.5f;
     public float ConnectingRodLength = 3.0f;
@@ -54,6 +54,11 @@ public class CrankshaftVisualizer : DEAnalysisReportVisualizer<Float2DEAnalysisR
         Gizmos.DrawSphere(Vector3.zero, CrankRadius * 0.1f);
         Gizmos.DrawSphere(crankRodConnectionPosition, CrankRadius * 0.1f);
         Gizmos.DrawSphere(rodPistonConnectionPosition, CrankRadius * 0.1f);
+    }
+
+	protected override Tuple<float, Vector2> GetSimulationValue(DESolvingType solvingType, int parameterStepIndex, int parameterIndex, out float parameterStep)
+	{
+        return Container.GetSimulationValue(solvingType, parameterStepIndex, parameterIndex, out parameterStep);
     }
 	#endregion Methods
 }

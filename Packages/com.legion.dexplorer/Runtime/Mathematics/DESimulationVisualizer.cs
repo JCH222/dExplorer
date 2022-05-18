@@ -5,14 +5,12 @@ namespace dExplorer.Runtime.Mathematics
 	using UnityEngine;
 
     /// <summary>
-    /// Base class for simulation diplay contained in the analysis reports.
+    /// Base class for simulation runtime diplay.
     /// </summary>
-    /// <typeparam name="T_REPORT">Analysis report type</typeparam>
-    /// <typeparam name="T_ANALYSIS_VALUE">Analysis value type</typeparam>
+    /// <typeparam name="T_CONTAINER">Simulation container type</typeparam>
     /// <typeparam name="T_VARIABLE">Variable type</typeparam>
-    public abstract class DEAnalysisReportVisualizer<T_REPORT, T_ANALYSIS_VALUE, T_VARIABLE> : MonoBehaviour
-        where T_REPORT : DEAnalysisReport<T_ANALYSIS_VALUE, T_VARIABLE>
-        where T_ANALYSIS_VALUE : IAnalysisValue<T_VARIABLE>, new()
+    public abstract class DESimulationVisualizer<T_CONTAINER, T_VARIABLE> : MonoBehaviour
+        where T_CONTAINER : class
         where T_VARIABLE : struct
     {
 		#region Local Structures
@@ -31,11 +29,11 @@ namespace dExplorer.Runtime.Mathematics
 		#endregion Local Structures
 
 		#region Fields
-		private T_REPORT _previousReport = null;
+		private T_CONTAINER _previousContainer = null;
 
         private ReadingData _currentReadingData;
 
-        public T_REPORT Report = null;
+        public T_CONTAINER Container = null;
         public float PlaybackSpeed = 1.0f;
         public bool Pause = false;
 		#endregion Fields
@@ -65,18 +63,20 @@ namespace dExplorer.Runtime.Mathematics
         {
             get { return _currentReadingData.Variable; }
         }
-		#endregion Properties
+        #endregion Properties
 
-		#region Methods
+        #region Methods
+        abstract protected Tuple<float, T_VARIABLE> GetSimulationValue(DESolvingType solvingType, int parameterStepIndex, int parameterIndex, out float parameterStep);
+
 		protected void OnValidate()
         {
             PlaybackSpeed = math.max(0.0f, PlaybackSpeed);
 
-            if (Report != null)
+            if (Container != null)
             {
-                if (_previousReport == null || _previousReport != Report)
+                if (_previousContainer == null || _previousContainer != Container)
                 {
-                    _previousReport = Report;
+                    _previousContainer = Container;
 
                     DESolvingType solvingType = SolvingType;
                     int parameterStepIndex = ParameterStepIndex;
@@ -84,7 +84,7 @@ namespace dExplorer.Runtime.Mathematics
 					float parameter;
 					T_VARIABLE variable;
 
-                    Tuple<float, T_VARIABLE> value = Report.GetSimulationValue(solvingType, parameterStepIndex, parameterIndex, out float parameterStep);
+                    Tuple<float, T_VARIABLE> value = GetSimulationValue(solvingType, parameterStepIndex, parameterIndex, out float parameterStep);
 
                     if (value != null)
                     {
@@ -114,7 +114,7 @@ namespace dExplorer.Runtime.Mathematics
             }
             else
             {
-                _previousReport = null;
+                _previousContainer = null;
 
                 FixedUpdateElapsedTime = 0.0f;
 
@@ -132,12 +132,12 @@ namespace dExplorer.Runtime.Mathematics
 
         protected void FixedUpdate()
         {
-            if (Report != null && Pause == false)
+            if (Container != null && Pause == false)
             {
                 FixedUpdateElapsedTime += Time.fixedDeltaTime * PlaybackSpeed;
 
                 int nextParameterIndex = ParameterIndex + 1;
-                Tuple<float, T_VARIABLE> nextValue = Report.GetSimulationValue(SolvingType, ParameterStepIndex, nextParameterIndex, out float nextParameterStep);
+                Tuple<float, T_VARIABLE> nextValue = GetSimulationValue(SolvingType, ParameterStepIndex, nextParameterIndex, out float nextParameterStep);
 
                 ReadingData nextReadingData;
 
@@ -156,7 +156,7 @@ namespace dExplorer.Runtime.Mathematics
                 else
 				{
                     nextParameterIndex = 0;
-                    nextValue = Report.GetSimulationValue(SolvingType, ParameterStepIndex, nextParameterIndex, out nextParameterStep);
+                    nextValue = GetSimulationValue(SolvingType, ParameterStepIndex, nextParameterIndex, out nextParameterStep);
 
                     FixedUpdateElapsedTime = nextValue.Item1;
 
@@ -181,12 +181,12 @@ namespace dExplorer.Runtime.Mathematics
                     _currentReadingData = nextReadingData;
 
                     nextParameterIndex += 1;
-                    nextValue = Report.GetSimulationValue(SolvingType, ParameterStepIndex, nextParameterIndex, out nextParameterStep);
+                    nextValue = GetSimulationValue(SolvingType, ParameterStepIndex, nextParameterIndex, out nextParameterStep);
 
                     if (nextValue == null)
                     {
                         nextParameterIndex = 0;
-                        nextValue = Report.GetSimulationValue(SolvingType, ParameterStepIndex, nextParameterIndex, out nextParameterStep);
+                        nextValue = GetSimulationValue(SolvingType, ParameterStepIndex, nextParameterIndex, out nextParameterStep);
 
                         FixedUpdateElapsedTime = nextValue.Item1;
                         stop = true;
