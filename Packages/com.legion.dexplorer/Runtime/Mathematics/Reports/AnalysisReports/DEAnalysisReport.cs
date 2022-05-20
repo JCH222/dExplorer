@@ -1,6 +1,5 @@
 namespace dExplorer.Runtime.Mathematics
 {
-	using dExplorer.Runtime.Mathematics;
 	using System;
 	using System.Collections.Generic;
 	using System.Runtime.CompilerServices;
@@ -26,33 +25,18 @@ namespace dExplorer.Runtime.Mathematics
 	/// </summary>
 	/// <typeparam name="T_ANALYSIS_VALUE">Analysis value type</typeparam>
 	/// <typeparam name="T_VARIABLE">Variable type</typeparam>
-	public abstract class DEAnalysisReport<T_ANALYSIS_VALUE, T_VARIABLE> :
-		ScriptableObject, ISerializationCallbackReceiver
+	public abstract class DEAnalysisReport<T_ANALYSIS_VALUE, T_VARIABLE> : DEReport
 		where T_ANALYSIS_VALUE : IAnalysisValue<T_VARIABLE>, new()
 		where T_VARIABLE : struct
 	{
 		#region Fields
-		public string Name;
-		public string ShortDescription;
-		public string LongDescription;
-
 		[HideInInspector] public bool IsFullReport;
 		[HideInInspector] public float MinParameter;
 		[HideInInspector] public float MaxParameter;
 
-		protected DateTime _creationDateTime;
 		protected Dictionary<DESolvingType, List<T_ANALYSIS_VALUE>> _data;
 
 		#region Serialization Fields
-		[HideInInspector] [SerializeField] private int _serializedCreationYear = 0;
-		[HideInInspector] [SerializeField] private int _serializedCreationMonth = 0;
-		[HideInInspector] [SerializeField] private int _serializedCreationDay = 0;
-		[HideInInspector] [SerializeField] private int _serializedCreationHour = 0;
-		[HideInInspector] [SerializeField] private int _serializedCreationMinute = 0;
-		[HideInInspector] [SerializeField] private int _serializedCreationSecond = 0;
-		[HideInInspector] [SerializeField] private int _serializedCreationMillisecond = 0;
-		[HideInInspector] [SerializeField] private DateTimeKind _serializedCreationDateTimeZone = DateTimeKind.Unspecified;
-
 		[HideInInspector] [SerializeField] private DESolvingType[] _serializedDataKeys;
 		[HideInInspector] [SerializeField] private float[] _serializedDataParameterSteps;
 		[HideInInspector] [SerializeField] private T_VARIABLE[] _serializedDataMeanAbsoluteErrors;
@@ -68,41 +52,22 @@ namespace dExplorer.Runtime.Mathematics
 		/// </summary>
 		public DEAnalysisReport() : base()
 		{
-			Name = string.Empty;
-			ShortDescription = string.Empty;
-			LongDescription = string.Empty;
-
 			IsFullReport = false;
 			MinParameter = 0.0f;
 			MaxParameter = 0.0f;
 
-			_creationDateTime = DateTime.UtcNow;
 			_data = new Dictionary<DESolvingType, List<T_ANALYSIS_VALUE>>();
 		}
 		#endregion Constructors
-
-		#region Properties
-		/// <summary>
-		/// Creation date.
-		/// </summary>
-		public DateTime CreationDateTime { get { return _creationDateTime; } }
-		#endregion Properties
 
 		#region Methods
 		/// <summary>
 		/// Callback called before Unity serializes the report.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void OnBeforeSerialize()
+		public override void OnBeforeSerialize()
 		{
-			_serializedCreationYear = _creationDateTime.Year;
-			_serializedCreationMonth = _creationDateTime.Month;
-			_serializedCreationDay = _creationDateTime.Day;
-			_serializedCreationHour = _creationDateTime.Hour;
-			_serializedCreationMinute = _creationDateTime.Minute;
-			_serializedCreationSecond = _creationDateTime.Second;
-			_serializedCreationMillisecond = _creationDateTime.Millisecond;
-			_serializedCreationDateTimeZone = _creationDateTime.Kind;
+			base.PreSerialize();
 
 			int arraySize = 0;
 			int longArraySize = 0;
@@ -172,10 +137,9 @@ namespace dExplorer.Runtime.Mathematics
 		/// Callback called after Unity deserializes the report.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void OnAfterDeserialize()
+		public override void OnAfterDeserialize()
 		{
-			_creationDateTime = new DateTime(_serializedCreationYear, _serializedCreationMonth, _serializedCreationDay, _serializedCreationHour,
-				_serializedCreationMinute, _serializedCreationSecond, _serializedCreationMillisecond, _serializedCreationDateTimeZone);
+			base.PostDeserialize();
 
 			_data = new Dictionary<DESolvingType, List<T_ANALYSIS_VALUE>>();
 
@@ -242,42 +206,6 @@ namespace dExplorer.Runtime.Mathematics
 				SimulationParameters = IsFullReport ? simulationParameters.ToArray() : null,
 				SimulationValues = IsFullReport ? simulationValues.ToArray() : null
 			});
-		}
-
-		/// <summary>
-		/// Get name of the report.
-		/// </summary>
-		/// <returns>Name of the report</returns>
-		public string GetName()
-		{
-			return Name;
-		}
-
-		/// <summary>
-		/// Get short description of the report.
-		/// </summary>
-		/// <returns>Short description of the report</returns>
-		public string GetShortDescription()
-		{
-			return ShortDescription;
-		}
-
-		/// <summary>
-		/// Get long description of the report.
-		/// </summary>
-		/// <returns>Long description of the report</returns>
-		public string GetLongDescription()
-		{
-			return LongDescription;
-		}
-
-		/// <summary>
-		/// Get creation date of the report.
-		/// </summary>
-		/// <returns>Creation date of the report</returns>
-		public DateTime GetCreationDate()
-		{
-			return _creationDateTime;
 		}
 
 		/// <summary>

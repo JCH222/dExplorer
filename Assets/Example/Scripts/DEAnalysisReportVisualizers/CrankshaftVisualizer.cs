@@ -3,7 +3,9 @@ using System;
 using Unity.Mathematics;
 using UnityEngine;
 
-public class CrankshaftVisualizer : DESimulationVisualizer<Float2DEAnalysisReport, Vector2>
+public struct EmptyAditionnalValue { }
+
+public class CrankshaftVisualizer : DESimulationVisualizer<Float2DEAnalysisReport, Vector2, EmptyAditionnalValue>
 {
     #region Fields
     public float CrankRadius = 1.5f;
@@ -56,9 +58,10 @@ public class CrankshaftVisualizer : DESimulationVisualizer<Float2DEAnalysisRepor
         Gizmos.DrawSphere(rodPistonConnectionPosition, CrankRadius * 0.1f);
     }
 
-	protected override Tuple<float, Vector2> GetSimulationValue(DESolvingType solvingType, int parameterStepIndex, int parameterIndex, out float parameterStep)
+	protected override Tuple<float, Vector2, EmptyAditionnalValue> GetSimulationValue(DESolvingType solvingType, int parameterStepIndex, int parameterIndex, out float parameterStep)
 	{
-        return Container.GetSimulationValue(solvingType, parameterStepIndex, parameterIndex, out parameterStep);
+        Tuple<float, Vector2> value = Container.GetSimulationValue(solvingType, parameterStepIndex, parameterIndex, out parameterStep);
+        return value != null ? new Tuple<float, Vector2, EmptyAditionnalValue>(value.Item1, value.Item2, new EmptyAditionnalValue()) : null;
     }
 	#endregion Methods
 }

@@ -9,9 +9,11 @@ namespace dExplorer.Runtime.Mathematics
     /// </summary>
     /// <typeparam name="T_CONTAINER">Simulation container type</typeparam>
     /// <typeparam name="T_VARIABLE">Variable type</typeparam>
-    public abstract class DESimulationVisualizer<T_CONTAINER, T_VARIABLE> : MonoBehaviour
+    /// <typeparam name="T_ADDITIONAL_VALUE">Additional value type</typeparam>
+    public abstract class DESimulationVisualizer<T_CONTAINER, T_VARIABLE, T_ADDITIONAL_VALUE> : MonoBehaviour
         where T_CONTAINER : class
         where T_VARIABLE : struct
+        where T_ADDITIONAL_VALUE : struct
     {
 		#region Local Structures
         /// <summary>
@@ -25,6 +27,7 @@ namespace dExplorer.Runtime.Mathematics
             public float ParameterStep;
             public float Parameter;
             public T_VARIABLE Variable;
+            public T_ADDITIONAL_VALUE AdditionalValue;
 		}
 		#endregion Local Structures
 
@@ -63,10 +66,15 @@ namespace dExplorer.Runtime.Mathematics
         {
             get { return _currentReadingData.Variable; }
         }
+
+        public T_ADDITIONAL_VALUE AdditionalValue
+		{
+            get { return _currentReadingData.AdditionalValue; }
+		}
         #endregion Properties
 
         #region Methods
-        abstract protected Tuple<float, T_VARIABLE> GetSimulationValue(DESolvingType solvingType, int parameterStepIndex, int parameterIndex, out float parameterStep);
+        abstract protected Tuple<float, T_VARIABLE, T_ADDITIONAL_VALUE> GetSimulationValue(DESolvingType solvingType, int parameterStepIndex, int parameterIndex, out float parameterStep);
 
 		protected void OnValidate()
         {
@@ -83,8 +91,9 @@ namespace dExplorer.Runtime.Mathematics
                     int parameterIndex = 0;
 					float parameter;
 					T_VARIABLE variable;
+                    T_ADDITIONAL_VALUE additionalValue;
 
-                    Tuple<float, T_VARIABLE> value = GetSimulationValue(solvingType, parameterStepIndex, parameterIndex, out float parameterStep);
+                    Tuple<float, T_VARIABLE, T_ADDITIONAL_VALUE> value = GetSimulationValue(solvingType, parameterStepIndex, parameterIndex, out float parameterStep);
 
                     if (value != null)
                     {
@@ -92,13 +101,15 @@ namespace dExplorer.Runtime.Mathematics
 
                         parameter = value.Item1;
                         variable = value.Item2;
+                        additionalValue = value.Item3;
                     }
                     else
                     {
-                        FixedUpdateElapsedTime = 0.0f;
+                        FixedUpdateElapsedTime = float.NaN;
 
-                        parameter = 0.0f;
+                        parameter = float.NaN;
                         variable = new T_VARIABLE();
+                        additionalValue = new T_ADDITIONAL_VALUE();
                     }
 
                     _currentReadingData = new ReadingData()
@@ -108,7 +119,8 @@ namespace dExplorer.Runtime.Mathematics
                         ParameterIndex = parameterIndex,
                         ParameterStep = parameterStep,
                         Parameter = parameter,
-                        Variable = variable
+                        Variable = variable,
+                        AdditionalValue = additionalValue
                     };
                 }
             }
@@ -116,7 +128,7 @@ namespace dExplorer.Runtime.Mathematics
             {
                 _previousContainer = null;
 
-                FixedUpdateElapsedTime = 0.0f;
+                FixedUpdateElapsedTime = float.NaN;
 
                 _currentReadingData = new ReadingData()
                 {
@@ -124,8 +136,9 @@ namespace dExplorer.Runtime.Mathematics
                     ParameterStepIndex = ParameterStepIndex,
                     ParameterIndex = 0,
                     ParameterStep = float.NaN,
-                    Parameter = 0.0f,
-                    Variable = new T_VARIABLE()
+                    Parameter = float.NaN,
+                    Variable = new T_VARIABLE(),
+                    AdditionalValue = new T_ADDITIONAL_VALUE()
                 };
             }
         }
@@ -137,75 +150,45 @@ namespace dExplorer.Runtime.Mathematics
                 FixedUpdateElapsedTime += Time.fixedDeltaTime * PlaybackSpeed;
 
                 int nextParameterIndex = ParameterIndex + 1;
-                Tuple<float, T_VARIABLE> nextValue = GetSimulationValue(SolvingType, ParameterStepIndex, nextParameterIndex, out float nextParameterStep);
-
-                ReadingData nextReadingData;
+                Tuple<float, T_VARIABLE, T_ADDITIONAL_VALUE> nextValue = GetSimulationValue(SolvingType, ParameterStepIndex, nextParameterIndex, out float nextParameterStep);
 
                 if (nextValue != null)
 				{
-                    nextReadingData = new ReadingData()
+                    ReadingData nextReadingData = new ReadingData()
                     {
                         SolvingType = SolvingType,
                         ParameterStepIndex = ParameterStepIndex,
                         ParameterIndex = nextParameterIndex,
                         ParameterStep = nextParameterStep,
                         Parameter = nextValue.Item1,
-                        Variable = nextValue.Item2
-                    };
-                }
-                else
-				{
-                    nextParameterIndex = 0;
-                    nextValue = GetSimulationValue(SolvingType, ParameterStepIndex, nextParameterIndex, out nextParameterStep);
-
-                    FixedUpdateElapsedTime = nextValue.Item1;
-
-                    nextReadingData = new ReadingData()
-                    {
-                        SolvingType = SolvingType,
-                        ParameterStepIndex = ParameterStepIndex,
-                        ParameterIndex = 0,
-                        ParameterStep = nextParameterStep,
-                        Parameter = nextValue.Item1,
-                        Variable = nextValue.Item2
+                        Variable = nextValue.Item2,
+                        AdditionalValue = nextValue.Item3
                     };
 
-                    _currentReadingData = nextReadingData;
-                    return;
-                }
-
-                while (nextReadingData.Parameter < FixedUpdateElapsedTime)
-                {
-                    bool stop = false;
-
-                    _currentReadingData = nextReadingData;
-
-                    nextParameterIndex += 1;
-                    nextValue = GetSimulationValue(SolvingType, ParameterStepIndex, nextParameterIndex, out nextParameterStep);
-
-                    if (nextValue == null)
+                    while (nextReadingData.Parameter < FixedUpdateElapsedTime)
                     {
-                        nextParameterIndex = 0;
+                        _currentReadingData = nextReadingData;
+
+                        nextParameterIndex += 1;
                         nextValue = GetSimulationValue(SolvingType, ParameterStepIndex, nextParameterIndex, out nextParameterStep);
 
-                        FixedUpdateElapsedTime = nextValue.Item1;
-                        stop = true;
-                    }
-
-                    nextReadingData = new ReadingData()
-                    {
-                        SolvingType = SolvingType,
-                        ParameterStepIndex = ParameterStepIndex,
-                        ParameterIndex = nextParameterIndex,
-                        ParameterStep = nextParameterStep,
-                        Parameter = nextValue.Item1,
-                        Variable = nextValue.Item2
-                    };
-
-                    if (stop)
-					{
-                        _currentReadingData = nextReadingData;
-                        return;
+                        if (nextValue != null)
+                        {
+                            nextReadingData = new ReadingData()
+                            {
+                                SolvingType = SolvingType,
+                                ParameterStepIndex = ParameterStepIndex,
+                                ParameterIndex = nextParameterIndex,
+                                ParameterStep = nextParameterStep,
+                                Parameter = nextValue.Item1,
+                                Variable = nextValue.Item2,
+                                AdditionalValue = nextValue.Item3
+                            };
+                        }
+                        else
+						{
+                            break;
+						}
                     }
                 }
             }
