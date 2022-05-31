@@ -201,7 +201,7 @@ namespace dExplorer.Editor.Mathematics
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void OnSamplingFrequencyChanged(int samplingFrequency)
         {
-            _samplingFrequencyField.value = math.max(samplingFrequency, 0);
+            _samplingFrequencyField.value = math.max(samplingFrequency, 1);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
